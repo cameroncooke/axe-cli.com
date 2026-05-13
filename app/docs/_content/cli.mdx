@@ -1,0 +1,67 @@
+<PageHeader
+  breadcrumbs={["Docs", "Usage", "CLI"]}
+  title="CLI"
+  lede="The shape of AXe invocations, which commands require a simulator UDID, and how AXe handles stdout, stderr, and cancellation."
+/>
+
+## Synopsis
+
+```shell
+axe <command> [options]
+```
+
+Every command exposes Swift Argument Parser help:
+
+```shell
+axe --help
+axe tap --help
+axe batch --help
+```
+
+## Command groups
+
+| Group | Commands |
+|-------|----------|
+| Discovery | `list-simulators`, `describe-ui` |
+| Interaction | `tap`, `slider`, `swipe`, `drag`, `touch`, `gesture`, `button` |
+| Keyboard | `type`, `key`, `key-sequence`, `key-combo` |
+| Media | `screenshot`, `record-video`, `stream-video` |
+| Batch | `batch` |
+| Setup | `init` |
+
+## The `--udid` convention
+
+Every command that interacts with a simulator requires `--udid <UDID>`. `list-simulators` and `init` do not.
+
+`batch` rejects per-step `--udid`; pass it once at the batch level.
+
+## stdout vs stderr
+
+| Stream | What goes there |
+|--------|-----------------|
+| stdout | Primary results: `describe-ui` JSON, saved screenshot/video path, streamed video bytes, batch completion summary. |
+| stderr | Progress, diagnostics, and errors. |
+
+This means payloads can be piped safely:
+
+```shell
+SHOT=$(axe screenshot --udid <UDID>)
+axe stream-video --udid <UDID> --format ffmpeg | ffmpeg -f image2pipe -framerate 10 -i - out.mp4
+```
+
+## Cancellation
+
+`record-video` and `stream-video` run until interrupted. Press `Ctrl+C` or send SIGTERM; AXe stops capture, finalizes writers, and prints the final path when applicable.
+
+## Verification model
+
+Most HID commands are fire-and-forget: AXe can confirm the event was dispatched, not that the app processed it. `slider` is the exception: it drags, reads back AXValue, and fails if the observed value is outside tolerance.
+
+Use `describe-ui` or `screenshot` as separate verification steps for other commands.
+
+## Related
+
+- [Command Reference](/docs/command-reference)
+- [Accessibility Targeting](/docs/accessibility-targeting)
+- [Batch Automation](/docs/batch)
+- [Troubleshooting](/docs/troubleshooting)

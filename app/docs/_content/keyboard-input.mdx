@@ -1,0 +1,77 @@
+<PageHeader
+  breadcrumbs={["Docs", "Usage", "Keyboard & Text Input"]}
+  title="Keyboard & Text Input"
+  lede="Type text, press individual HID keycodes, run key sequences, and send atomic modifier combos."
+/>
+
+AXe drives keyboard input through raw HID keycodes. That is deterministic, but it means text entry is limited to the US keyboard layout.
+
+## Text input
+
+`type` accepts exactly one input source: positional text, `--stdin`, or `--file`.
+
+```shell
+axe type 'Hello, world!' --udid <UDID>
+echo 'Multi-line text' | axe type --stdin --udid <UDID>
+axe type --file message.txt --udid <UDID>
+```
+
+Supported text includes ASCII letters, digits, common US-keyboard symbols, spaces, and newlines. Accented and non-ASCII characters fail with `unsupportedCharacter`.
+
+## Single keys
+
+```shell
+axe key 40 --udid <UDID>
+axe key 42 --duration 1.0 --udid <UDID>
+```
+
+`keycode` must be 0–255. `--duration` must be greater than 0 and at most 10 seconds.
+
+## Key sequences
+
+```shell
+axe key-sequence --keycodes 11,8,15,15,18 --udid <UDID>
+axe key-sequence --keycodes 40,40,40 --delay 0.5 --udid <UDID>
+```
+
+`--keycodes` is a comma-separated list of up to 100 codes. `--delay` defaults to 0.1 seconds and must be 0–5 seconds.
+
+## Key combos
+
+`key-combo` holds modifiers in order, presses one target key, then releases modifiers in reverse order.
+
+```shell
+axe key-combo --modifiers 227 --key 4 --udid <UDID>       # Cmd+A
+axe key-combo --modifiers 227 --key 6 --udid <UDID>       # Cmd+C
+axe key-combo --modifiers 227 --key 25 --udid <UDID>      # Cmd+V
+axe key-combo --modifiers 227,225 --key 4 --udid <UDID>   # Cmd+Shift+A
+```
+
+A combo can hold 1–8 modifiers.
+
+## Common keycodes
+
+| Key | Code |
+| --- | --- |
+| a | `4` |
+| c | `6` |
+| v | `25` |
+| Return / Enter | `40` |
+| Escape | `41` |
+| Backspace | `42` |
+| Tab | `43` |
+| Space | `44` |
+| Left Control | `224` |
+| Left Shift | `225` |
+| Left Option | `226` |
+| Left Command | `227` |
+| Right Control | `228` |
+| Right Shift | `229` |
+| Right Option | `230` |
+| Right Command | `231` |
+
+## Related
+
+- [Command Reference](/docs/command-reference)
+- [Batch Automation](/docs/batch)
+- [Troubleshooting](/docs/troubleshooting)

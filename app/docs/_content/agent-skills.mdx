@@ -1,0 +1,69 @@
+<PageHeader
+  breadcrumbs={["Docs", "Usage", "Agent Skills"]}
+  title="Agent Skills"
+  lede="Install AXe's bundled skill so AI agents use the right commands, flags, and verification habits."
+/>
+
+AXe ships a bundled `SKILL.md` plus CLI and batch references. `axe init` writes that skill to Claude Code, Agents, a custom skill directory, or stdout.
+
+## Install
+
+```shell
+axe init
+axe init --client claude
+axe init --client agents
+axe init --dest ~/my-skills
+axe init --print
+```
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--client auto|claude|agents` | `auto` | Target AI client. `auto` detects `~/.claude` and `~/.agents`. |
+| `--dest <path>` | unset | Custom skills directory. Overrides `--client`. |
+| `--force` | unset | Overwrite an existing skill. |
+| `--uninstall` | unset | Remove the installed skill. |
+| `--print` | unset | Print the bundled skill to stdout. Mutually exclusive with install/uninstall flags. |
+
+## Install paths
+
+| Client | Path |
+|--------|------|
+| Claude Code | `~/.claude/skills/axe/SKILL.md` |
+| Agents | `~/.agents/skills/axe/SKILL.md` |
+| Custom `--dest` | `<dest>/axe/SKILL.md` |
+
+In non-interactive shells, pass `--client`, `--dest`, or `--print`; AXe will not silently guess.
+
+## Uninstall
+
+```shell
+axe init --uninstall --client claude
+axe init --uninstall --client agents
+```
+
+## What the skill teaches
+
+<div className="feature-grid compact">
+  <div className="feature-card">
+    <div className="feature-kicker">Discover</div>
+    <p>Find the simulator UDID and inspect UI before interacting.</p>
+  </div>
+  <div className="feature-card">
+    <div className="feature-kicker">Target</div>
+    <p>Prefer selectors over coordinates, then choose the right command for each interaction.</p>
+  </div>
+  <div className="feature-card">
+    <div className="feature-kicker">Verify</div>
+    <p>Treat most HID commands as fire-and-forget, with `slider` as the verifying exception.</p>
+  </div>
+  <div className="feature-card">
+    <div className="feature-kicker">Finish</div>
+    <p>Verify outcomes with `describe-ui` or `screenshot`, and avoid unsupported batch steps.</p>
+  </div>
+</div>
+
+## Related
+
+- [CLI](/docs/cli)
+- [Command Reference](/docs/command-reference)
+- [Batch Automation](/docs/batch)

@@ -1,0 +1,94 @@
+<PageHeader
+  breadcrumbs={["Docs", "Getting Started", "Quick Start"]}
+  title="Quick Start"
+  lede="Find a simulator, inspect the current UI, drive one interaction, type text, and capture evidence."
+/>
+
+## 1. Find a simulator
+
+```shell
+axe list-simulators
+```
+
+Example output:
+
+```text
+iPhone 16 Pro   Booted   8F2A4C9E-3C2B-4A1D-9B31-123456789ABC
+iPad Air        Shutdown 4E7D0A11-9F7E-4B49-8C7C-123456789ABC
+```
+
+Copy the UDID for a booted simulator, then keep it in your shell:
+
+```shell
+export UDID=<UDID>
+```
+
+## 2. Inspect the current screen
+
+```shell
+axe describe-ui --udid $UDID
+axe describe-ui --point 200,400 --udid $UDID
+```
+
+Simplified output:
+
+```json
+{
+  "AXRole": "Button",
+  "AXLabel": "Continue",
+  "AXUniqueId": "ContinueButton",
+  "frame": { "x": 96, "y": 642, "width": 201, "height": 50 }
+}
+```
+
+Use `AXUniqueId` or `AXLabel` values from the JSON when possible.
+
+## 3. Tap by selector
+
+```shell
+axe tap --id SearchField --udid $UDID
+axe tap --label "Continue" --wait-timeout 5 --udid $UDID
+```
+
+`--wait-timeout` is the normal way to handle UI that appears after navigation or animation.
+
+## 4. Type text
+
+```shell
+axe type 'hello world' --udid $UDID
+echo 'Hello, "world"!' | axe type --stdin --udid $UDID
+axe type --file ./message.txt --udid $UDID
+```
+
+<Callout variant="warn" title="US keyboard only">
+AXe types via HID keycodes for the US keyboard layout. Accented and non-ASCII characters fail with a clear error.
+</Callout>
+
+## 5. Capture the result
+
+```shell
+axe screenshot --output ./verify.png --udid $UDID
+```
+
+Example result:
+
+```text
+Screenshot saved to ./verify.png
+```
+
+For multi-step interaction flows, move the supported interaction commands into `axe batch`, then run `screenshot` after the batch if you need visual evidence.
+
+```shell
+axe batch --udid $UDID \
+  --step "tap --id EmailField" \
+  --step "type 'cam@example.com'" \
+  --step "key 40"
+
+axe screenshot --output ./after-login.png --udid $UDID
+```
+
+## Related
+
+- [Command Reference](/docs/command-reference)
+- [Accessibility Targeting](/docs/accessibility-targeting)
+- [Batch Automation](/docs/batch)

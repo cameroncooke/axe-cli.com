@@ -1,0 +1,67 @@
+<PageHeader
+  breadcrumbs={["Docs", "Usage", "Screenshots & Video"]}
+  title="Screenshots & Video"
+  lede="Capture PNGs, record MP4s, and stream live simulator frames to ffmpeg, MJPEG viewers, or custom consumers."
+/>
+
+Media commands keep payloads on stdout and progress on stderr. `record-video` and `stream-video` stop cleanly on Ctrl+C or SIGTERM.
+
+## Screenshots
+
+```shell
+axe screenshot --udid <UDID>
+axe screenshot --output screen.png --udid <UDID>
+axe screenshot --output ./screens/ --udid <UDID>
+```
+
+| Behavior | Detail |
+|----------|--------|
+| Omitted output | AXe writes an auto-named PNG in the current directory. |
+| Directory output | AXe creates the directory if needed and writes an auto-named PNG inside. |
+| Existing file | AXe replaces it. |
+| Result stream | Saved path goes to stdout; progress goes to stderr. |
+
+The simulator must be booted.
+
+## Video recording
+
+```shell
+axe record-video --udid <UDID> --fps 15 --output session.mp4
+axe record-video --udid <UDID> --fps 10 --quality 60 --scale 0.5 --output low-bw.mp4
+```
+
+| Flag | Range | Default |
+|------|-------|---------|
+| `--fps` | 1–30 | `10` |
+| `--quality` | 1–100 | `80` |
+| `--scale` | 0.1–1.0 | `1.0` |
+| `--output` | path or directory | auto-named MP4 in CWD |
+
+Press Ctrl+C to stop. AXe finalizes the MP4 and prints its path to stdout.
+
+## Video streaming
+
+```shell
+axe stream-video --udid <UDID> --format mjpeg --fps 10 > stream.mjpeg
+axe stream-video --udid <UDID> --format ffmpeg --fps 30 | \
+  ffmpeg -f image2pipe -framerate 30 -i - -c:v libx264 -preset ultrafast out.mp4
+axe stream-video --udid <UDID> --format bgra | \
+  ffmpeg -f rawvideo -pixel_format bgra -video_size 393x852 -i - out.mp4
+```
+
+| Format | Output |
+|--------|--------|
+| `mjpeg` | Multipart MJPEG stream. |
+| `raw` | 4-byte big-endian frame length followed by JPEG bytes. |
+| `ffmpeg` | Concatenated JPEG bytes for `ffmpeg -f image2pipe`. |
+| `bgra` | Raw BGRA pixel bytes; stderr prints the matching ffmpeg command with frame size. |
+
+<Callout variant="warn" title="Stdout is binary">
+Always redirect or pipe `stream-video`. Printing binary frame data to your terminal will mangle it.
+</Callout>
+
+## Related
+
+- [Command Reference](/docs/command-reference)
+- [CLI](/docs/cli)
+- [Troubleshooting](/docs/troubleshooting)
