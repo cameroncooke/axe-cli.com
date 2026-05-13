@@ -108,7 +108,7 @@ export const PAGE_META: Record<DocSlug, DocRoute> = {
   "agent-skills": {
     slug: "agent-skills",
     title: "Agent Skills",
-    group: "Guides",
+    group: "Usage",
     description: "Install AXe skill files so AI coding agents know how to drive simulators.",
   },
   troubleshooting: {
