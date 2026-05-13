@@ -60,16 +60,18 @@ function buildTurndown(): TurndownService {
 }
 
 function extractProseHtml(html: string): string | null {
-  const start = html.indexOf('<div class="prose">')
-  if (start < 0) return null
+  const prosePattern = /<div\b[^>]*\bclass=["'][^"']*\bprose\b[^"']*["'][^>]*>/i
+  const match = html.match(prosePattern)
+  if (!match) return null
+  const start = match.index!
   const after = html.slice(start)
   let depth = 0
   const re = /<(\/?)div\b[^>]*>/gi
-  let match: RegExpExecArray | null
-  while ((match = re.exec(after)) !== null) {
-    if (match[1]) {
+  let divMatch: RegExpExecArray | null
+  while ((divMatch = re.exec(after)) !== null) {
+    if (divMatch[1]) {
       depth--
-      if (depth === 0) return after.slice(0, match.index + match[0].length)
+      if (depth === 0) return after.slice(0, divMatch.index + divMatch[0].length)
     } else {
       depth++
     }
@@ -85,7 +87,6 @@ export async function GET(req: Request, { params }: Params) {
 
   try {
     const res = await fetch(pageUrl, {
-      headers: { "x-docs-raw": "1" },
       next: { revalidate: 3600, tags: ["axe-docs-raw"] },
     })
     if (!res.ok) throw new Error(`GET ${pageUrl} -> ${res.status}`)
