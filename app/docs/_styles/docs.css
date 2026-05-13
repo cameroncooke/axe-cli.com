@@ -180,15 +180,13 @@ html[data-docs-theme="light"] .docs-root .topbar { background: rgba(255, 255, 25
 .docs-root .tb-burger, .docs-root .sidebar-backdrop { display: none; }
 
 @media (min-width: 1400px) { .docs-root .page-toc { display: block; } }
-@media (max-width: 1040px) { .docs-root .topbar nav, .docs-root .topbar .search { display: none; } .docs-root .brand { width: auto; } }
+@media (max-width: 1040px) { .docs-root .topbar nav, .docs-root .topbar .search { display: none; } .docs-root .brand { width: auto; } .docs-root .topbar .tb-burger { display: inline-flex; } .docs-root .sb-search { display: block; } }
 @media (max-width: 760px) {
   .docs-root .topbar { padding: 0 12px; gap: 8px; }
-  .docs-root .topbar .tb-burger { display: inline-flex; }
   .docs-root .brand-chip, .docs-root .pa-btn-primary span, .docs-root .topbar > .ic-btn[aria-label="Toggle sidebar"], .docs-root .cta-install svg { display: none; }
   .docs-root .sidebar, .docs-root.no-sidebar .sidebar { display: block; position: fixed; top: 52px; left: 0; bottom: 0; width: min(320px, 85vw); height: auto; z-index: 50; transform: translateX(-100%); transition: transform .18s ease; }
   .docs-root.mobile-nav-open .sidebar { transform: translateX(0); }
   .docs-root.mobile-nav-open .sidebar-backdrop { display: block; position: fixed; inset: 52px 0 0; z-index: 40; background: rgba(0,0,0,.6); }
-  .docs-root .sb-search { display: block; }
   .docs-root .page { padding: 28px 18px 96px; }
   .docs-root h1.page-title { font-size: 30px; }
   .docs-root .feature-grid, .docs-root .option-grid { grid-template-columns: 1fr; }
