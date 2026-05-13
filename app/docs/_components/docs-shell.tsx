@@ -61,17 +61,17 @@ export function DocsShell({ activeSlug, children }: { activeSlug: DocSlug; child
     let cancelled = false
 
     async function loadSearchEntries() {
-      const entries = await Promise.all(
-        PAGES_ORDER.map(async (slug) => {
-          try {
-            const response = await fetch(`/docs/raw/${slug}`)
-            const content = response.ok ? await response.text() : ""
-            return createSearchEntry(slug, content)
-          } catch {
-            return createSearchEntry(slug, "")
-          }
-        })
-      )
+      const entries: SearchEntry[] = []
+      for (const slug of PAGES_ORDER) {
+        if (cancelled) break
+        try {
+          const response = await fetch(`/docs/raw/${slug}`)
+          const content = response.ok ? await response.text() : ""
+          entries.push(createSearchEntry(slug, content))
+        } catch {
+          entries.push(createSearchEntry(slug, ""))
+        }
+      }
       if (!cancelled) setSearchEntries(entries)
     }
 
