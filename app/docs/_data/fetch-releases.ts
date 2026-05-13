@@ -36,7 +36,8 @@ function ghHeaders(): HeadersInit {
 
 export async function fetchLiveReleases(limit = 10): Promise<GhRelease[]> {
   try {
-    const res = await fetch(`${GH_API}/repos/${REPO}/releases?per_page=${Math.min(limit, 30)}`, {
+    const fetchSize = Math.min(limit * 3, 100)
+    const res = await fetch(`${GH_API}/repos/${REPO}/releases?per_page=${fetchSize}`, {
       headers: ghHeaders(),
       next: { revalidate: RELEASES_REVALIDATE_SECONDS, tags: ["axe-releases"] },
     })
@@ -44,6 +45,7 @@ export async function fetchLiveReleases(limit = 10): Promise<GhRelease[]> {
     const raw = (await res.json()) as RawRelease[]
     return raw
       .filter((release) => !release.draft && !release.prerelease)
+      .slice(0, limit)
       .map((release) => ({
         tagName: release.tag_name,
         name: release.name,
