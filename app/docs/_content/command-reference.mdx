@@ -1,0 +1,124 @@
+<PageHeader
+  breadcrumbs={["Docs", "Usage", "Command Reference"]}
+  title="Command Reference"
+  lede="Every AXe command with source-derived flags, defaults, UDID requirements, and batch support."
+/>
+
+<CommandExplorer />
+
+## Discovery
+
+### `list-simulators`
+
+Prints every simulator AXe can see. No `--udid` required.
+
+```shell
+axe list-simulators
+```
+
+### `describe-ui`
+
+Dumps the accessibility tree as JSON. Use `--point x,y` to inspect only the element under one coordinate.
+
+```shell
+axe describe-ui --udid <UDID>
+axe describe-ui --point 100,200 --udid <UDID>
+```
+
+## Interaction
+
+### `tap`
+
+Tap a coordinate or the activation point of exactly one selector match.
+
+```shell
+axe tap -x 120 -y 240 --udid <UDID>
+axe tap --id SearchField --udid <UDID>
+axe tap --label "Continue" --element-type Button --wait-timeout 5 --udid <UDID>
+axe tap --value "12.5" --udid <UDID>
+```
+
+`tap` accepts either both `-x` and `-y`, or exactly one of `--id`, `--label`, or `--value`.
+
+Tap style controls how AXe sends the tap:
+
+| Value | Behavior |
+|-------|----------|
+| `automatic` | Default. Uses physical touch for switch-like controls, and simulator `tapAt` for other targets. |
+| `simulator` | Always sends a simulator tap event at the resolved point. |
+| `physical` | Always sends touch down/up events at the resolved point. |
+
+### `slider`
+
+Sets a slider to a 0–100 percentage and verifies AXValue after one calibrated drag.
+
+```shell
+axe slider --id volume-slider --value 75 --udid <UDID>
+axe slider --label Volume --value 40 --element-type Slider --udid <UDID>
+```
+
+`slider` accepts exactly one of `--id` or `--label`. It is not a batch step.
+
+### `swipe`, `drag`, `touch`, `gesture`, and `button`
+
+```shell
+axe swipe --start-x 100 --start-y 300 --end-x 300 --end-y 100 --udid <UDID>
+axe drag --start-x 100 --start-y 400 --end-x 300 --end-y 400 --steps 40 --udid <UDID>
+axe touch -x 150 -y 250 --down --up --delay 1.0 --udid <UDID>
+axe gesture scroll-down --udid <UDID>
+axe button home --udid <UDID>
+```
+
+`swipe`, `touch`, `gesture`, and `button` are batch steps. `drag` is standalone.
+
+## Keyboard
+
+```shell
+axe type 'Hello, world!' --udid <UDID>
+echo "Multi-line input" | axe type --stdin --udid <UDID>
+axe key 40 --udid <UDID>
+axe key-sequence --keycodes 11,8,15,15,18 --delay 0.1 --udid <UDID>
+axe key-combo --modifiers 227 --key 4 --udid <UDID>
+```
+
+`type` takes exactly one input source: positional text, `--stdin`, or `--file`. `key-sequence` uses comma-separated `--keycodes`; `key-combo` uses comma-separated `--modifiers` plus one `--key`.
+
+## Media
+
+```shell
+axe screenshot --output screen.png --udid <UDID>
+axe record-video --output run.mp4 --fps 15 --quality 80 --scale 1.0 --udid <UDID>
+axe stream-video --format mjpeg --fps 10 --udid <UDID> > stream.mjpeg
+```
+
+`screenshot`, `record-video`, and `stream-video` are standalone commands, not batch steps. Video commands stop cleanly on Ctrl+C/SIGTERM.
+
+## Batch
+
+```shell
+axe batch --udid <UDID> \
+  --step "tap --id Email" \
+  --step "type 'cam@example.com'" \
+  --step "key 40"
+```
+
+Supported steps are `tap`, `swipe`, `gesture`, `touch`, `type`, `button`, `key`, `key-sequence`, `key-combo`, and pseudo-step `sleep <seconds>`. `slider`, `drag`, `screenshot`, `describe-ui`, video commands, `list-simulators`, and `init` are not accepted.
+
+## Setup
+
+```shell
+axe init
+axe init --client claude
+axe init --dest ~/.claude/skills
+axe init --print
+axe init --uninstall --client agents
+```
+
+Non-interactive `axe init` runs must pass `--client`, `--dest`, or `--print`.
+
+## Related
+
+- [CLI](/docs/cli)
+- [Batch Automation](/docs/batch)
+- [Keyboard & Text Input](/docs/keyboard-input)
+- [Screenshots & Video](/docs/screenshots-video)

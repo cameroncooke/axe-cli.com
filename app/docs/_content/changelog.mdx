@@ -1,0 +1,23 @@
+<PageHeader
+  breadcrumbs={["Docs", "Guides", "Changelog"]}
+  title="Changelog"
+  lede="Recent AXe releases, loaded from GitHub when available, plus source-checked highlights."
+/>
+
+<LiveChangelog limit={10} />
+
+If the live feed is unavailable, the canonical release list is at [github.com/cameroncooke/AXe/releases](https://github.com/cameroncooke/AXe/releases).
+
+## Recent highlights
+
+- **v1.7.0** — Added selector-targeted `slider --id/--label --value 0...100` with AXValue tolerance verification, added `drag`, improved orientation-aware coordinates for `tap`, `swipe`, `drag`, and `touch`, and added switch/toggle activation through `--tap-style automatic|simulator|physical`.
+- **v1.6.0** — Added `--value` targeting for `tap`, `--element-type` narrowing, selector waiting through `--wait-timeout` and `--poll-interval`, and `describe-ui --point` behavior.
+- **v1.5.0** — Added `axe batch` for ordered multi-step interaction workflows and `axe init` for bundled agent skill installation.
+- **v1.3.0** — Added `key-combo` for atomic modifier+key presses.
+- **v1.2.0** — Added screenshot capture and tap by label/id.
+
+## Related
+
+- [Command Reference](/docs/command-reference)
+- [Batch Automation](/docs/batch)
+- [Agent Skills](/docs/agent-skills)

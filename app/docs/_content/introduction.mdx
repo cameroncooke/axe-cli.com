@@ -1,0 +1,64 @@
+<PageHeader
+  breadcrumbs={["Docs"]}
+  title="AXe documentation"
+  lede="AXe is a CLI for inspecting and automating iOS Simulator apps with Accessibility APIs and HID input. Use it from your terminal, scripts, CI jobs, or AI agents."
+  meta={["iOS Simulator only", "macOS 14+", "CLI automation"]}
+/>
+
+## What AXe is
+
+AXe helps you automate booted iOS Simulators from the terminal. Use it when you need repeatable simulator interactions: inspect the UI, target controls, perform gestures, enter text, and capture evidence.
+
+## What you can automate
+
+<div className="feature-grid">
+  <div className="feature-card">
+    <div className="feature-kicker">Inspect</div>
+    <h3>Read the current UI</h3>
+    <p>Use `describe-ui` to inspect the screen, query a point, and find stable accessibility selectors.</p>
+  </div>
+  <div className="feature-card">
+    <div className="feature-kicker">Interact</div>
+    <h3>Tap, swipe, drag, and type</h3>
+    <p>Drive coordinates, accessibility identifiers, labels, values, gestures, HID keys, and text input.</p>
+  </div>
+  <div className="feature-card">
+    <div className="feature-kicker">Verify</div>
+    <h3>Capture evidence</h3>
+    <p>Take screenshots, record MP4 video, stream frames, and verify UI state after each important step.</p>
+  </div>
+  <div className="feature-card">
+    <div className="feature-kicker">Automate</div>
+    <h3>Run repeatable flows</h3>
+    <p>Use `axe batch` for supported interaction steps, and `axe init` to install the bundled agent skill.</p>
+  </div>
+</div>
+
+## Recommended workflow
+
+Start with accessibility selectors. Coordinates are useful for debugging, but selectors survive layout and device changes better.
+
+```shell
+axe list-simulators
+axe describe-ui --udid <UDID>
+axe tap --label "Sign In" --wait-timeout 5 --udid <UDID>
+```
+
+<Callout variant="info" title="Coordinates are orientation-aware">
+AXe translates logical coordinates for rotated landscape and letterboxed landscape-only apps automatically. Use coordinates from `describe-ui`; do not rotate them yourself.
+</Callout>
+
+<Callout variant="warn" title="Batch support is intentionally narrow">
+`axe batch` runs interaction primitives only. It does not run `slider`, `drag`, `screenshot`, `describe-ui`, video commands, `list-simulators`, or `init` as batch steps.
+</Callout>
+
+## Command reference
+
+Use [Command Reference](/docs/command-reference) as the canonical list of AXe commands, flags, examples, and command-specific notes.
+
+## Related
+
+- [Installation](/docs/installation)
+- [Quick Start](/docs/quick-start)
+- [Command Reference](/docs/command-reference)
+- [Agent Skills](/docs/agent-skills)

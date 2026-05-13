@@ -1,0 +1,73 @@
+<PageHeader
+  breadcrumbs={["Docs", "Contributing", "Testing"]}
+  title="Testing"
+  lede="Run fast Swift tests by default, and opt in to simulator-backed E2E tests when needed."
+/>
+
+AXe keeps tests simple: one file per command where possible, and simulator-backed E2E tests are gated so the default test run stays fast.
+
+## Default tests
+
+```shell
+swift test
+```
+
+This runs tests that do not require a booted simulator.
+
+## End-to-end tests
+
+E2E tests require a booted simulator and explicit environment variables:
+
+```shell
+AXE_E2E=1 SIMULATOR_UDID=<UDID> swift test
+```
+
+The Makefile wraps the standard E2E path:
+
+```shell
+make e2e
+```
+
+## Run one area
+
+Use filters while iterating:
+
+```shell
+swift test --filter TapTests
+swift test --filter SliderTests
+swift test --filter SwipeTests
+swift test --filter DragTests
+swift test --filter TypeTests
+swift test --filter KeyTests
+swift test --filter TouchTests
+swift test --filter ButtonTests
+swift test --filter GestureTests
+swift test --filter BatchTests
+swift test --filter ListSimulatorsTests
+swift test --filter DescribeUITests
+```
+
+## Test philosophy
+
+- One responsibility per test file.
+- Self-contained helpers and fixtures.
+- No shared mutable test state.
+- No fake simulator state for integration or snapshot behavior.
+- E2E tests should invoke the real binary against a real simulator.
+
+## Adding tests
+
+When adding a command, add `Tests/<Command>Tests.swift` and cover:
+
+- Validation rules from `validate()`.
+- The happy path, E2E if HID is required.
+- At least one error path.
+- Batch behavior when the command has a batch adapter.
+
+Update `Tests/README.md` if the test structure changes.
+
+## Related
+
+- [Contributing](/docs/contributing)
+- [Command Reference](/docs/command-reference)
+- [Batch Automation](/docs/batch)

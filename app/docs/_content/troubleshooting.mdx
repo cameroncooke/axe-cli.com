@@ -1,0 +1,88 @@
+<PageHeader
+  breadcrumbs={["Docs", "Guides", "Troubleshooting"]}
+  title="Troubleshooting"
+  lede="Common AXe errors and the fixes that map to current command behavior."
+/>
+
+## Quick triage
+
+- Confirm the simulator is booted with `axe list-simulators`.
+- Confirm the command includes `--udid <UDID>` when it interacts with a simulator.
+- For selector failures, run `axe describe-ui --udid <UDID>` and confirm the current tree contains the expected id, label, or value.
+- In batch, add `--verbose` when you need step-level stderr logs.
+
+## Missing or invalid UDID
+
+Every interaction, keyboard, media, and batch command needs `--udid`.
+
+```shell
+axe tap --label Continue --udid <UDID>
+```
+
+## Simulator is not booted
+
+Boot it from Simulator.app or with simctl:
+
+```shell
+xcrun simctl boot <UDID>
+```
+
+Media commands check boot state before capture.
+
+## Selector not found
+
+Use `describe-ui` on the current screen. If the element appears after navigation, add `--wait-timeout`.
+
+```shell
+axe tap --id WelcomeBanner --wait-timeout 5 --udid <UDID>
+```
+
+## Wrong element tapped
+
+Duplicate labels are common. Prefer `--id`, or add `--element-type` to narrow the match.
+
+If the target is a switch or toggle row, AXe may tap the contained control and use physical touch automatically. Force `--tap-style simulator` if you wanted the row's simulator tap path.
+
+## Unsupported text characters
+
+`axe type` supports US-keyboard characters. Accented and non-ASCII characters fail with `unsupportedCharacter`. For non-ASCII content, populate the field out-of-band and use AXe to trigger the action.
+
+## Slider did not reach the requested value
+
+`slider --value` is a percentage from 0 to 100. AXe verifies AXValue after dragging. iOS can quantize slider values, so a visually correct drag may still report a nearby value outside tolerance.
+
+## Unsupported batch step
+
+Allowed steps are `tap`, `swipe`, `gesture`, `touch`, `type`, `button`, `key`, `key-sequence`, `key-combo`, and `sleep`.
+
+Run `slider`, `drag`, `screenshot`, `describe-ui`, `record-video`, `stream-video`, `list-simulators`, and `init` outside batch.
+
+## Per-step `--udid` in batch
+
+Move `--udid` to the top-level batch invocation:
+
+```shell
+axe batch --udid <UDID> --step "tap --label Continue"
+```
+
+## Batch stale UI
+
+For flows that navigate between screens, use `--wait-timeout` or set `--ax-cache perStep`.
+
+```shell
+axe batch --udid <UDID> --wait-timeout 5 --step "tap --id Continue"
+```
+
+## Video output is garbled
+
+`stream-video` writes binary frame data to stdout. Redirect it or pipe it to a consumer for the chosen format.
+
+## 0-byte MP4
+
+Stop recordings with Ctrl+C or `kill -INT <pid>`. SIGKILL cannot run AXe's finalization handler.
+
+## Related
+
+- [CLI](/docs/cli)
+- [Command Reference](/docs/command-reference)
+- [Batch Automation](/docs/batch)

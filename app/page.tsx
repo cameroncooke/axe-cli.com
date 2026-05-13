@@ -56,7 +56,13 @@ export default function AXeLanding() {
   const [latestVersion, setLatestVersion] = useState("")
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [copiedText, setCopiedText] = useState<string | null>(null)
-  const [activeInstallTab, setActiveInstallTab] = useState<"homebrew" | "source">("homebrew")
+  const navItems = [
+    { label: "Features", href: "#features" },
+    { label: "Examples", href: "#examples" },
+    { label: "Batch Automation", href: "#batch-automation" },
+    { label: "Get Started", href: "#get-started" },
+    { label: "Docs", href: "/docs" },
+  ]
 
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
@@ -122,14 +128,14 @@ export default function AXeLanding() {
             </Link>
 
             <nav className="hidden md:flex items-center gap-8">
-              {["Features", "Examples", "Batch Automation", "Get Started"].map((item) => (
-                <a
-                  key={item}
-                  href={`#${item.toLowerCase().replace(/\s+/g, "-")}`}
+              {navItems.map((item) => (
+                <Link
+                  key={item.label}
+                  href={item.href}
                   className="text-sm text-axe-text-secondary hover:text-axe-cyan transition-colors"
                 >
-                  {item}
-                </a>
+                  {item.label}
+                </Link>
               ))}
             </nav>
 
@@ -159,15 +165,15 @@ export default function AXeLanding() {
           {isMobileMenuOpen && (
             <div className="md:hidden pb-6 border-t border-axe-dark-600/50 pt-4">
               <nav className="flex flex-col gap-4">
-                {["Features", "Examples", "Batch Automation", "Get Started"].map((item) => (
-                  <a
-                    key={item}
-                    href={`#${item.toLowerCase().replace(/\s+/g, "-")}`}
+                {navItems.map((item) => (
+                  <Link
+                    key={item.label}
+                    href={item.href}
                     onClick={() => setIsMobileMenuOpen(false)}
                     className="text-axe-text-secondary hover:text-white transition-colors"
                   >
-                    {item}
-                  </a>
+                    {item.label}
+                  </Link>
                 ))}
               </nav>
             </div>
@@ -218,8 +224,8 @@ export default function AXeLanding() {
           </h1>
 
           <p className="text-lg sm:text-xl text-axe-text-secondary max-w-2xl mx-auto mb-10 leading-relaxed">
-            A comprehensive CLI tool for automating iOS Simulators using Apple&apos;s Accessibility APIs and HID
-            functionality. Single binary, no servers, no external dependencies.
+            A CLI for inspecting and automating iOS Simulator apps with Accessibility APIs and HID input.
+            Drive taps, gestures, text entry, screenshots, and video capture from your terminal.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
@@ -230,6 +236,13 @@ export default function AXeLanding() {
               <Download className="w-4 h-4" />
               Get Started
             </a>
+            <Link
+              href="/docs"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-lg border border-axe-dark-600 hover:border-axe-cyan/30 text-axe-text-primary hover:bg-axe-dark-400/50 transition-all"
+            >
+              <BookOpen className="w-4 h-4" />
+              Read the Docs
+            </Link>
             <Link
               href="https://github.com/cameroncooke/AXe"
               className="inline-flex items-center gap-2 px-6 py-3 rounded-lg border border-axe-dark-600 hover:border-axe-cyan/30 text-axe-text-primary hover:bg-axe-dark-400/50 transition-all"
@@ -352,7 +365,7 @@ export default function AXeLanding() {
               </p>
               <ul className="space-y-3 mb-8">
                 {[
-                  "No server setup or background daemons required",
+                  "Selector-based taps with accessibility IDs, labels, and values",
                   "Built-in gesture presets for common interactions",
                   "Pre/post delay controls for precise timing",
                   "Pipe text input via stdin for flexible scripting",
@@ -433,8 +446,7 @@ type "s3cureP@ss"
 
 # Submit and capture result
 tap --label "Sign In"
-sleep 2
-screenshot --output result.png`}</pre>
+sleep 2`}</pre>
               </div>
 
               <div className="mt-4 terminal-glow rounded-xl border border-axe-dark-600/50 bg-axe-dark-200/80 p-4">
@@ -443,13 +455,12 @@ screenshot --output result.png`}</pre>
                   <span className="text-axe-text-primary">axe batch --file login-flow.steps --udid &lt;UDID&gt;</span>
                 </div>
                 <div className="mt-3 text-xs space-y-1">
-                  <div className="text-green-400">Step 1/8: tap --label &quot;Email&quot; ... OK</div>
-                  <div className="text-green-400">Step 2/8: type ... OK</div>
-                  <div className="text-green-400">Step 3/8: tap --label &quot;Password&quot; ... OK</div>
-                  <div className="text-green-400">Step 4/8: type ... OK</div>
-                  <div className="text-green-400">Step 5/8: tap --label &quot;Sign In&quot; ... OK</div>
-                  <div className="text-green-400">Step 6/8: sleep 2 ... OK</div>
-                  <div className="text-green-400">Step 7/8: screenshot ... OK</div>
+                  <div className="text-green-400">Step 1/6: tap --label &quot;Email&quot; ... OK</div>
+                  <div className="text-green-400">Step 2/6: type ... OK</div>
+                  <div className="text-green-400">Step 3/6: tap --label &quot;Password&quot; ... OK</div>
+                  <div className="text-green-400">Step 4/6: type ... OK</div>
+                  <div className="text-green-400">Step 5/6: tap --label &quot;Sign In&quot; ... OK</div>
+                  <div className="text-green-400">Step 6/6: sleep 2 ... OK</div>
                   <div className="text-axe-cyan mt-2 neon-glow">All steps completed successfully.</div>
                 </div>
               </div>
@@ -591,7 +602,7 @@ screenshot --output result.png`}</pre>
               Why <span className="text-axe-cyan">AXe</span>?
             </h2>
             <p className="text-axe-text-secondary text-lg max-w-2xl mx-auto">
-              A lightweight, focused alternative to idb for iOS Simulator UI automation.
+              Practical iOS Simulator automation for terminals, scripts, CI jobs, and AI agents.
             </p>
           </div>
 
@@ -599,15 +610,15 @@ screenshot --output result.png`}</pre>
             {[
               {
                 icon: Zap,
-                title: "Single Binary",
-                desc: "No test runner or harness to install in the simulator. Works out of the box with any booted simulator.",
+                title: "Terminal Native",
+                desc: "Run simulator interactions from shell commands that fit scripts, CI jobs, and agent workflows.",
                 color: "text-yellow-400",
                 bg: "bg-yellow-400/10",
               },
               {
                 icon: Terminal,
-                title: "No Setup Required",
-                desc: "No external frameworks to install, no servers to run. Works out of the box on macOS 14+.",
+                title: "Homebrew Install",
+                desc: "Install the CLI with Homebrew, boot a simulator, and start driving UI interactions.",
                 color: "text-axe-cyan",
                 bg: "bg-axe-cyan/10",
               },
@@ -662,114 +673,50 @@ screenshot --output result.png`}</pre>
           <div className="text-center mb-12">
             <h2 className="text-3xl sm:text-4xl font-bold mb-4">Get started in seconds</h2>
             <p className="text-axe-text-secondary text-lg">
-              Install AXe via Homebrew or build from source.
+              Install AXe via Homebrew and verify the CLI is available.
             </p>
           </div>
 
-          <div className="terminal-glow rounded-xl border border-axe-dark-600/50 bg-axe-dark-200/80 overflow-hidden">
-            <div className="flex border-b border-axe-dark-600/50">
-              {(["homebrew", "source"] as const).map((tab) => (
+          <div className="terminal-glow rounded-xl border border-axe-dark-600/50 bg-axe-dark-200/80 overflow-hidden p-6 space-y-6">
+            <div>
+              <p className="text-sm text-axe-text-secondary mb-3">Install via Homebrew:</p>
+              <div className="flex items-center gap-2 bg-axe-dark-100 rounded-lg p-3 font-mono text-sm border border-axe-dark-600/30">
+                <code className="text-green-400 flex-1">
+                  brew tap cameroncooke/axe && brew install axe
+                </code>
                 <button
-                  key={tab}
-                  onClick={() => setActiveInstallTab(tab)}
-                  className={`flex-1 px-6 py-3 text-sm font-medium transition-colors ${
-                    activeInstallTab === tab
-                      ? "text-white bg-axe-dark-400/50 border-b-2 border-axe-cyan"
-                      : "text-axe-text-secondary hover:text-white"
-                  }`}
+                  onClick={() => copyToClipboard("brew tap cameroncooke/axe && brew install axe", "brew")}
+                  className="p-1.5 rounded hover:bg-axe-dark-400 transition-colors shrink-0"
                 >
-                  {tab === "homebrew" ? "Homebrew (recommended)" : "Build from Source"}
+                  {copiedText === "brew" ? (
+                    <CheckCircle className="w-4 h-4 text-green-400" />
+                  ) : (
+                    <Copy className="w-4 h-4 text-axe-text-muted" />
+                  )}
                 </button>
-              ))}
+              </div>
             </div>
-
-            <div className="p-6 space-y-6">
-              {activeInstallTab === "homebrew" ? (
-                <>
-                  <div>
-                    <p className="text-sm text-axe-text-secondary mb-3">Install via Homebrew:</p>
-                    <div className="flex items-center gap-2 bg-axe-dark-100 rounded-lg p-3 font-mono text-sm border border-axe-dark-600/30">
-                      <code className="text-green-400 flex-1">
-                        brew tap cameroncooke/axe && brew install axe
-                      </code>
-                      <button
-                        onClick={() => copyToClipboard("brew tap cameroncooke/axe && brew install axe", "brew")}
-                        className="p-1.5 rounded hover:bg-axe-dark-400 transition-colors shrink-0"
-                      >
-                        {copiedText === "brew" ? (
-                          <CheckCircle className="w-4 h-4 text-green-400" />
-                        ) : (
-                          <Copy className="w-4 h-4 text-axe-text-muted" />
-                        )}
-                      </button>
-                    </div>
-                  </div>
-                  <div>
-                    <p className="text-sm text-axe-text-secondary mb-3">Verify installation:</p>
-                    <div className="flex items-center gap-2 bg-axe-dark-100 rounded-lg p-3 font-mono text-sm border border-axe-dark-600/30">
-                      <code className="text-green-400 flex-1">axe --help</code>
-                      <button
-                        onClick={() => copyToClipboard("axe --help", "verify")}
-                        className="p-1.5 rounded hover:bg-axe-dark-400 transition-colors shrink-0"
-                      >
-                        {copiedText === "verify" ? (
-                          <CheckCircle className="w-4 h-4 text-green-400" />
-                        ) : (
-                          <Copy className="w-4 h-4 text-axe-text-muted" />
-                        )}
-                      </button>
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div>
-                    <p className="text-sm text-axe-text-secondary mb-3">Clone and build:</p>
-                    <div className="relative bg-axe-dark-100 rounded-lg p-4 font-mono text-sm border border-axe-dark-600/30">
-                      <button
-                        onClick={() =>
-                          copyToClipboard(
-                            "git clone https://github.com/cameroncooke/AXe.git\ncd AXe\n./scripts/build.sh dev",
-                            "source",
-                          )
-                        }
-                        className="absolute top-3 right-3 p-1.5 rounded hover:bg-axe-dark-400 transition-colors"
-                      >
-                        {copiedText === "source" ? (
-                          <CheckCircle className="w-4 h-4 text-green-400" />
-                        ) : (
-                          <Copy className="w-4 h-4 text-axe-text-muted" />
-                        )}
-                      </button>
-                      <pre className="text-green-400 text-xs sm:text-sm">{`git clone https://github.com/cameroncooke/AXe.git
-cd AXe
-./scripts/build.sh dev`}</pre>
-                    </div>
-                  </div>
-                  <div>
-                    <p className="text-sm text-axe-text-secondary mb-3">Run directly:</p>
-                    <div className="flex items-center gap-2 bg-axe-dark-100 rounded-lg p-3 font-mono text-sm border border-axe-dark-600/30">
-                      <code className="text-green-400 flex-1">swift run axe --help</code>
-                      <button
-                        onClick={() => copyToClipboard("swift run axe --help", "run")}
-                        className="p-1.5 rounded hover:bg-axe-dark-400 transition-colors shrink-0"
-                      >
-                        {copiedText === "run" ? (
-                          <CheckCircle className="w-4 h-4 text-green-400" />
-                        ) : (
-                          <Copy className="w-4 h-4 text-axe-text-muted" />
-                        )}
-                      </button>
-                    </div>
-                  </div>
-                </>
-              )}
+            <div>
+              <p className="text-sm text-axe-text-secondary mb-3">Verify installation:</p>
+              <div className="flex items-center gap-2 bg-axe-dark-100 rounded-lg p-3 font-mono text-sm border border-axe-dark-600/30">
+                <code className="text-green-400 flex-1">axe --help</code>
+                <button
+                  onClick={() => copyToClipboard("axe --help", "verify")}
+                  className="p-1.5 rounded hover:bg-axe-dark-400 transition-colors shrink-0"
+                >
+                  {copiedText === "verify" ? (
+                    <CheckCircle className="w-4 h-4 text-green-400" />
+                  ) : (
+                    <Copy className="w-4 h-4 text-axe-text-muted" />
+                  )}
+                </button>
+              </div>
             </div>
           </div>
 
           <div className="mt-8 text-center">
             <Link
-              href="https://github.com/cameroncooke/AXe"
+              href="/docs"
               className="inline-flex items-center gap-2 text-sm text-axe-cyan hover:text-axe-cyan-light transition-colors"
             >
               View full documentation
@@ -810,7 +757,7 @@ cd AXe
                   View Issues
                 </Link>
                 <Link
-                  href="https://github.com/cameroncooke/AXe"
+                  href="/docs/contributing"
                   className="inline-flex items-center gap-2 px-6 py-3 rounded-lg border border-axe-dark-600 hover:border-axe-cyan/30 text-axe-text-primary hover:bg-axe-dark-400/50 transition-all"
                 >
                   <BookOpen className="w-4 h-4" />
@@ -845,6 +792,13 @@ cd AXe
             </div>
 
             <div className="flex items-center gap-6">
+              <Link
+                href="/docs"
+                className="text-sm text-axe-text-muted hover:text-axe-cyan transition-colors flex items-center gap-1.5"
+              >
+                <BookOpen className="w-3.5 h-3.5" />
+                Docs
+              </Link>
               <Link
                 href="https://github.com/cameroncooke/AXe"
                 className="text-sm text-axe-text-muted hover:text-axe-cyan transition-colors flex items-center gap-1.5"

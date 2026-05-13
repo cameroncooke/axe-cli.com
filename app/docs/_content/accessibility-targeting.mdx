@@ -1,0 +1,82 @@
+<PageHeader
+  breadcrumbs={["Docs", "Usage", "Accessibility Targeting"]}
+  title="Accessibility Targeting"
+  lede="Inspect the simulator accessibility tree, choose selectors that survive layout changes, and wait for elements before driving them."
+/>
+
+Coordinates work, but selectors are more resilient. Prefer `AXUniqueId`, then `AXLabel`, and use coordinates only when no accessibility target exists.
+
+## Inspect first
+
+```shell
+axe describe-ui --udid <UDID>
+axe describe-ui --point 120,240 --udid <UDID>
+```
+
+Useful fields include `AXUniqueId`, `AXLabel`, `AXValue`, `frame`, and element role/type.
+
+## Selectors
+
+| Selector | Command | When to use it |
+|----------|---------|----------------|
+| `--id` | `tap`, `slider` | Preferred. Usually maps to accessibility identifier. |
+| `--label` | `tap`, `slider` | Good when labels are stable and localized behavior is understood. |
+| `--value` | `tap` only | Useful when the only stable target is a current value. |
+| `--element-type` | `tap`, `slider` | Narrows duplicate labels or ids. |
+
+`tap` accepts exactly one of `--id`, `--label`, or `--value`. `slider` accepts exactly one of `--id` or `--label`.
+
+```shell
+axe tap --id SearchField --udid <UDID>
+axe tap --label "Continue" --element-type Button --udid <UDID>
+axe tap --value "Enabled" --udid <UDID>
+axe slider --id BrightnessSlider --value 45 --udid <UDID>
+```
+
+## Switches and toggles
+
+When a selector match contains one `UISwitch` or SwiftUI `Toggle`, AXe's default `automatic` tap style uses physical touch for that control. Other targets use simulator `tapAt` by default.
+
+```shell
+axe tap --label "Weather Alerts" --udid <UDID>
+axe tap --label "Weather Alerts" --tap-style simulator --udid <UDID>
+```
+
+| Tap style | Behavior |
+|-----------|----------|
+| `automatic` | Default. Uses physical touch for switch-like controls, and simulator `tapAt` for other targets. |
+| `simulator` | Always sends a simulator tap event at the resolved point. |
+| `physical` | Always sends touch down/up events at the resolved point. |
+
+## Waiting for dynamic UI
+
+```shell
+axe tap --label "Done" --wait-timeout 10 --poll-interval 0.25 --udid <UDID>
+```
+
+`--wait-timeout 0` disables waiting. Coordinate taps do not wait.
+
+In batch, put the wait on the top-level command and selector steps inherit it.
+
+```shell
+axe batch --udid <UDID> --wait-timeout 5 --step "tap --id Continue"
+```
+
+## Slider verification
+
+`slider` is the only AXe command that verifies its own effect. It drags once, re-reads AXValue, and fails if the observed value is outside tolerance.
+
+<Callout variant="info" title="Slider values can be quantized">
+iOS sliders may not be able to land on every decimal value. AXe reports the observed AXValue instead of retrying to chase unreachable percentages.
+</Callout>
+
+## Orientation awareness
+
+`tap`, `swipe`, `drag`, and `touch` accept the logical coordinates reported by `describe-ui`. AXe translates those coordinates for rotated and letterboxed landscape apps automatically.
+
+## Related
+
+- [Command Reference](/docs/command-reference)
+- [Batch Automation](/docs/batch)
+- [Keyboard & Text Input](/docs/keyboard-input)
+- [Troubleshooting](/docs/troubleshooting)

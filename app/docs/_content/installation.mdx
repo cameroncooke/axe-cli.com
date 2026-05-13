@@ -1,0 +1,51 @@
+<PageHeader
+  breadcrumbs={["Docs", "Getting Started", "Installation"]}
+  title="Installation"
+  lede="Install AXe with Homebrew, then verify the CLI can see your booted iOS Simulators."
+  meta={["Requires macOS 14+", "Homebrew install", "iOS Simulator"]}
+/>
+
+## Requirements
+
+| Requirement | Notes |
+|-------------|-------|
+| macOS | macOS 14 Sonoma or later. |
+| Homebrew | Recommended installation path for normal use. |
+| Simulator | A booted iOS Simulator is required for interaction, screenshot, and video commands. |
+
+## Install with Homebrew
+
+```shell
+brew tap cameroncooke/axe
+brew install axe
+```
+
+Or install in one command:
+
+```shell
+brew install cameroncooke/axe/axe
+```
+
+## Verify the CLI
+
+Confirm AXe is installed:
+
+```shell
+axe --help
+```
+
+Then confirm AXe can see your simulators:
+
+```shell
+axe list-simulators
+```
+
+If `list-simulators` prints your simulator devices, AXe is ready to use.
+
+<Callout variant="info" title="Need a simulator first?">
+Boot an iOS Simulator before running interaction commands. `list-simulators` is the fastest check that AXe can reach the simulator runtime.
+</Callout>
+
+## Next step
+
+Open [Quick Start](/docs/quick-start) and run AXe against a booted simulator.

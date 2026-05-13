@@ -1,0 +1,76 @@
+<PageHeader
+  breadcrumbs={["Docs", "Contributing", "Contributing"]}
+  title="Contributing"
+  lede="Set up AXe locally, understand the Swift package layout, and keep commands, docs, tests, and agent skill content in sync."
+/>
+
+## Prerequisites
+
+| Requirement | Notes |
+|-------------|-------|
+| macOS 14+ | AXe is macOS-only. |
+| Xcode | Required for CoreSimulator and FB simulator frameworks. |
+| Booted iOS Simulator | Required for end-to-end tests and manual command checks. |
+
+## Clone, prepare frameworks, build
+
+```shell
+git clone https://github.com/cameroncooke/AXe.git
+cd AXe
+./scripts/build.sh dev
+swift build
+swift run axe --help
+swift run axe list-simulators
+```
+
+Makefile shortcuts:
+
+```shell
+make build
+make test
+make e2e
+make clean
+```
+
+## Project layout
+
+| Path | Purpose |
+|------|---------|
+| `Sources/AXe/main.swift` | Entry point and subcommand registration. |
+| `Sources/AXe/Commands/*.swift` | One file per CLI command. Source of truth for flags and behavior. |
+| `Sources/AXe/Utilities/` | HID interaction, accessibility fetching, orientation-aware coordinate handling. |
+| `Sources/AXe/Utilities/Batch/` | Batch parsing, plan running, and command adapters. |
+| `Sources/AXe/Types/` | Shared types such as `TapStyle` and `KeyCode`. |
+| `Sources/AXe/Resources/skills/` | Bundled skill installed by `axe init`. |
+| `Sources/AXeCore/` | Shared core support. |
+| `Tests/` | Unit and opt-in simulator E2E coverage. |
+| `Skills/CLI/axe/` | Mirror of the bundled skill and references. |
+
+## Adding or changing a command
+
+1. Add or edit the command under `Sources/AXe/Commands`.
+2. Keep Swift Argument Parser help text accurate; it is part of the public contract.
+3. Validate inputs in `validate()` and fail fast with `ValidationError`.
+4. Register new commands in `Sources/AXe/main.swift`.
+5. Add batch conversion only when the command fits the sequential, non-verifying batch model.
+6. Add or update tests.
+7. Update docs and skill content in the same change.
+8. Add a `CHANGELOG.md` entry under `## [Unreleased]` when behavior changes.
+
+<Callout variant="warn" title="Batch is not a fallback path">
+Do not add unsupported commands to batch for convenience. `slider`, `drag`, media, discovery, and setup commands remain standalone unless the implementation explicitly changes.
+</Callout>
+
+## Pre-PR checks
+
+```shell
+swift build
+swift test
+make e2e
+```
+
+## Related
+
+- [Testing](/docs/testing)
+- [Installation](/docs/installation)
+- [Command Reference](/docs/command-reference)
