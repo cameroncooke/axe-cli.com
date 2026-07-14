@@ -13,6 +13,21 @@
 | Homebrew | Recommended installation path for normal use. |
 | Simulator | A booted iOS Simulator is required for interaction, screenshot, and video commands. |
 
+## Xcode and simulator compatibility
+
+The current simulator command contract has been validated against these toolchain and runtime combinations:
+
+| Xcode | Simulator runtime | Status |
+|-------|-------------------|--------|
+| Xcode 26.5 (17F42) | iOS 26.5 (23F77) | Supported. |
+| Xcode 27 Beta 3 (27A5218g) | iOS 27.0 (24A5380g) | Beta support, validated with Device Hub simulators. |
+
+AXe retains its IDB-based automation approach across both versions. Xcode 27 uses Device Hub for its simulators; you do not need to launch Simulator.app for AXe commands when the target Device Hub simulator is already booted.
+
+<Callout variant="warn" title="Xcode 27 is beta software">
+Support is qualified to the exact beta build and runtime above. Later Xcode 27 betas may change private simulator behavior and require revalidation.
+</Callout>
+
 ## Install with Homebrew
 
 ```shell

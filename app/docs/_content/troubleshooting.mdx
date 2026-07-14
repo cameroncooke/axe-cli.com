@@ -21,13 +21,19 @@ axe tap --label Continue --udid <UDID>
 
 ## Simulator is not booted
 
-Boot it from Simulator.app or with simctl:
+Boot it from Simulator.app, Device Hub in Xcode 27, or with simctl:
 
 ```shell
 xcrun simctl boot <UDID>
 ```
 
 Media commands check boot state before capture.
+
+## Accessibility channel disconnected
+
+On Xcode 27 beta, the simulator accessibility service can occasionally disconnect while the simulator itself remains booted. For the exact channel-disconnect and DTX `errno 24` conditions, AXe automatically performs one bounded recovery attempt: it restarts the simulator's accessibility service, reacquires the UI hierarchy, and retries the command once.
+
+If that retry also fails, AXe returns the error instead of entering a recovery loop. This recovery keeps the command contract resilient; it does not attempt to patch or hide bugs inside beta Xcode components.
 
 ## Selector not found
 
