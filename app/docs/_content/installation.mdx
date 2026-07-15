@@ -24,6 +24,8 @@ The current simulator command contract has been validated against these toolchai
 
 AXe retains its IDB-based automation approach across both versions. Xcode 27 uses Device Hub for its simulators; you do not need to launch Simulator.app for AXe commands when the target Device Hub simulator is already booted.
 
+Release builds use the immutable [`cameroncooke/idb`](https://github.com/cameroncooke/idb) fork revision `1395103ca786ee990c70514e1f8bb75fa98cdd82`, based on upstream IDB `e682506725e9efefb9c43b8b917c0b12eb2a5939`.
+
 <Callout variant="warn" title="Xcode 27 is beta software">
 Support is qualified to the exact beta build and runtime above. Later Xcode 27 betas may change private simulator behavior and require revalidation.
 </Callout>
