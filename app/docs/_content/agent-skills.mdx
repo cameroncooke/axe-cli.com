@@ -1,38 +1,52 @@
 <PageHeader
-  breadcrumbs={["Docs", "Usage", "Agent Skills"]}
-  title="Agent Skills"
-  lede="Install AXe's bundled skill so AI agents use the right commands, flags, and verification habits."
+  breadcrumbs={["Docs", "AI Agents", "AI Skill"]}
+  title="AI Skill"
+  lede="The AXe skill teaches Claude Code, Codex and other agents to drive apps with agent mode: capture, act on refs, batch same-screen actions and verify from the returned screen."
 />
 
-AXe ships a bundled `SKILL.md` plus CLI and batch references. `axe init` writes that skill to Claude Code, Agents, a custom skill directory, or stdout.
+The skill is a `SKILL.md` plus reference files for agent mode, batches, physical devices, the iPhone Duo simulator, recording, settings, sliders and the clipboard. Install it from your AXe binary with `axe init`, or from the AXe plugin marketplace to keep it updated.
 
-## Install
+## Install from the plugin marketplace
+
+The marketplace keeps the skill updated as releases ship. Keep the CLI on the latest release too, with `brew upgrade axe`.
 
 ```shell
-axe init
-axe init --client claude
-axe init --client agents
-axe init --dest ~/my-skills
-axe init --print
+claude plugin marketplace add cameroncooke/AXe && claude plugin install axe@axe
 ```
 
-| Flag | Default | Description |
-|------|---------|-------------|
-| `--client auto|claude|agents` | `auto` | Target AI client. `auto` detects `~/.claude` and `~/.agents`. |
-| `--dest <path>` | unset | Custom skills directory. Overrides `--client`. |
-| `--force` | unset | Overwrite an existing skill. |
-| `--uninstall` | unset | Remove the installed skill. |
-| `--print` | unset | Print the bundled skill to stdout. Mutually exclusive with install/uninstall flags. |
+```shell
+codex plugin marketplace add cameroncooke/AXe && codex plugin add axe@axe
+```
 
-## Install paths
+The marketplace reads the case-sensitive `Skills/CLI` path; clients that require a lowercase `skills/` directory are unsupported.
+
+## Install with `axe init`
+
+`axe init` installs the skill bundled with your AXe binary, so the skill always matches the CLI you have:
+
+```shell
+axe init                        # every client it finds
+axe init --client claude --force
+axe init --client agents
+axe init --dest ~/my-skills
+axe init --print                # print SKILL.md to stdout
+```
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `--client auto\|claude\|agents` | `auto` | `auto` installs for every client it finds. |
+| `--dest <path>` | | Install into this skills directory instead. |
+| `--force` | | Replace an installed skill. |
+| `--uninstall` | | Remove the installed skill. |
+| `--print` | | Print the bundled `SKILL.md` to stdout. |
 
 | Client | Path |
 |--------|------|
-| Claude Code | `~/.claude/skills/axe/SKILL.md` |
-| Agents | `~/.agents/skills/axe/SKILL.md` |
-| Custom `--dest` | `<dest>/axe/SKILL.md` |
+| Claude Code | `~/.claude/skills/axe/` |
+| Agents (Codex and others) | `~/.agents/skills/axe/` |
+| `--dest` | `<dest>/axe/` |
 
-In non-interactive shells, pass `--client`, `--dest`, or `--print`; AXe will not silently guess.
+Without a terminal, pass `--client`, `--dest` or `--print`; AXe does not guess.
 
 ## Uninstall
 
@@ -45,25 +59,33 @@ axe init --uninstall --client agents
 
 <div className="feature-grid compact">
   <div className="feature-card">
-    <div className="feature-kicker">Discover</div>
-    <p>Find the simulator UDID and inspect UI before interacting.</p>
+    <div className="feature-kicker">Look</div>
+    <p>Find the simulator, then capture with `describe-ui --agent` and pick the view for the next step.</p>
   </div>
   <div className="feature-card">
-    <div className="feature-kicker">Target</div>
-    <p>Prefer selectors over coordinates, then choose the right command for each interaction.</p>
+    <div className="feature-kicker">Act</div>
+    <p>Act on refs and plan from the screen each action returns, with no extra reads or fixed sleeps.</p>
+  </div>
+  <div className="feature-card">
+    <div className="feature-kicker">Batch</div>
+    <p>Send planned same-screen taps and types in one `batch --agent` call, and never resend a batch.</p>
+  </div>
+  <div className="feature-card">
+    <div className="feature-kicker">Recover</div>
+    <p>Read refusal codes, change something before acting again, and never replay uncertain input.</p>
   </div>
   <div className="feature-card">
     <div className="feature-kicker">Verify</div>
-    <p>Treat most HID commands as fire-and-forget, with `slider` as the verifying exception.</p>
+    <p>Check the effect in the returned capture or a screenshot, not from delivery alone.</p>
   </div>
   <div className="feature-card">
-    <div className="feature-kicker">Finish</div>
-    <p>Verify outcomes with `describe-ui` or `screenshot`, and avoid unsupported batch steps.</p>
+    <div className="feature-kicker">Beyond the simulator</div>
+    <p>Physical iPhones and iPads, iPhone Duo simulator hinge and rotation, settings, recording and the clipboard.</p>
   </div>
 </div>
 
 ## Related
 
-- [CLI](/docs/cli)
-- [Command Reference](/docs/command-reference)
-- [Batch Automation](/docs/batch)
+- [Agent Mode](/docs/agent-mode)
+- [Autonomous Agent](/docs/autonomous-agent)
+- [Installation](/docs/installation)

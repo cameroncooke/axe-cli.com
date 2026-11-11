@@ -1,124 +1,191 @@
 <PageHeader
   breadcrumbs={["Docs", "Usage", "Command Reference"]}
   title="Command Reference"
-  lede="Every AXe command with source-derived flags, defaults, UDID requirements, and batch support."
+  lede="Every AXe command with its options and defaults, whether it is a batch step, whether it takes --agent, and whether it runs on physical devices. Run axe <command> --help for the same detail in your terminal."
 />
 
 <CommandExplorer />
 
-## Discovery
+## Discovery and readiness
 
-### `list-simulators`
-
-Prints every simulator AXe can see. No `--udid` required.
+### `list-simulators` and `list-devices`
 
 ```shell
 axe list-simulators
+axe list-devices
 ```
+
+`list-simulators` prints every simulator with its UDID and state. `list-devices` lists the iPhones and iPads that Xcode knows, with any readiness problems.
+
+### `doctor`
+
+```shell
+axe doctor --udid "$UDID"
+```
+
+Checks that a simulator is booted, or that a device is paired, in Developer Mode, connected, unlocked, with its developer disk image and screenshot service. A failed check exits nonzero.
+
+### `displays`
+
+```shell
+axe displays --udid "$UDID"
+```
+
+Shows each screen's role, size in points, scale and orientation, which one is active, and the iPhone Duo's hinge angle. See [iPhone Duo](/docs/iphone-duo#screens).
+
+## Reading the UI
 
 ### `describe-ui`
 
-Dumps the accessibility tree as JSON. Use `--point x,y` to inspect only the element under one coordinate.
-
 ```shell
-axe describe-ui --udid <UDID>
-axe describe-ui --point 100,200 --udid <UDID>
+axe describe-ui --udid "$UDID"
+axe describe-ui --point 100,200 --udid "$UDID"
+axe describe-ui --agent --view navigation --udid "$UDID"
 ```
 
-## Interaction
+Prints the accessibility tree as JSON, or the element at one point. With `--agent`, a compact capture with refs; see [Agent Mode](/docs/agent-mode).
+
+## Touch input
 
 ### `tap`
 
-Tap a coordinate or the activation point of exactly one selector match.
-
 ```shell
-axe tap -x 120 -y 240 --udid <UDID>
-axe tap --id SearchField --udid <UDID>
-axe tap --label "Continue" --element-type Button --wait-timeout 5 --udid <UDID>
-axe tap --value "12.5" --udid <UDID>
+axe tap -x 120 -y 240 --udid "$UDID"
+axe tap --id SearchField --udid "$UDID"
+axe tap --label "Continue" --element-type Button --wait-timeout 5 --udid "$UDID"
+axe tap --label "Photo" --hold 1 --udid "$UDID"
+axe tap --id Map --count 2 --udid "$UDID"
+axe tap --id Canvas --touches 2 --udid "$UDID"
 ```
 
-`tap` accepts either both `-x` and `-y`, or exactly one of `--id`, `--label`, or `--value`.
-
-Tap style controls how AXe sends the tap:
-
-| Value | Behavior |
-|-------|----------|
-| `automatic` | Default. Uses physical touch for switch-like controls, and simulator `tapAt` for other targets. |
-| `simulator` | Always sends a simulator tap event at the resolved point. |
-| `physical` | Always sends touch down/up events at the resolved point. |
+Pass `-x` and `-y`, or exactly one of `--id`, `--label` or `--value`. See [Reading & Tapping](/docs/accessibility-targeting).
 
 ### `slider`
 
-Sets a slider to a 0–100 percentage and verifies AXValue after one calibrated drag.
-
 ```shell
-axe slider --id volume-slider --value 75 --udid <UDID>
-axe slider --label Volume --value 40 --element-type Slider --udid <UDID>
+axe slider --id volume --value 75 --udid "$UDID"
 ```
 
-`slider` accepts exactly one of `--id` or `--label`. It is not a batch step.
+Sets a slider to a percentage and checks the new value. Simulators only.
 
-### `swipe`, `drag`, `touch`, `gesture`, and `button`
+### `swipe`, `drag`, `draw`, `touch` and `gesture`
 
 ```shell
-axe swipe --start-x 100 --start-y 300 --end-x 300 --end-y 100 --udid <UDID>
-axe drag --start-x 100 --start-y 400 --end-x 300 --end-y 400 --steps 40 --udid <UDID>
-axe touch -x 150 -y 250 --down --up --delay 1.0 --udid <UDID>
-axe gesture scroll-down --udid <UDID>
-axe button home --udid <UDID>
+axe swipe --start-x 200 --start-y 600 --end-x 200 --end-y 300 --udid "$UDID"
+axe drag --start-x 200 --start-y 300 --end-x 200 --end-y 500 --hold 0.6 --udid "$UDID"
+axe draw 100,400 300,400 300,600 --close --udid "$UDID"
+axe touch -x 150 -y 250 --down --up --delay 1.0 --udid "$UDID"
+axe gesture scroll-down --until-label "Privacy" --udid "$UDID"
+axe gesture pinch --scale 2 --udid "$UDID"
 ```
 
-`swipe`, `touch`, `gesture`, and `button` are batch steps. `drag` is standalone.
+See [Swipes, Gestures & Drawing](/docs/gestures).
 
 ## Keyboard
 
 ```shell
-axe type 'Hello, world!' --udid <UDID>
-echo "Multi-line input" | axe type --stdin --udid <UDID>
-axe key 40 --udid <UDID>
-axe key-sequence --keycodes 11,8,15,15,18 --delay 0.1 --udid <UDID>
-axe key-combo --modifiers 227 --key 4 --udid <UDID>
+axe type 'Hello, world!' --udid "$UDID"
+printf 'Multi-line\ninput' | axe type --stdin --udid "$UDID"
+axe key 40 --udid "$UDID"
+axe key-sequence --keycodes 11,8,15,15,18 --delay 0.1 --udid "$UDID"
+axe key-combo --modifiers 227 --key 4 --udid "$UDID"
 ```
 
-`type` takes exactly one input source: positional text, `--stdin`, or `--file`. `key-sequence` uses comma-separated `--keycodes`; `key-combo` uses comma-separated `--modifiers` plus one `--key`.
+See [Keyboard & Text Input](/docs/keyboard-input).
 
-## Media
+## Device
+
+### `button`
 
 ```shell
-axe screenshot --output screen.png --udid <UDID>
-axe record-video --output run.mp4 --fps 15 --quality 80 --scale 1.0 --udid <UDID>
-axe stream-video --format mjpeg --fps 10 --udid <UDID> > stream.mjpeg
+axe button home --udid "$UDID"
+axe button lock --duration 3 --udid "$UDID"
+axe button lock --allow-lock --udid "$DEVICE_UDID"
 ```
 
-`screenshot`, `record-video`, and `stream-video` are standalone commands, not batch steps. Video commands stop cleanly on Ctrl+C/SIGTERM.
+Buttons are `home`, `lock`, `side-button`, `siri` and `apple-pay`. A button acts on the whole device; capture the screen again after Home.
 
-## Batch
+### `rotate` and `hinge`
 
 ```shell
-axe batch --udid <UDID> \
+axe rotate left --udid "$UDID"
+axe hinge read --udid "$UDID"
+axe hinge set tabletop --udid "$UDID"
+```
+
+`rotate` works on the iPhone Duo simulator and physical devices; `hinge` on the iPhone Duo simulator. See [iPhone Duo Simulator](/docs/iphone-duo).
+
+### `settings`
+
+```shell
+axe settings show --udid "$UDID"
+axe settings set --udid "$UDID" --appearance dark --text-size large
+axe settings location set --latitude 51.5 --longitude -0.12 --udid "$UDID"
+axe settings status-bar preset screenshot --udid "$UDID"
+```
+
+Needs Xcode 27 or later. See [Device Settings](/docs/settings).
+
+### `shutdown`
+
+```shell
+axe shutdown --udid "$UDID"
+```
+
+Shuts down exactly one simulator by UUID and prints `Shut down <udid> (was Booted)` or `<udid> was already shut down`. JSON is `{udid, initialState, outcome}`.
+
+### `clipboard copy`
+
+```shell
+printf '%s' 'AXe sample' | axe clipboard copy --stdin --udid "$UDID"
+```
+
+Stages 1 to 65,536 UTF-8 bytes in one booted simulator's clipboard, verifies them by readback and prints `Copied N bytes to the clipboard of <udid> (sha256 …)`. JSON is `{udid, bytes, sha256}`. It does not paste. Both `shutdown` and `clipboard copy` report `actionOutcomeUnknown` when the effect could not be confirmed.
+
+## Capture
+
+```shell
+axe screenshot --output screen.png --udid "$UDID"
+axe record-video --output run.mp4 --fps 15 --udid "$UDID"
+axe stream-video --format mjpeg --fps 10 --udid "$UDID" > stream.mjpeg
+axe stream-video --format h264 --udid "$DEVICE_UDID" > device.h264
+```
+
+See [Screenshots & Video](/docs/screenshots-video).
+
+## Automation
+
+### `batch`
+
+```shell
+axe batch --udid "$UDID" \
   --step "tap --id Email" \
   --step "type 'cam@example.com'" \
   --step "key 40"
 ```
 
-Supported steps are `tap`, `swipe`, `gesture`, `touch`, `type`, `button`, `key`, `key-sequence`, `key-combo`, and pseudo-step `sleep <seconds>`. `slider`, `drag`, `screenshot`, `describe-ui`, video commands, `list-simulators`, and `init` are not accepted.
+See [Batch Automation](/docs/batch).
 
-## Setup
+### `agent`
+
+```shell
+axe agent "Open Settings and turn on Airplane Mode" --udid "$UDID"
+```
+
+See [Autonomous Agent](/docs/autonomous-agent).
+
+### `init`
 
 ```shell
 axe init
-axe init --client claude
-axe init --dest ~/.claude/skills
+axe init --client claude --force
 axe init --print
-axe init --uninstall --client agents
 ```
 
-Non-interactive `axe init` runs must pass `--client`, `--dest`, or `--print`.
+See [AI Skill](/docs/agent-skills).
 
 ## Related
 
-- [CLI](/docs/cli)
-- [Batch Automation](/docs/batch)
-- [Keyboard & Text Input](/docs/keyboard-input)
-- [Screenshots & Video](/docs/screenshots-video)
+- [CLI Basics](/docs/cli)
+- [Output & Errors](/docs/output-and-errors)
+- [Agent Mode](/docs/agent-mode)

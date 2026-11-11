@@ -1,0 +1,117 @@
+<PageHeader
+  breadcrumbs={["Docs", "Devices", "iPhone Duo Simulator"]}
+  title="iPhone Duo Simulator"
+  lede="AXe supports the dual-screen iPhone Duo simulator in Xcode. Every input, read and capture command works on it, on whichever screen is active, in any fold and orientation. AXe also shows the screens, moves the hinge and rotates the device."
+  meta={["Simulator", "Outer and inner screens", "Hinge 0 to 180°"]}
+/>
+
+<Callout variant="info" title="Simulator only">
+This page is about the iPhone Duo simulator. Its commands (`displays`, `hinge`, screen-selected input) do not apply to physical devices. For real iPhones and iPads, see [Physical iPhone & iPad](/docs/physical-devices).
+</Callout>
+
+## Ordinary commands just work
+
+Use `tap`, `swipe`, `drag`, `draw`, `touch`, `gesture`, `type`, `key`, `batch`, `screenshot` and agent mode as on any other simulator. AXe measures the active screen and checks the boot, screen, hinge, orientation and geometry before input, so coordinates are points on the screen that is active now.
+
+An interaction on the iPhone Duo simulator is as fast as the same interaction on an ordinary simulator.
+
+## Screens
+
+`axe displays` waits for a fold or rotation to finish, then shows the screens:
+
+```text
+$ axe displays --udid "$UDID"
+iPhone Duo  2154413A-7E31-4566-A03E-598AC9B5D4D7
+Hinge   113.8°, partially open
+
+Active  inner  951×669 pt @3x  landscape
+        id 3   0DFCB507-C4AA-4CB8-8575-8E2D0DB7C6B9
+Off     outer  466×678 pt @3x
+        id 1   85D7C4CD-0F9F-422B-94DA-658B4164694D
+```
+
+The role is `outer` or `inner` (the smaller or larger screen), or `main` on a one-screen device, which has no Hinge line. Sizes are logical points; the active screen's size is in its current orientation. `displays` works on every simulator.
+
+With `--output json`, the result is `{udid, name, hinge?, activeScreen, otherScreens}`. It fails with `displayUnavailable` while the simulator has not reported a consistent set of screens, as in the first seconds after boot, and with `screensDidNotSettle` if they keep changing; read again.
+
+## Hinge
+
+```shell
+axe hinge read --udid "$UDID"
+axe hinge set tabletop --udid "$UDID"     # 0...180, or closed, tabletop, open
+axe hinge set 135 --udid "$UDID"
+```
+
+```text
+$ axe hinge set open --udid "$UDID"
+Hinge 180°, open (was 113.8°)
+Active  inner  951×669 pt @3x  landscape
+        id 3   0DFCB507-C4AA-4CB8-8575-8E2D0DB7C6B9
+```
+
+`closed`, `tabletop` and `open` mean 0, 90 and 180 degrees; fractions are valid. `hinge set` sends one request, waits up to 8 seconds for the screens to settle and prints the new angle and active screen. `--no-wait` returns as soon as the hinge reaches the angle. `--tolerance` (0 to 1 degree, default 0.5) and `--timeout` (0.5 to 15 seconds, default 8) bound the move.
+
+`hinge read` returns `{udid, hinge: {degrees, mechanicalDegrees, posture}}`. `degrees` is the angle iOS senses; `mechanicalDegrees` is the angle `hinge set` drives, and the two can differ by several degrees at rest. `posture` is `closed`, `partiallyOpen` or `open`.
+
+## Rotation
+
+```shell
+axe rotate left --udid "$UDID"
+axe rotate right --udid "$UDID"
+```
+
+`rotate` turns the device and prints `Rotated left` (or right) with the active screen. The Duo supports all four positions on the inner screen and skips upside-down portrait on the outer screen. `rotate` also works on physical iPhones and iPads. It is not the two-finger `gesture rotate`, and it is not a batch step.
+
+Read the UI again after any fold or rotation.
+
+## Screen-selected input
+
+`--input-mode selected` binds one screen and one app before input. Pass the active screen's `id` and `uuid` from `axe displays` when a command must refuse to act on any other screen:
+
+```shell
+axe tap --id Continue --input-mode selected --screen-id 3 --screen-uuid "$SCREEN_UUID" --udid "$UDID"
+axe type --input-mode selected --focus-id NameField --expected-pid "$PID" --udid "$UDID" -- 'Ada'
+axe button home --input-mode selected --udid "$UDID"
+```
+
+Selected input works on `describe-ui`, `tap`, `slider`, `touch`, `swipe`, `drag`, `draw`, `gesture`, `type`, `key`, `key-sequence`, `key-combo`, `button` and `batch`.
+
+- Without the screen pair, AXe binds the screen that is active when it admits the command.
+- `--expected-pid <PID>` refuses unless that app is frontmost. Without it, AXe binds the app that is frontmost when the command starts, and an app change fails before input.
+- Selected keyboard commands need `--focus-id`, the ID of the focused text field, and AXe checks that field before every key.
+- `touch --down` prints a contact token; pass it to a later `touch --up` as `--contact-token`.
+- A failure says whether any input was sent, with a code such as `rejectedBeforeInput`, `inputFailed`, `cleanupUncertain`, `timeout` or `busy`.
+
+With `--output json`, selected input returns `{outcome, screen: {id, uuid, width, height, rotation}, pid, token?}`. `--verbose` prints the full receipt.
+
+## Batches on the Duo simulator
+
+An ordinary Duo batch owns one measured screen and input session through all its steps. A screen change or input failure stops later steps, even with `--continue-on-error`.
+
+A selected batch sets the UDID, input mode and optional screen pair once, and each step resolves its own context and target:
+
+```shell
+axe batch --udid "$UDID" --input-mode selected \
+  --step 'tap --id ready --wait-timeout 5' \
+  --step 'type --focus-id NameField -- hello' \
+  --step 'slider --id volume --endpoint maximum'
+```
+
+## Capture through folds
+
+```shell
+axe record-video --udid "$UDID" --follow-active-display --output folds.mp4
+axe screenshot --udid "$UDID" --screen-id 3 --screen-uuid "$SCREEN_UUID" --output inner.png
+```
+
+See [Screenshots & Video](/docs/screenshots-video#one-screen-or-following-the-active-screen).
+
+## Errors
+
+`noHinge` (a one-screen simulator), `bootChanged`, `hingeUnavailable`, `displayUnavailable`, `screensDidNotSettle`, `rotationFailed`, `quarantined`, plus the [common codes](/docs/output-and-errors#error-codes).
+
+## Related
+
+- [Screenshots & Video](/docs/screenshots-video)
+- [Agent Mode](/docs/agent-mode)
+- [CLI Basics](/docs/cli)

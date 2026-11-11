@@ -1,0 +1,152 @@
+<PageHeader
+  breadcrumbs={["Docs", "AI Agents", "Agent Mode"]}
+  title="Agent Mode"
+  lede="Add --agent and every UI read and action is checked. A capture returns compact rows with a ref for each control; an action names a ref, AXe checks the control is still the one the agent saw, sends the input and returns the settled screen."
+  meta={["No model or API key", "Simulators and iPhone Duo", "JSON by default"]}
+/>
+
+Agent mode is for AI agents that drive AXe one command at a time. It removes the two most common agent failures: tapping the wrong control after the layout moved, and spending a second call to see what an action did.
+
+`--agent` works on `describe-ui`, `tap`, `type`, `swipe`, `drag`, `key`, `key-combo`, `key-sequence`, `slider`, `touch`, `gesture double-tap`, `gesture pinch` and `batch`. It needs no model or API key, and is separate from the [`axe agent`](/docs/autonomous-agent) command.
+
+## 1. Capture the screen
+
+```shell
+axe describe-ui --agent --view navigation --udid "$UDID"
+```
+
+The capture in `data.capture` has a `snapshotID` and rows `ref|actions|role|label|value`:
+
+```text
+e9|tap|button|AXe Playground|
+e12|tap|button|Save|
+e18|tap|text-field|First name|
+e30|swipe|scroll-view||
+e41|sliderEndpoint|slider|Volume|50%
+```
+
+Use only the actions a row advertises: `tap`, `typeText`, `swipe`, `sliderEndpoint` or `pinchWithin`. Refs belong to that snapshot and expire after 60 seconds. After Home or switching apps, capture again; refs never carry over to another app.
+
+| View | Contents | Use it |
+|------|----------|--------|
+| `navigation` | Controls and their values. | While operating the app. |
+| `reading` (default) | Adds visible text. | To read or verify facts. |
+| `full` | The complete schema version 1, with IDs. | Rarely; it is large. |
+
+`capture.screen` is `[screenID, width, height, rotation]` in logical points.
+
+## 2. Act, then use the returned screen
+
+```shell
+axe tap --agent --view navigation --snapshot-id "$SNAPSHOT_ID" --ref e12 --udid "$UDID"
+```
+
+A successful action returns the new screen in `data.capture`, with a new `snapshotID` that replaces the old one. Plan the next action from it. Do not run `describe-ui` to see the result: the reply already is that read. Put `--view reading` on an action when you need to check text it reveals.
+
+Agent actions return once the screen has settled, so do not add `sleep`, `--pre-delay` or `--post-delay`.
+
+## Typing
+
+```shell
+axe type 'London' --agent --view navigation --focus --snapshot-id "$SNAPSHOT_ID" --ref e18 --udid "$UDID"
+axe key 40 --agent --snapshot-id "$SNAPSHOT_ID" --ref e18 --udid "$UDID"          # Return
+axe key-sequence --keycodes 42,42 --agent --snapshot-id "$SNAPSHOT_ID" --ref e18 --udid "$UDID"
+```
+
+`--focus` taps the field, waits for it to take focus and types, in one call. Without it, the field must already be focused and advertise `typeText`. Typing does not clear existing text, uses the US keyboard layout and sends at most 256 UTF-8 bytes per call. Before every key, AXe checks that the same field still has focus.
+
+## Batches
+
+When an agent has already planned two or more taps or types on controls in the current capture, and does not need to look between them, it should send one batch:
+
+```shell
+axe batch --agent --view navigation --udid "$UDID" --steps-json '{"snapshotID":"<SNAPSHOT_ID>","steps":[
+  {"action":"type","ref":"e7","text":"Ada","focus":true},
+  {"action":"type","ref":"e9","text":"Lovelace","focus":true},
+  {"action":"tap","ref":"e12"}
+]}'
+```
+
+- 1 to 8 `tap` or `type` steps, all with refs from one snapshot. `--file steps.json` takes the same document.
+- `"focus": true` on a type step taps its field first, as `type --focus` does.
+- A focus step's keyboard can move the screen. Later steps still run when their controls only moved; a control that changed, disappeared or is now covered stops the batch.
+- The last step may leave the screen, for example Save or Next.
+- The reply lists the completed steps and returns the current screen. Never resend a batch: completed steps are not undone and would run twice.
+
+Typical uses are filling a form, toggling several switches and choosing options in a settings sheet. Batching is the biggest speed-up for an agent, because every separate call costs a full agent turn.
+
+## Scrolling, paging and exact text
+
+```shell
+# Scroll a scroll area; direction is finger motion, so up reveals content further down
+axe swipe --agent --snapshot-id "$SNAPSHOT_ID" --ref e30 --direction up --distance 0.6 --udid "$UDID"
+
+# Next page of rows, when capture.page.nextOffset is present
+axe describe-ui --agent --view navigation --snapshot-id "$SNAPSHOT_ID" --row-offset "$NEXT_OFFSET" --udid "$UDID"
+
+# The exact label, value or ID of one row (cells show at most 160 characters)
+axe describe-ui --agent --snapshot-id "$SNAPSHOT_ID" --read-ref e12 --text-field label --udid "$UDID"
+
+# Has the screen changed since a capture?
+axe describe-ui --agent --since-screen-hash "$SCREEN_HASH" --udid "$UDID"
+```
+
+Copy `nextOffset` from the capture; never compute it from row counts. `--text-field` takes `label`, `value`, `id` or `custom-actions`. A `--since-screen-hash` read returns `unchanged: true` while the screen matches.
+
+## Selectors
+
+Refs are exact. For a named button that may move, such as one in a scrolling list, a selector finds it on the current screen:
+
+```shell
+axe tap --agent --label 'Save' --element-type Button --udid "$UDID"
+axe tap --agent --label-regex '^(Save|Done)$' --udid "$UDID"
+axe tap --agent --label-contains 'Continue' --frame 'minY=400' --udid "$UDID"
+```
+
+Selectors are exact `--id`, `--label` or `--value`, or `--label-contains` and `--label-regex`, optionally narrowed with `--element-type` and `--frame`. A selector must match exactly one control.
+
+## More actions
+
+Each takes `--agent --snapshot-id <ID> --ref <REF>`:
+
+| Action | Command |
+|--------|---------|
+| Slider to an end | `slider --endpoint minimum` or `maximum`, on `sliderEndpoint` rows |
+| Long press | `touch --down --up --delay 0.7` |
+| Drag a control | `drag --end-x <X> --end-y <Y>` |
+| Double tap | `gesture double-tap` |
+| Pinch inside an area | `gesture pinch --radius 24 --scale 1.5`, on `pinchWithin` rows |
+| Tap a point | `tap -x <X> -y <Y>` with a current snapshot, for a control with no ref |
+
+## Refusals
+
+A refusal sends nothing: the reply has no `action`, or `action.outcome` is `failedBeforeInput` with `enqueuedEventCount: 0`. It usually carries the current screen, so the agent can plan from it without another read. When the screen or target changed but the target is still the same control, AXe has already re-read and retried inside the call (`action.retried: true`).
+
+| Code | Cause | Next step |
+|------|-------|-----------|
+| `screenChanged`, `targetChanged` | The screen or target changed after the snapshot. | Act from the returned capture. |
+| `targetCovered` | An overlay, sheet or other control is at the target's point. | Scroll it into view or close what covers it. |
+| `keyboardCovered` | The keyboard covers the tap point. | Scroll the form, or dismiss the keyboard with an app control. |
+| `busy` | Another input on this simulator was still running. | Act again from a current capture. |
+| `observationFailed` | AXe could not read the app's accessibility tree. | Capture again; the app may still be launching. |
+| `snapshotMissing`, `snapshotExpired` | The snapshot ID is no longer current. | Use the latest capture. |
+| `unsupportedReference`, `targetMissing`, `targetAmbiguous` | The ref or selector names no single control offering the action. | Choose again from the capture. |
+| `inputIncomplete`, `cleanupUncertain` | Input started but did not finish, or a release is unconfirmed. | Do not repeat it. Read the screen first. |
+
+Sending the identical command again gets the same answer; change something first. Never repeat input whose outcome is uncertain or that reports delivered events.
+
+## Verify from the screen
+
+A successful reply proves the input was delivered, not that the app did what you wanted. Check the effect in the returned capture or a reading view. For visual facts the accessibility tree does not expose, take a screenshot.
+
+## Output
+
+Agent results are `axe.output.agent-result` JSON by default; `axe --output text` prints the same result compactly. `navigation` and `reading` use schema version 2; `full` uses version 1. `AXE_TIMING=1` prints a phase table to stderr after each agent command.
+
+Agent mode runs on simulators, including every screen of the iPhone Duo. On a physical device it returns `unsupportedOnDevice`.
+
+## Related
+
+- [AI Skill](/docs/agent-skills)
+- [Autonomous Agent](/docs/autonomous-agent)
+- [Output & Errors](/docs/output-and-errors)

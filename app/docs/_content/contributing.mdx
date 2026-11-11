@@ -1,7 +1,7 @@
 <PageHeader
   breadcrumbs={["Docs", "Contributing", "Contributing"]}
   title="Contributing"
-  lede="Set up AXe locally, understand the Swift package layout, and keep commands, docs, tests, and agent skill content in sync."
+  lede="Build AXe from source, find your way around the Swift package, and keep commands, help, docs and the skill in step."
 />
 
 ## Prerequisites
@@ -9,68 +9,78 @@
 | Requirement | Notes |
 |-------------|-------|
 | macOS 14+ | AXe is macOS-only. |
-| Xcode | Required for CoreSimulator and FB simulator frameworks. |
-| Booted iOS Simulator | Required for end-to-end tests and manual command checks. |
+| Xcode 26 or 27 | For CoreSimulator, CoreDevice and the simulator frameworks. |
+| XcodeGen | Generates the project for the bundled IDBKit frameworks. |
+| A booted simulator | For end-to-end tests and manual checks. |
 
-## Clone, prepare frameworks, build
+## Build
 
 ```shell
 git clone https://github.com/cameroncooke/AXe.git
 cd AXe
-./scripts/build.sh dev
-swift build
-swift run axe --help
-swift run axe list-simulators
-```
-
-Makefile shortcuts:
-
-```shell
 make build
-make test
-make e2e
-make clean
 ```
+
+| Target | What it does |
+|--------|--------------|
+| `make build` | Rebuilds the IDBKit frameworks only when stale, then `swift build`. |
+| `make test` | Unit tests. |
+| `make release-check` | The quick release checks in one run. |
+| `make e2e` | The whole Playground suite on dedicated iPhone, iPad and iPhone Duo simulators. |
+| `make e2e-devices` | The opt-in suite on connected iPhones and iPads. |
+| `make bench-quick` | A quick A/B timing of direct commands against a baseline payload. |
+| `make clean` | Remove build output. |
+
+`AXE_BUILD_ARCHS` defaults to `"arm64 x86_64"`; set `arm64` for faster local builds.
+
+AXe keeps its own copy of the IDB frameworks it uses, `FBControlCore` and `FBSimulatorControl`, in `Packages/IDBKit`; edit them directly. Building does not clone IDB.
+
+<Callout variant="warn" title="build_products is rebuilt">
+`scripts/build.sh` removes `build_products` and `build_derived_data` whenever it rebuilds stale frameworks. Do not keep anything there that must survive.
+</Callout>
 
 ## Project layout
 
 | Path | Purpose |
 |------|---------|
-| `Sources/AXe/main.swift` | Entry point and subcommand registration. |
-| `Sources/AXe/Commands/*.swift` | One file per CLI command. Source of truth for flags and behavior. |
-| `Sources/AXe/Utilities/` | HID interaction, accessibility fetching, orientation-aware coordinate handling. |
-| `Sources/AXe/Utilities/Batch/` | Batch parsing, plan running, and command adapters. |
-| `Sources/AXe/Types/` | Shared types such as `TapStyle` and `KeyCode`. |
-| `Sources/AXe/Resources/skills/` | Bundled skill installed by `axe init`. |
-| `Sources/AXeCore/` | Shared core support. |
-| `Tests/` | Unit and opt-in simulator E2E coverage. |
-| `Skills/CLI/axe/` | Mirror of the bundled skill and references. |
+| `Sources/AXe/main.swift` | Entry point and command registration. |
+| `Sources/AXe/Commands/` | One file per command; the source of truth for options and help. |
+| `Sources/AXe/Agent/` | Agent mode: captures, refs, admission checks and the agent batch. |
+| `Sources/AXe/Device/` | Physical device support: CoreDevice readiness, services and the device broker. |
+| `Sources/AXe/Utilities/` | HID input, accessibility reads, orientation and batch parsing. |
+| `Sources/AXe/Resources/` | The bundled skill that `axe init` installs, and licences. |
+| `Sources/AXeCore/` | Shared core, including the runtime snapshot model. |
+| `Packages/IDBKit/` | The bundled IDB frameworks. |
+| `Skills/CLI/axe/` | The AXe skill and its references, served by the plugin marketplace. |
+| `schemas/` | JSON Schemas for command and agent results. |
+| `AxePlaygroundApp/` | The Playground app the end-to-end suites drive. |
+| `benchmarks/` | Task benchmarks against accepted baselines and other tools. |
+| `Tests/` | Unit and end-to-end tests. |
 
-## Adding or changing a command
+## Changing a command
 
-1. Add or edit the command under `Sources/AXe/Commands`.
-2. Keep Swift Argument Parser help text accurate; it is part of the public contract.
-3. Validate inputs in `validate()` and fail fast with `ValidationError`.
-4. Register new commands in `Sources/AXe/main.swift`.
-5. Add batch conversion only when the command fits the sequential, non-verifying batch model.
-6. Add or update tests.
-7. Update docs and skill content in the same change.
-8. Add a `CHANGELOG.md` entry under `## [Unreleased]` when behavior changes.
+1. Edit or add the command under `Sources/AXe/Commands`, and register a new one in `main.swift`.
+2. Keep `--help` accurate: a short description, examples and one line per option.
+3. Validate inputs before sending anything, and fail with a typed error code.
+4. Add tests.
+5. Update `README.md` and the skill in `Skills/CLI/axe/` in the same change.
+6. Add a `CHANGELOG.md` entry under `## [Unreleased]`.
 
-<Callout variant="warn" title="Batch is not a fallback path">
-Do not add unsupported commands to batch for convenience. `slider`, `drag`, media, discovery, and setup commands remain standalone unless the implementation explicitly changes.
-</Callout>
+## Performance
 
-## Pre-PR checks
+An ordinary simulator interaction must be as fast as in the latest release, on every input route, including selected and agent modes. An iPhone Duo interaction must be as fast as the same interaction on an ordinary simulator. Compare against the release binary on the same machine and simulator.
+
+## Before a pull request
 
 ```shell
-swift build
-swift test
-make e2e
+make build
+make test
+make release-check
 ```
+
+Run the end-to-end suites that your change affects; see [Testing](/docs/testing).
 
 ## Related
 
 - [Testing](/docs/testing)
 - [Installation](/docs/installation)
-- [Command Reference](/docs/command-reference)

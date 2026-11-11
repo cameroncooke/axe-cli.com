@@ -1,0 +1,106 @@
+<PageHeader
+  breadcrumbs={["Docs", "Devices", "Physical iPhone & iPad"]}
+  title="Physical iPhone & iPad"
+  lede="AXe automates connected iPhones and iPads with the same commands, options and error codes you use on simulators. Pass the device's hardware UDID."
+  meta={["USB or network", "Developer Mode", "Xcode CoreDevice"]}
+/>
+
+## Before you start
+
+Pair the device in Xcode, turn on Developer Mode and keep it unlocked. AXe never pairs a device, enables Developer Mode, mounts a developer disk image or unlocks the screen; `doctor` tells you which of these is missing.
+
+```shell
+axe list-devices
+axe doctor --udid "$DEVICE_UDID"
+```
+
+`list-devices` lists the iPhones and iPads that Xcode knows, with any readiness problems. `doctor` checks pairing, Developer Mode, connection, the developer disk image, the lock state and the screenshot service. A failed check ends with `Error: <name> is not ready.` and its code is the check's ID:
+
+| Code | Fix |
+|------|-----|
+| `notPaired` | Pair the device in Xcode and confirm Trust on the device. |
+| `developerModeDisabled` | Enable Developer Mode in Settings on the device. |
+| `deviceNotConnected` | Connect the device by USB or reconnect it in Xcode. |
+| `developerDiskImageUnavailable` | Open the device in Xcode and wait for it to finish preparing the device. |
+| `deviceLocked` | Unlock the device. |
+| `screenshotServiceUnavailable` | Check device preparation in Xcode. |
+
+On a simulator, `doctor` checks only that it is booted (`simulatorNotBooted`).
+
+`axe --output json doctor --udid "$DEVICE_UDID"` returns the checks as JSON.
+
+## Read the screen and act
+
+```shell
+axe screenshot --udid "$DEVICE_UDID" --output device.png
+axe describe-ui --udid "$DEVICE_UDID"
+axe describe-ui --udid "$DEVICE_UDID" --point 160,240
+axe tap --udid "$DEVICE_UDID" --id "$ELEMENT_ID" --wait-timeout 15
+axe type 'Hello' --udid "$DEVICE_UDID"
+axe gesture scroll-down --udid "$DEVICE_UDID"
+axe rotate left --udid "$DEVICE_UDID"
+```
+
+Use logical points in the current orientation; a PNG contains pixels. For a selector tap, AXe checks that the selector resolves to one visible target and that the target still owns the tap point. Read the screen again after input to check its effect.
+
+An accessibility read is a new request to the device each time. It takes about 1 second plus 44 ms per element, and up to 20 seconds, about 330 elements; beyond that it fails with `treeUnavailable`.
+
+## What works on a device
+
+| Supported | Notes |
+|-----------|-------|
+| `screenshot`, `describe-ui` (including `--point`) | |
+| `tap` by point or `--id`, `--label`, `--value`, with `--wait-timeout` | `--hold`, `--count 2` and `--touches 2` too. |
+| `tap --semantic-press --id` | Native checkboxes; prints `Switch <id>: off -> on`. |
+| `swipe`, `drag`, `draw`, `gesture` | Presets and coordinate gestures. |
+| `touch --down --up` | Both flags are required. |
+| `type`, `key`, `key-sequence`, `key-combo` | Up to 256 UTF-8 bytes per `type`; focus the field first. |
+| `button home`, `lock`, `siri` | `lock` needs `--allow-lock`. |
+| `batch` | Can hold a contact across steps and releases it on exit. |
+| `rotate left\|right` | Needs Orientation Lock off. |
+| `record-video`, `stream-video` | Including native `--format h264`. |
+| `settings` | Everything except the status bar. |
+
+Refused with `unsupportedOnDevice`: agent mode, `--input-mode selected` and the screen options, `displays`, `shutdown`, `hinge`, `clipboard`, `slider`, `button side-button` and `apple-pay`, the `swipe-from-right-edge` preset, and a `touch` without both `--down` and `--up`. The bottom-edge preset is unavailable in landscape with the camera on the right, and the left-edge preset upside down.
+
+## Locking
+
+`button lock` needs `--allow-lock`, and a person must unlock the device again afterwards. A batch refuses input after its own lock step. CoreDevice reports a device without a passcode as unlocked, even on the lock screen.
+
+## Orientation
+
+Input, reads, video and `rotate` work on iPhone and iPad in every orientation. `rotate` returns `rotationLocked` while Orientation Lock is on. If `rotate` returns `rotationUnconfirmed`, or a touch returns `displayOrientationMismatch`, the display lagged behind the interface or the app does not support that orientation. No input was sent. Rotate again, then read the screen.
+
+## Video
+
+```shell
+axe record-video --udid "$DEVICE_UDID" --fps 3 --scale 0.5 --output device.mp4
+axe stream-video --udid "$DEVICE_UDID" --format h264 > device.h264
+```
+
+See [Screenshots & Video](/docs/screenshots-video#physical-devices) for formats and Device Hub's stream limit.
+
+## Errors
+
+Devices use the same codes as simulators: another command on the device is `busy`, a deadline is `timeout`, a possibly held touch or key is `cleanupUncertain`, and a CoreDevice failure is `xcodeUnavailable`, `readFailed` or `timeout`. Device-specific codes are `deviceLocked`, `rotationLocked`, `rotationUnconfirmed`, `displayOrientationMismatch`, `deviceStreamReplaced`, `treeUnavailable` and the `doctor` checks above.
+
+## How it works
+
+AXe uses the connection that Xcode's CoreDevice manages; it does not create its own tunnel. It checks the device's identity before opening any service, and a per-device broker process keeps the session open across commands, so a warm command opens no new connection. A command skips the readiness check when the broker sent input in the last 25 seconds.
+
+| Capability | Device service |
+|------------|----------------|
+| Screenshots, screenshot streams, recordings | `com.apple.coredevice.screencaptureservice` |
+| Touch, keyboard and buttons | `com.apple.coredevice.hid.indigo` |
+| `rotate` | `com.apple.coredevice.devicecontrol` |
+| Accessibility trees and point lookups | `com.apple.accessibility.axAuditDaemon.remoteAXService` |
+| Native H.264 | `com.apple.coredevice.displayservice` |
+| `settings` | `xcrun devicectl` |
+
+If a modal alert blocks the accessibility tree, close it on the device and read again.
+
+## Related
+
+- [Screenshots & Video](/docs/screenshots-video)
+- [Device Settings](/docs/settings)
+- [Troubleshooting](/docs/troubleshooting)

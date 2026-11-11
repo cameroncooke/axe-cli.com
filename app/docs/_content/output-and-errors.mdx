@@ -1,0 +1,94 @@
+<PageHeader
+  breadcrumbs={["Docs", "Usage", "Output & Errors"]}
+  title="Output & Errors"
+  lede="AXe prints short text by default, one JSON result with --output json, and a full receipt with --verbose. Simulators and devices share one set of typed error codes."
+/>
+
+## Text output
+
+Without `--output`, commands print text:
+
+- Commands that read or change state print that state in a few lines: `displays`, `settings`, `hinge`, `rotate`, `doctor`, `shutdown`, `clipboard copy`.
+- Input commands print nothing on success, except `tap`, `slider` and `batch`, which print a `✓ … completed successfully` line.
+- `screenshot` and `record-video` print the file path.
+- `describe-ui` prints the accessibility tree as JSON.
+- A failure prints `Error: <message>` to stderr and exits nonzero.
+
+## JSON output
+
+Put `--output json` **before** the command for one `axe.output.command-result` object on stdout:
+
+```text
+$ axe --output json screenshot --udid "$UDID" --output shot.png
+{"command":"screenshot","data":{"result":{"path":"/…/shot.png","pixelHeight":2868,"pixelWidth":1320}},"didError":false,"nextSteps":[],"schema":"axe.output.command-result","schemaVersion":"1"}
+
+$ axe --output json tap --id no-such-element --udid "$UDID"
+{"command":"tap","data":{},"didError":true,"error":{"code":"elementNotFound","message":"No accessibility element matched --id 'no-such-element'. …"},"nextSteps":[],"schema":"axe.output.command-result","schemaVersion":"1"}
+```
+
+| Field | Meaning |
+|-------|---------|
+| `schema`, `schemaVersion` | `axe.output.command-result`, version `1`. |
+| `command` | The full command path, such as `settings status-bar set`. |
+| `didError` | `true` on failure; the process also exits nonzero. |
+| `data.result` | The command's typed result. Input commands return `{outcome: "completed"}`; media commands return `{path, pixelWidth, pixelHeight, frames?}`. |
+| `error` | `{code, message}`, present exactly when `didError` is true. |
+| `nextSteps` | Suggestions for a person. Their wording can change. |
+
+Branch on `error.code`, never on messages or `nextSteps`. A failure never repeats input. Ignore fields you do not know: AXe can add fields within a schema version.
+
+<Callout variant="info" title="--output means two things">
+Before the command, `--output text|json` picks the result format. After `screenshot` and `record-video`, `--output` is still the file path. Use both: `axe --output json screenshot --udid "$UDID" --output shot.png`. `stream-video` refuses an output format, because its stdout carries frames.
+</Callout>
+
+Agent mode (`--agent`) prints JSON by default, as an `axe.output.agent-result` object; `--output text` prints the same result compactly. See [Agent Mode](/docs/agent-mode).
+
+## Verbose receipts
+
+`--verbose` prints the full receipt where AXe owns the input or capture: context reads, target checks, delivery counts and cleanup evidence. It only adds detail. The exit status and the error code are the same with and without it. Parse it only when a check needs that evidence.
+
+## Error codes
+
+| Code | Meaning |
+|------|---------|
+| `invalidArguments` | Options or values are wrong, including characters `type` cannot send. Nothing was sent. |
+| `targetNotFound`, `notBooted` | No simulator or device has the UDID, or the simulator is shut down. |
+| `busy`, `timeout`, `interrupted` | Another AXe command holds the device, a deadline passed, or a signal stopped the command. |
+| `elementNotFound`, `ambiguousElement`, `elementNotHittable` | A selector matched nothing, several elements, or an element without a usable frame. |
+| `rejectedBeforeInput`, `inputFailed`, `inputUnavailable` | Input was refused before sending, stopped after some input, or AXe could not reach the input service. |
+| `cleanupUncertain`, `quarantined` | A touch or key may still be held. Input stays blocked until you check the device. |
+| `screenChanged`, `screensDidNotSettle`, `bootChanged` | The screen or boot changed under the command. |
+| `captureFailed`, `outputFailed`, `readFailed`, `xcodeUnavailable` | Capture, the output file, a state read, or the selected Xcode failed. |
+| `actionOutcomeUnknown` | A shutdown or clipboard copy may have happened but could not be confirmed. |
+| `unsupportedOnDevice`, `settingUnsupported` | The target does not offer this command or setting. |
+| `commandFailed` | Anything else. |
+
+Feature-specific codes are listed on their pages:
+
+- **iPhone Duo**: `noHinge`, `hingeUnavailable`, `displayUnavailable`, `rotationFailed`. See [iPhone Duo](/docs/iphone-duo).
+- **Physical devices**: `notPaired`, `developerModeDisabled`, `deviceNotConnected`, `developerDiskImageUnavailable`, `deviceLocked`, `screenshotServiceUnavailable`, `rotationLocked`, `rotationUnconfirmed`, `displayOrientationMismatch`, `deviceStreamReplaced`. See [Physical iPhone & iPad](/docs/physical-devices).
+- **Settings**: `settingFailed`. See [Device Settings](/docs/settings).
+- **Agent mode**: `targetCovered`, `keyboardCovered`, `targetChanged`, `snapshotExpired` and more. See [Agent Mode](/docs/agent-mode#refusals).
+
+## Quarantine
+
+If AXe cannot confirm that a touch or key was released, it fails with `cleanupUncertain` and records a quarantine for that simulator. Every later input command fails with `quarantined` until you check the device and delete the record file named in the error. Nothing is replayed.
+
+## JSON Schemas
+
+JSON Schema (2020-12) files are in the repository's [schemas/](https://github.com/cameroncooke/AXe/tree/main/schemas) directory:
+
+| File | Describes |
+|------|-----------|
+| `axe.output.command-result.v1.schema.json` | The command result envelope. |
+| `axe.output.command-payloads.v1.schema.json` | Each command's `data.result`, in `$defs`, keyed by the full command path. |
+| `axe.output.agent-result.v1.schema.json` | Agent results with `--view full`. |
+| `axe.output.agent-result.v2.schema.json` | Agent results with `--view reading` or `navigation`. |
+
+Receipts printed by `--verbose` are not described by a schema.
+
+## Related
+
+- [CLI Basics](/docs/cli)
+- [Troubleshooting](/docs/troubleshooting)
+- [Agent Mode](/docs/agent-mode)

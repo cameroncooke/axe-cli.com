@@ -1,77 +1,90 @@
 <PageHeader
   breadcrumbs={["Docs", "Usage", "Keyboard & Text Input"]}
   title="Keyboard & Text Input"
-  lede="Type text, press individual HID keycodes, run key sequences, and send atomic modifier combos."
+  lede="Type text, press HID key codes, run key sequences and send modifier shortcuts, on simulators and physical devices."
 />
 
-AXe drives keyboard input through raw HID keycodes. That is deterministic, but it means text entry is limited to the US keyboard layout.
+AXe sends keyboard input as HID key codes for the US keyboard layout. That is deterministic, and it means `type` can only send characters on a US keyboard.
 
-## Text input
+## Type text
 
-`type` accepts exactly one input source: positional text, `--stdin`, or `--file`.
+`type` takes exactly one source: the text as an argument, `--stdin` or `--file`.
 
 ```shell
-axe type 'Hello, world!' --udid <UDID>
-echo 'Multi-line text' | axe type --stdin --udid <UDID>
-axe type --file message.txt --udid <UDID>
+axe type 'Hello, world!' --udid "$UDID"
+printf 'line one\nline two' | axe type --stdin --udid "$UDID"
+axe type --file message.txt --udid "$UDID"
 ```
 
-Supported text includes ASCII letters, digits, common US-keyboard symbols, spaces, and newlines. Accented and non-ASCII characters fail with `unsupportedCharacter`.
+Focus the field first, for example with `tap --id EmailField`. `type` does not clear existing text. A character outside the US layout, such as `é` or `£`, fails with `invalidArguments` before anything is typed.
+
+On a physical device, and in agent and selected modes, one `type` command sends at most 256 UTF-8 bytes.
+
+<Callout variant="info" title="Text outside the US layout">
+To enter accented or non-Latin text in a simulator, put it on the clipboard with `axe clipboard copy --stdin`, then paste it in the app. See [Command Reference](/docs/command-reference#clipboard-copy).
+</Callout>
 
 ## Single keys
 
 ```shell
-axe key 40 --udid <UDID>
-axe key 42 --duration 1.0 --udid <UDID>
+axe key 40 --udid "$UDID"                 # Return
+axe key 42 --duration 1.0 --udid "$UDID"  # hold Backspace for one second
 ```
 
-`keycode` must be 0–255. `--duration` must be greater than 0 and at most 10 seconds.
+The key code is 0 to 255. `--duration` holds the key for up to 10 seconds.
 
 ## Key sequences
 
 ```shell
-axe key-sequence --keycodes 11,8,15,15,18 --udid <UDID>
-axe key-sequence --keycodes 40,40,40 --delay 0.5 --udid <UDID>
+axe key-sequence --keycodes 11,8,15,15,18 --udid "$UDID"         # h e l l o
+axe key-sequence --keycodes 42,42 --delay 0.2 --udid "$UDID"     # two Backspaces
 ```
 
-`--keycodes` is a comma-separated list of up to 100 codes. `--delay` defaults to 0.1 seconds and must be 0–5 seconds.
+`--keycodes` is a comma-separated list of up to 100 codes. `--delay` between keys defaults to 0.1 seconds (0 to 5).
 
-## Key combos
+## Shortcuts
 
-`key-combo` holds modifiers in order, presses one target key, then releases modifiers in reverse order.
+`key-combo` holds the modifiers in order, presses one key, then releases the modifiers in reverse order.
 
 ```shell
-axe key-combo --modifiers 227 --key 4 --udid <UDID>       # Cmd+A
-axe key-combo --modifiers 227 --key 6 --udid <UDID>       # Cmd+C
-axe key-combo --modifiers 227 --key 25 --udid <UDID>      # Cmd+V
-axe key-combo --modifiers 227,225 --key 4 --udid <UDID>   # Cmd+Shift+A
+axe key-combo --modifiers 227 --key 4 --udid "$UDID"       # Cmd+A
+axe key-combo --modifiers 227 --key 6 --udid "$UDID"       # Cmd+C
+axe key-combo --modifiers 227 --key 25 --udid "$UDID"      # Cmd+V
+axe key-combo --modifiers 227,225 --key 29 --udid "$UDID"  # Cmd+Shift+Z
 ```
 
-A combo can hold 1–8 modifiers.
+A combo holds 1 to 8 modifiers.
 
-## Common keycodes
+## In agent mode
 
-| Key | Code |
-| --- | --- |
-| a | `4` |
-| c | `6` |
-| v | `25` |
-| Return / Enter | `40` |
-| Escape | `41` |
-| Backspace | `42` |
-| Tab | `43` |
-| Space | `44` |
-| Left Control | `224` |
-| Left Shift | `225` |
-| Left Option | `226` |
-| Left Command | `227` |
-| Right Control | `228` |
-| Right Shift | `229` |
-| Right Option | `230` |
-| Right Command | `231` |
+Agents type into a field by ref. `--focus` taps the field, waits for focus and types in one call:
+
+```shell
+axe type 'London' --agent --focus --snapshot-id "$SNAPSHOT_ID" --ref e7 --udid "$UDID"
+axe key 42 --agent --snapshot-id "$SNAPSHOT_ID" --ref e7 --udid "$UDID"
+```
+
+AXe checks before every key that the same field still has focus. See [Agent Mode](/docs/agent-mode#typing).
+
+## Common key codes
+
+| Key | Code | Key | Code |
+|-----|------|-----|------|
+| a | `4` | Left Control | `224` |
+| c | `6` | Left Shift | `225` |
+| v | `25` | Left Option | `226` |
+| z | `29` | Left Command | `227` |
+| Return | `40` | Right Control | `228` |
+| Escape | `41` | Right Shift | `229` |
+| Backspace | `42` | Right Option | `230` |
+| Tab | `43` | Right Command | `231` |
+| Space | `44` | F1 | `58` |
+| Right arrow | `79` | F12 | `69` |
+| Left arrow | `80` | Down arrow | `81` |
+| Up arrow | `82` | | |
 
 ## Related
 
-- [Command Reference](/docs/command-reference)
+- [Reading & Tapping](/docs/accessibility-targeting)
 - [Batch Automation](/docs/batch)
-- [Troubleshooting](/docs/troubleshooting)
+- [Agent Mode](/docs/agent-mode)

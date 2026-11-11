@@ -220,8 +220,8 @@ export function DocsShell({ activeSlug, children }: { activeSlug: DocSlug; child
             )
           })}
           <div className="sb-version">
-            <div className="sb-version-title">AXe docs</div>
-            <div className="sb-version-sub">Static docs for iOS Simulator automation.</div>
+            <div className="sb-version-title">AXe 2 docs</div>
+            <div className="sb-version-sub">iOS simulators, the iPhone Duo simulator and physical iPhones and iPads.</div>
           </div>
         </aside>
         <main className="content">

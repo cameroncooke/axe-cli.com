@@ -1,174 +1,115 @@
 <PageHeader
   breadcrumbs={["Docs", "Usage", "Batch Automation"]}
   title="Batch Automation"
-  lede="Run ordered interaction steps in a single AXe invocation: one process, one HID session, selector waiting between steps."
+  lede="Run several input steps in order in one AXe command: one process, one input session, and selector waiting between steps."
 />
 
-`axe batch` is for multi-step interaction flows where the next step does not need to inspect output from the previous step. It is especially useful for agents because one tool call can replace many separate CLI invocations.
+`axe batch` is for flows where the next step does not need to look at the result of the previous one. One call replaces many separate commands, which matters for scripts and especially for agents. Agents should use the JSON form, [`batch --agent`](#agent-batches), which checks every target.
 
-## Input sources
+## Steps
 
-Provide exactly one source: repeatable `--step`, `--file`, or `--stdin`.
+Give exactly one source: repeated `--step`, `--file` or `--stdin`.
 
 ```shell
-axe batch --udid <UDID> \
+axe batch --udid "$UDID" \
   --step "tap --id EmailField" \
   --step "type 'cam@example.com'" \
   --step "key 40"
 
-axe batch --file login.steps --udid <UDID>
-cat login.steps | axe batch --stdin --udid <UDID>
+axe batch --file login.steps --udid "$UDID"
+cat login.steps | axe batch --stdin --udid "$UDID"
 ```
 
-In `--file` and `--stdin`, blank lines and `#` comments are ignored.
-
-## Batch files
-
-Use a batch file when the flow is long enough that inline `--step` flags become hard to read or maintain.
-
-Create a file such as `login.steps`:
+In a file or on stdin, put one step per line; blank lines and `#` comments are ignored.
 
 ```text
-# Focus the email field and enter an address
+# login.steps
 tap --id EmailField --wait-timeout 5
 type "cam@example.com"
-
-# Move to the password field and submit
 tap --id PasswordField
 type "correct-horse-battery-staple"
 key 40
+sleep 1
+gesture scroll-down
 ```
 
-Run it against a booted simulator:
-
-```shell
-axe batch --file login.steps --udid <UDID>
-```
-
-You can still apply batch-level behavior to every step:
-
-```shell
-axe batch --file login.steps --udid <UDID> \
-  --wait-timeout 5 \
-  --ax-cache perStep \
-  --continue-on-error
-```
-
-Keep `--udid` on the `axe batch` command, not inside the file. Each line in the file is a batch step, not a full `axe ...` command.
+Each line is a step, not a full `axe` command. Keep `--udid` on the `axe batch` command; a step with its own `--udid` is rejected.
 
 ## Supported steps
 
 | Step | Notes |
 |------|-------|
-| `tap` | Coordinate or selector form, including `--tap-style`, `--wait-timeout`, and `--element-type`. |
-| `swipe` | Logical coordinates; orientation-aware. |
-| `gesture` | Presets like `scroll-down` and `swipe-from-left-edge`. |
-| `touch` | Single-contact down/up with optional `--delay`. |
-| `type` | Honors batch-level typing policy. |
-| `button` | Hardware buttons with optional `--duration`. |
-| `key` | Single keycode. |
-| `key-sequence` | Comma-separated `--keycodes`. |
-| `key-combo` | Atomic modifier + key. |
-| `sleep <seconds>` | Batch-only host-side delay. |
+| `tap` | Point or selector, with `--tap-style`, `--wait-timeout` and `--element-type`. |
+| `swipe` | Points in the current orientation. |
+| `gesture` | Presets and coordinate gestures, except `two-finger-swipe`. |
+| `draw` | One-finger strokes. |
+| `touch` | Down and up, with `--delay`. |
+| `type` | Uses the batch's typing settings. |
+| `button` | Hardware buttons, with `--duration`. |
+| `key`, `key-sequence`, `key-combo` | HID key codes. |
+| `sleep <seconds>` | A wait on the host, between steps. |
 
-<Callout variant="warn" title="Unsupported batch steps">
-Do not put `slider`, `drag`, `screenshot`, `record-video`, `stream-video`, `describe-ui`, `list-simulators`, or `init` inside a batch file. The parser rejects them. Run those as separate AXe commands.
-</Callout>
+`screenshot`, `describe-ui`, video, `slider`, `drag`, `settings` and discovery commands are not batch steps; run them on their own. With `--input-mode selected`, a batch also accepts `drag` and `slider --endpoint` steps.
 
-## Batch flags
+## Failures
 
-These flags change how the batch runner executes steps. The defaults are chosen for predictable UI automation: stop on the first failure, reuse one accessibility snapshot, and use automatic tap dispatch.
+Steps run in order in one input session. A failure stops later steps, and earlier steps are not undone. On a simulator, `--continue-on-error` runs the remaining steps after a failed one and reports the failures at the end; on the iPhone Duo the batch still stops after a screen change or an input failure. On a physical device a failed step keeps its own error code.
 
-### Failure and logging
+Success prints `✓ Batch completed successfully (N steps)`.
 
-<div className="option-grid">
-  <div className="option-card">
-    <div className="option-name">--continue-on-error</div>
-    <div className="option-default">Default: off</div>
-    <p>When omitted, AXe stops as soon as one step fails. When enabled, AXe keeps running later steps, collects failures, and reports them at the end.</p>
-  </div>
-  <div className="option-card">
-    <div className="option-name">--verbose</div>
-    <div className="option-default">Default: off</div>
-    <p>Prints per-step progress and diagnostics to stderr. Use it when you need to see which step failed or how selectors resolved.</p>
-  </div>
-</div>
+## Batch options
 
-### Selector waiting
-
-<div className="option-grid">
-  <div className="option-card">
-    <div className="option-name">--wait-timeout &lt;seconds&gt;</div>
-    <div className="option-default">Default: 0</div>
-    <p>How long selector-based `tap` steps can wait for an element to appear. `0` means no waiting. Coordinate steps do not wait because there is no selector to poll for.</p>
-  </div>
-  <div className="option-card">
-    <div className="option-name">--poll-interval &lt;seconds&gt;</div>
-    <div className="option-default">Default: 0.25</div>
-    <p>How often AXe refreshes the accessibility tree while `--wait-timeout` is active. Smaller values can react faster but do more accessibility polling.</p>
-  </div>
-</div>
-
-### Tap style
-
-`--tap-style` controls how `tap` steps are dispatched. It applies to every tap step unless that step sets its own `tap --tap-style ...` value.
-
-| Value | What it does | When to use it |
-|-------|--------------|----------------|
-| `automatic` | **Default.** Uses physical touch for switch-like controls such as `UISwitch` and SwiftUI `Toggle`; uses simulator `tapAt` for other targets. | Best default for most batches. |
-| `simulator` | Always sends a simulator tap event at the resolved point. | Use when normal buttons, fields, or custom controls work with simulator taps and you want the simplest dispatch path. |
-| `physical` | Always sends touch down/up events at the resolved point. | Use when a control only responds to real touch-style interaction, such as long-press-sensitive or switch-like UI. |
-
-### Accessibility cache
-
-`--ax-cache` controls how selector-based steps read the accessibility tree.
-
-| Value | Meaning | Tradeoff |
-|-------|---------|----------|
-| `perBatch` | **Default.** Reuse one accessibility snapshot across the batch. | Fastest when the screen does not change much. Can be stale after navigation. |
-| `perStep` | Refresh the accessibility snapshot before each selector-based step. | Better for multi-screen flows where each tap changes the UI. Slower than `perBatch`. |
-| `none` | Do not reuse accessibility snapshots. | Most conservative option when the UI changes frequently or cached selectors are misleading. |
-
-### Text submission
-
-<div className="option-grid">
-  <div className="option-card">
-    <div className="option-name">--type-submission</div>
-    <div className="option-default">Default: chunked</div>
-    <p>`chunked` sends text input in chunks. `composite` submits the full HID event sequence as one composite event.</p>
-  </div>
-  <div className="option-card">
-    <div className="option-name">--type-chunk-size &lt;count&gt;</div>
-    <div className="option-default">Default: 200</div>
-    <p>Maximum HID events per chunk when `--type-submission chunked` is active. Increase for fewer chunks; decrease if long text input is unreliable.</p>
-  </div>
-</div>
-
-Per-step `--udid` is rejected. The batch command owns the simulator session.
+| Option | Default | Effect |
+|--------|---------|--------|
+| `--wait-timeout <s>` | `0` | How long selector taps wait for their element to appear. |
+| `--poll-interval <s>` | `0.25` | Seconds between accessibility reads while waiting. |
+| `--ax-cache perBatch\|perStep\|none` | `perBatch` | When selector taps reuse the accessibility tree. Use `perStep` for flows that change screens. |
+| `--tap-style automatic\|simulator\|physical` | `automatic` | Default style of tap steps. A step's own `--tap-style` wins. |
+| `--type-submission chunked\|composite` | `chunked` | How type steps send their key events. |
+| `--type-chunk-size <n>` | `200` | Key events per chunk with `chunked`. |
+| `--continue-on-error` | off | Simulators: run the remaining steps after a failure. |
+| `--verbose` | off | Log progress to stderr; with selected input, print each step's JSON receipt instead. |
 
 ## Multi-screen flows
 
-Use `--wait-timeout` instead of arbitrary sleeps when the next screen exposes a selector.
+Use `--wait-timeout` instead of fixed sleeps when the next screen has a selector to wait for:
 
 ```shell
-axe batch --udid <UDID> --wait-timeout 5 \
+axe batch --udid "$UDID" --wait-timeout 5 --ax-cache perStep \
   --step "tap --id LoginButton" \
   --step "tap --id WelcomeBanner" \
   --step "tap --label 'Continue'"
 ```
 
-Coordinate steps do not wait. For custom-drawn UI, use explicit `sleep` steps.
+Coordinate steps do not wait. For custom-drawn UI, add a `sleep` step.
 
-## What batch does not do
+## Physical devices
 
-- It does not assert anything. Use `describe-ui` or `screenshot` after the batch.
-- It does not verify slider values. Use `axe slider` outside batch.
-- It does not handle binary I/O such as screenshot or video.
-- It does not retry steps beyond selector polling.
+Batches work on iPhones and iPads with the hardware UDID. A device batch can hold a contact across steps and releases it when the batch ends. It refuses input after its own `button lock` step, and checks the lock state again before input that follows a quiet gap of 25 seconds or more.
+
+## Agent batches
+
+`batch --agent` takes a JSON document of 1 to 8 `tap` or `type` steps, all naming refs from one snapshot. AXe checks every ref before the first input, checks each target again before its step, and returns the new screen at the end.
+
+```shell
+axe batch --agent --view navigation --udid "$UDID" --steps-json '{"snapshotID":"<SNAPSHOT_ID>","steps":[
+  {"action":"type","ref":"e7","text":"Ada","focus":true},
+  {"action":"type","ref":"e9","text":"Lovelace","focus":true},
+  {"action":"tap","ref":"e12"}
+]}'
+```
+
+Use it to fill a form, toggle several switches or pick options on one screen. See [Agent Mode](/docs/agent-mode#batches).
+
+## What a batch does not do
+
+- It does not check the app's response. Read the screen after the batch, or use `batch --agent`.
+- It does not capture screenshots or video.
+- It does not retry a step beyond selector polling, and it never replays input.
 
 ## Related
 
-- [CLI](/docs/cli)
-- [Command Reference](/docs/command-reference)
-- [Accessibility Targeting](/docs/accessibility-targeting)
+- [Agent Mode](/docs/agent-mode)
+- [Reading & Tapping](/docs/accessibility-targeting)
+- [iPhone Duo](/docs/iphone-duo)
 - [Troubleshooting](/docs/troubleshooting)

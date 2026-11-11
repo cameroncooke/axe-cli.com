@@ -1,73 +1,80 @@
 <PageHeader
   breadcrumbs={["Docs", "Contributing", "Testing"]}
   title="Testing"
-  lede="Run fast Swift tests by default, and opt in to simulator-backed E2E tests when needed."
+  lede="Fast unit tests by default, quick release checks in one command, and Playground end-to-end suites that call the real AXe CLI on iPhone, iPad and iPhone Duo simulators and physical devices."
 />
 
-AXe keeps tests simple: one file per command where possible, and simulator-backed E2E tests are gated so the default test run stays fast.
-
-## Default tests
+## Unit tests
 
 ```shell
-swift test
+make test
+swift test --filter DrawTests
 ```
 
-This runs tests that do not require a booted simulator.
+Unit tests need no simulator. They cover command validation, agent admission and output, display discovery, the device JSON shapes and the orientation rules.
 
-## End-to-end tests
-
-E2E tests require a booted simulator and explicit environment variables:
+## Release checks
 
 ```shell
-AXE_E2E=1 SIMULATOR_UDID=<UDID> swift test
+make release-check
 ```
 
-The Makefile wraps the standard E2E path:
+Runs everything short of the end-to-end suites and reports each check: released changelog sections unchanged, the script tests, the two skill copies identical, the skill lint, no open items in the release readiness log, the packaging dry run and the unit tests. Every check runs even when one fails. `RELEASE_CHECK_SKIP="skill lint,packaging"` leaves checks out by name.
+
+## Playground end-to-end suite
+
+The Playground is a normal app. Swift Testing calls the real AXe CLI and checks the app's state, accessibility, contacts and callbacks after real input. The app has no injected test state.
 
 ```shell
-make e2e
+DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer make e2e
 ```
 
-## Run one area
+`make e2e` uses dedicated iPhone 18 Pro, iPad Air and iPhone Duo simulators on the newest runtime the selected Xcode supports, creating any that are missing, and writes results to `e2e-results/<UTC time>/`. It needs Xcode 27.1 or later for the Playground's Duo hinge view, and exits 2 without an iPhone Duo runtime. Set `AXE_E2E_IPHONE_UDID`, `AXE_E2E_IPAD_UDID` or `AXE_E2E_DUO_UDID` to use other simulators.
 
-Use filters while iterating:
+<Callout variant="warn" title="The full suite takes hours">
+Run the whole matrix once at the end of a significant piece of work. For a fix, run only the affected groups.
+</Callout>
+
+## Focused checks
+
+Run one group on one device:
 
 ```shell
-swift test --filter TapTests
-swift test --filter SliderTests
-swift test --filter SwipeTests
-swift test --filter DragTests
-swift test --filter TypeTests
-swift test --filter KeyTests
-swift test --filter TouchTests
-swift test --filter ButtonTests
-swift test --filter GestureTests
-swift test --filter BatchTests
-swift test --filter ListSimulatorsTests
-swift test --filter DescribeUITests
+python3 scripts/test-playground-matrix.py --only duo --suite keyboard-hardware \
+  --axe /absolute/path/to/axe --iphone IPHONE_UUID --duo DUO_UUID \
+  --developer-dir /Applications/Xcode.app/Contents/Developer \
+  --output e2e-results/NEW_RUN
 ```
 
-## Test philosophy
+`--only` takes `iphone`, `ipad` or `duo`; `--suite` groups include `core-controls`, `agent-controls`, `keyboard-hardware`, `media` and `hinge`. Add `--group <TestSuite>`, repeatable, to run only named test suites of that group. A focused run proves only what it ran, on that device.
 
-- One responsibility per test file.
-- Self-contained helpers and fixtures.
-- No shared mutable test state.
-- No fake simulator state for integration or snapshot behavior.
-- E2E tests should invoke the real binary against a real simulator.
+## Physical devices
 
-## Adding tests
+```shell
+DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer make e2e-devices
+```
 
-When adding a command, add `Tests/<Command>Tests.swift` and cover:
+The device suite is opt-in. It exits 1 before building when no physical iPhone or iPad is paired, installs the Playground on each device with automatic signing and reads every result back from the device.
 
-- Validation rules from `validate()`.
-- The happy path, E2E if HID is required.
-- At least one error path.
-- Batch behavior when the command has a batch adapter.
+## Validate a release payload
 
-Update `Tests/README.md` if the test structure changes.
+To check a release binary under another Xcode, build the test bundle with that Xcode, then:
+
+```shell
+AXE_BIN_PATH=/path/to/release/axe ./test-runner.sh --tests-only
+```
+
+## Benchmarks
+
+```shell
+./benchmarks/run setup
+./benchmarks/run doctor
+./benchmarks/run --tools axe --scenarios weather
+```
+
+The benchmarks compare AXe with its best accepted baseline on Weather, Contacts and Reminders tasks, recording calls, time and returned tokens.
 
 ## Related
 
 - [Contributing](/docs/contributing)
 - [Command Reference](/docs/command-reference)
-- [Batch Automation](/docs/batch)

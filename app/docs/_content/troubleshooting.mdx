@@ -1,94 +1,107 @@
 <PageHeader
   breadcrumbs={["Docs", "Guides", "Troubleshooting"]}
   title="Troubleshooting"
-  lede="Common AXe errors and the fixes that map to current command behavior."
+  lede="Common AXe failures, what their error codes mean, and the fastest fix for each."
 />
 
 ## Quick triage
 
-- Confirm the simulator is booted with `axe list-simulators`.
-- Confirm the command includes `--udid <UDID>` when it interacts with a simulator.
-- For selector failures, run `axe describe-ui --udid <UDID>` and confirm the current tree contains the expected id, label, or value.
-- In batch, add `--verbose` when you need step-level stderr logs.
+- Run `axe doctor --udid <UDID>`. It checks that a simulator is booted, or that a device is paired, in Developer Mode, connected, unlocked and ready for screenshots.
+- Use `axe --output json <command>` to get the typed `error.code` instead of reading the message.
+- For a selector failure, run `axe describe-ui --udid <UDID>` and check that the current screen has the id, label or value you used.
+- Add `--verbose` for the full receipt. It never changes the exit status or the error code.
 
-## Missing or invalid UDID
+## `targetNotFound`
 
-Every interaction, keyboard, media, and batch command needs `--udid`.
+No simulator or device has the UDID. AXe looks among simulators first, then among the devices Xcode knows. Check `axe list-simulators` and `axe list-devices`. Simulator names and `booted` are not accepted; pass the UDID.
 
-```shell
-axe tap --label Continue --udid <UDID>
-```
+## `notBooted`
 
-## Simulator is not booted
-
-Boot it from Simulator.app, Device Hub in Xcode 27, or with simctl:
+Boot the simulator:
 
 ```shell
 xcrun simctl boot <UDID>
 ```
 
-Media commands check boot state before capture.
+Right after boot, give the simulator a few seconds before the first accessibility read. On the iPhone Duo, wait until `axe displays` succeeds; it reports `displayUnavailable` for about 12 seconds after boot.
 
 ## Accessibility channel disconnected
 
-On Xcode 27 beta, the simulator accessibility service can occasionally disconnect while the simulator itself remains booted. For the exact channel-disconnect and DTX `errno 24` conditions, AXe automatically performs one bounded recovery attempt: it restarts the simulator's accessibility service, reacquires the UI hierarchy, and retries the command once.
+The simulator's accessibility service can occasionally disconnect while the simulator itself stays booted. For the channel-disconnect and DTX `errno 24` failures, AXe makes one bounded recovery attempt: it restarts the simulator's test manager service, reads the UI again and retries the command once. If that retry also fails, AXe returns the error instead of looping.
 
-If that retry also fails, AXe returns the error instead of entering a recovery loop. This recovery keeps the command contract resilient; it does not attempt to patch or hide bugs inside beta Xcode components.
+## `elementNotFound` or `ambiguousElement`
 
-## Selector not found
+The selector matched nothing, or several elements. Read the current screen, then:
 
-Use `describe-ui` on the current screen. If the element appears after navigation, add `--wait-timeout`.
+- add `--wait-timeout 5` if the element appears after navigation or an animation;
+- prefer `--id`, or add `--element-type` to narrow duplicate labels;
+- for a list, use `gesture scroll-up --until-label "<label>"` to scroll it into view first.
 
-```shell
-axe tap --id WelcomeBanner --wait-timeout 5 --udid <UDID>
-```
+If a matched row contains a switch, the default `automatic` tap style taps the switch. Use `--tap-style simulator` if you meant the row.
 
-## Wrong element tapped
+## `busy`
 
-Duplicate labels are common. Prefer `--id`, or add `--element-type` to narrow the match.
+Another AXe command holds the simulator or device. Wait for it to finish; for example, a `record-video` in another terminal holds a capture lease during each frame.
 
-If the target is a switch or toggle row, AXe may tap the contained control and use physical touch automatically. Force `--tap-style simulator` if you wanted the row's simulator tap path.
+## `cleanupUncertain` or `quarantined`
 
-## Unsupported text characters
+AXe could not confirm that a touch or key was released, so it blocks further input on that target. Check the device, then delete the quarantine record file named in the error. AXe never replays the input.
 
-`axe type` supports US-keyboard characters. Accented and non-ASCII characters fail with `unsupportedCharacter`. For non-ASCII content, populate the field out-of-band and use AXe to trigger the action.
+## `invalidArguments` from `type`
 
-## Slider did not reach the requested value
+`type` uses the US keyboard layout. A character it cannot send, such as `é` or `£`, fails before anything is typed. In a simulator, stage such text with `axe clipboard copy --stdin` and paste it in the app.
 
-`slider --value` is a percentage from 0 to 100. AXe verifies AXValue after dragging. iOS can quantize slider values, so a visually correct drag may still report a nearby value outside tolerance.
+## Gestures land in the wrong place
 
-## Unsupported batch step
+Coordinates are logical points in the current orientation, not screenshot pixels. Divide pixel positions by the screen scale that `axe displays` reports. A `gesture` preset step in a batch on a simulator other than the iPhone Duo assumes 390×844 unless you pass `--screen-width` and `--screen-height`.
 
-Allowed steps are `tap`, `swipe`, `gesture`, `touch`, `type`, `button`, `key`, `key-sequence`, `key-combo`, and `sleep`.
+## `inputUnavailable`
 
-Run `slider`, `drag`, `screenshot`, `describe-ui`, `record-video`, `stream-video`, `list-simulators`, and `init` outside batch.
+The simulator has no DTUHID touch service, which coordinate gestures such as `pinch` and `rotate` need. Use a current Xcode and simulator runtime.
 
-## Per-step `--udid` in batch
+## `DTUHID guest barrier timed out`
 
-Move `--udid` to the top-level batch invocation:
+This affected commands sent straight after `button home` on Xcode 27.2 in earlier releases and is fixed in AXe 2. Upgrade with `brew upgrade axe`.
 
-```shell
-axe batch --udid <UDID> --step "tap --label Continue"
-```
+## Physical device problems
 
-## Batch stale UI
+| Code | Fix |
+|------|-----|
+| `notPaired` | Pair the device in Xcode and confirm Trust on the device. |
+| `developerModeDisabled` | Enable Developer Mode in Settings on the device. |
+| `deviceNotConnected` | Connect the device by USB or reconnect it in Xcode. |
+| `developerDiskImageUnavailable` | Open the device in Xcode and wait for it to finish preparing. |
+| `deviceLocked` | Unlock the device. |
+| `rotationLocked` | Turn Orientation Lock off. |
+| `rotationUnconfirmed`, `displayOrientationMismatch` | The display lagged behind the interface, or the app does not support the orientation. No input was sent; rotate again, then read the screen. |
+| `deviceStreamReplaced` | Xcode Device Hub's screen view took the native stream. Close it, or use the screenshot stream formats. |
+| `treeUnavailable` | The accessibility tree was too large to read in 20 seconds. Navigate to a smaller screen. |
+| `unsupportedOnDevice` | The command is simulator-only. See [what works on a device](/docs/physical-devices#what-works-on-a-device). |
 
-For flows that navigate between screens, use `--wait-timeout` or set `--ax-cache perStep`.
+If a modal alert blocks the accessibility tree, close it on the device and read again.
 
-```shell
-axe batch --udid <UDID> --wait-timeout 5 --step "tap --id Continue"
-```
+## Settings
 
-## Video output is garbled
+`settingUnsupported` means the device, OS or Xcode lacks the setting: `axe settings` needs Xcode 27, status bar overrides are simulator-only, and iOS 27.2 offers one Liquid Glass style. After turning VoiceOver on and off, tap OK on the "VoiceOver Gestures" alert; it blocks input until you do.
 
-`stream-video` writes binary frame data to stdout. Redirect it or pipe it to a consumer for the chosen format.
+## Agent mode refusals
 
-## 0-byte MP4
+A refusal sent no input and usually returns the current screen. Act from that capture; sending the identical command again gets the same answer. See [Agent Mode refusals](/docs/agent-mode#refusals).
 
-Stop recordings with Ctrl+C or `kill -INT <pid>`. SIGKILL cannot run AXe's finalization handler.
+## Video
+
+- **Garbled terminal**: `stream-video` writes binary frames to stdout. Redirect or pipe it.
+- **Unfinished MP4**: stop recordings with `Ctrl+C` or `kill -INT <pid>`. SIGKILL skips finishing the file.
+- **`stream-video` refuses `--output json`**: its stdout carries frames, so it has no JSON result.
+
+## Batch
+
+- A step with its own `--udid` is rejected; put `--udid` on `axe batch`.
+- For flows that change screens, set `--wait-timeout` or `--ax-cache perStep`.
+- `screenshot`, `describe-ui`, video, `slider` and `drag` are not plain batch steps; run them on their own.
 
 ## Related
 
-- [CLI](/docs/cli)
-- [Command Reference](/docs/command-reference)
-- [Batch Automation](/docs/batch)
+- [Output & Errors](/docs/output-and-errors)
+- [Physical iPhone & iPad](/docs/physical-devices)
+- [Agent Mode](/docs/agent-mode)

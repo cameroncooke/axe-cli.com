@@ -1,0 +1,102 @@
+<PageHeader
+  breadcrumbs={["Docs", "Usage", "Swipes, Gestures & Drawing"]}
+  title="Swipes, Gestures & Drawing"
+  lede="Swipe between points, scroll until an element is on screen, use gesture presets, pinch and rotate, drag to reorder, and draw shapes with one finger."
+/>
+
+All coordinates are logical points in the current orientation. None of these commands proves that the app recognised the gesture: read the screen afterwards.
+
+## Swipe
+
+```shell
+axe swipe --start-x 200 --start-y 600 --end-x 200 --end-y 300 --udid "$UDID"
+axe swipe --start-x 200 --start-y 600 --end-x 200 --end-y 300 --duration 0.5 --delta 25 --udid "$UDID"
+```
+
+`--duration` defaults to 1 second and `--delta`, the distance between touch samples, to 50 points.
+
+## Gesture presets
+
+```shell
+axe gesture scroll-up --udid "$UDID"
+axe gesture scroll-down --distance 0.6 --udid "$UDID"     # 60% of the screen height
+axe gesture swipe-from-left-edge --edge-inset 5 --udid "$UDID"
+axe gesture swipe-from-top-right-corner --udid "$UDID"    # Control Centre
+```
+
+| Preset | Notes |
+|--------|-------|
+| `scroll-up`, `scroll-down`, `scroll-left`, `scroll-right` | Move 200 points, or `--distance` as a fraction of the screen (0.05 to 0.95). The name is the finger direction. |
+| `swipe-from-left-edge`, `swipe-from-right-edge`, `swipe-from-top-edge`, `swipe-from-bottom-edge` | Start 20 points from the edge; `--edge-inset` moves the start. |
+| `swipe-from-top-right-corner` | Opens Control Centre. |
+
+Presets act on the screen's size in points in the current orientation, so they cover the whole screen on iPads, large iPhones and each iPhone Duo screen. `--screen-width` and `--screen-height` override it. Two routes do not measure the screen and assume 390×844 unless you pass both: a simulator without the DTUHID touch service, and a `gesture` step in a batch on a simulator other than the iPhone Duo.
+
+## Scroll until an element is on screen
+
+```shell
+axe gesture scroll-up --until-label "Privacy" --udid "$UDID"
+axe gesture scroll-left --inside-id Toolbar --until-label "Share" --udid "$UDID"
+axe swipe --start-x 200 --start-y 600 --end-x 200 --end-y 300 --until-id SaveButton --udid "$UDID"
+```
+
+With `--until-id` or `--until-label`, a scroll preset or a `swipe` reads the screen, scrolls and reads again until that element is on screen, at most `--max-swipes` times (default 10, up to 50). An element counts as on screen when a lookup at its centre finds it, so one past the edge of a strip or under another control does not count.
+
+Each of these scrolls slows to a stop before the finger lifts, so the content moves the length of the scroll and no further. AXe sends no input when the element is already there, and fails with `elementNotFound` when the limit is reached or as soon as a scroll moves nothing, which means the content is at its end.
+
+`--inside-id` or `--inside-label` lays a scroll preset out inside that element instead of the whole screen, for a list or strip that fills only part of it (simulators).
+
+## Drag
+
+```shell
+axe drag --start-x 200 --start-y 300 --end-x 200 --end-y 500 --udid "$UDID"
+axe drag --start-x 200 --start-y 300 --end-x 200 --end-y 500 --hold 0.6 --udid "$UDID"  # reorder a row
+```
+
+`drag` sends explicit touch moves: `--duration` 0.6 seconds and `--steps` 60 by default (1 to 1,000). `--hold <seconds>` rests the finger on the start before it moves; about 0.6 starts a list reorder or lifts a Home Screen icon.
+
+## Pinch, rotate and two-finger gestures
+
+```shell
+axe gesture pinch --scale 2 --udid "$UDID"                              # zoom in at the screen centre
+axe gesture pinch -x 200 -y 400 --radius 60 --scale 0.5 --udid "$UDID"  # zoom out
+axe gesture rotate -x 200 -y 400 --radius 80 --degrees 90 --udid "$UDID"
+axe gesture double-tap -x 200 -y 400 --udid "$UDID"
+axe gesture two-finger-tap -x 150 -y 400 --x2 250 --y2 400 --udid "$UDID"
+axe gesture two-finger-hold -x 150 -y 400 --x2 250 --y2 400 --hold 1 --udid "$UDID"
+axe gesture two-finger-swipe -x 150 -y 600 --x2 250 --y2 600 \
+  --end-x 150 --end-y 300 --end-x2 250 --end-y2 300 --udid "$UDID"
+```
+
+| Gesture | Options |
+|---------|---------|
+| `pinch` | `--scale` (not 1; above 1 zooms in), optional `-x/-y` and `--radius` |
+| `double-tap` | `-x/-y`, optional `--interval` (default 0.1 s) |
+| `rotate` | `-x/-y`, `--radius`, `--degrees` (-360 to 360, clockwise) |
+| `two-finger-tap` | `-x/-y`, `--x2/--y2` |
+| `two-finger-hold` | `-x/-y`, `--x2/--y2`, `--hold` |
+| `two-finger-swipe` | `-x/-y`, `--x2/--y2`, `--end-x/--end-y`, `--end-x2/--end-y2` |
+
+`pinch` without `-x/-y` uses the centre of the active screen, and without `--radius` starts a quarter of the screen's shorter side from it, or closer so that the wider end stays 16 points inside the screen. These gestures need no mode flag. On a simulator without the DTUHID touch service they fail with `inputUnavailable` before input.
+
+`gesture rotate` is a two-finger rotation inside the app. To turn the device, use [`axe rotate`](/docs/iphone-duo#rotation).
+
+## Draw
+
+```shell
+axe draw 100,400 300,400 --udid "$UDID"                                  # a line
+axe draw 200,300 300,480 100,480 --close --duration 1.5 --udid "$UDID"   # a triangle
+axe draw 60,500 120,420 180,500 240,420 300,500 --udid "$UDID"           # a zigzag
+```
+
+`draw` puts one finger down at the first of 2 to 1,000 `x,y` points, moves in straight lines through the rest and lifts at the last. `--close` returns to the first point. The stroke takes `--duration` seconds (default 1, at most 30). A point outside the active screen fails with `invalidArguments` before input.
+
+## Where they run
+
+All of these work on simulators, including the iPhone Duo simulator, and on physical devices, with two exceptions on devices: `swipe-from-right-edge` returns `unsupportedOnDevice`, and `--inside-id`/`--inside-label` are simulator-only. On a device the bottom-edge preset is unavailable in landscape with the camera on the right, and the left-edge preset upside down.
+
+## Related
+
+- [Reading & Tapping](/docs/accessibility-targeting)
+- [Batch Automation](/docs/batch)
+- [Agent Mode](/docs/agent-mode)
