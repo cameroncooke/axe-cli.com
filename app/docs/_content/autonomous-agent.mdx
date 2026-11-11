@@ -1,0 +1,88 @@
+<PageHeader
+  breadcrumbs={["Docs", "AI Agents", "Autonomous Agent"]}
+  title="Autonomous Agent"
+  lede="axe agent turns a plain-language goal into AXe actions, one checked action at a time, from the accessibility tree and without screenshots, using TypeSafe AI's Jev model."
+  meta={["Experimental", "Simulators", "Needs TYPESAFE_API_KEY"]}
+/>
+
+```shell
+export TYPESAFE_API_KEY=<KEY>
+axe agent "Open Settings and turn on Airplane Mode" --udid "$UDID"
+```
+
+`axe agent` is separate from the `--agent` option of other commands. Use `--agent` when your own AI agent drives AXe; use `axe agent` when you want AXe to reach a goal by itself.
+
+## How it works
+
+Each step:
+
+1. Reads the frontmost app's accessibility tree and turns it into compact rows with refs.
+2. Builds the set of operations AXe can run on the current screen.
+3. Asks Jev for the next operation and its target.
+4. Re-reads the screen while Jev decides, and discards the decision if the screen changed in a way that matters.
+5. Runs one action, then reads the screen for the next step.
+
+It repeats until Jev answers `DONE` or `BLOCKED`, or the step limit is reached. No screenshot is sent; the request holds the compact rows, the installed apps relevant to the goal and a short action history.
+
+Operations are `OPEN_APP`, `TAP`, `TYPE_TEXT`, `CLEAR_TEXT`, `PRESS_RETURN`, `SCROLL_DOWN`, `SCROLL_UP`, `WAIT`, `DONE` and `BLOCKED`.
+
+## Options
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `--udid <UDID>` | required | The booted simulator. |
+| `--max-steps <n>` | `40` | Most actions before stopping, 1 to 200. |
+| `--model <name>` | `jev-latest` | TypeSafe model. |
+| `--base-url <url>` | `https://api.typesafe.ai` | TypeSafe API root. HTTPS unless on this Mac. |
+| `--minimum-action-probability <p>` | `0` | Refuse actions the model rates below this, 0 to 1. |
+| `--trace <path>` | | Write a JSON decision trace. It can contain screen text and entered values. |
+| `--json` | | Print only the final result as JSON. |
+
+```shell
+axe agent "Open Notes and create a note saying 'Buy milk'" --udid "$UDID" --json --trace ./trace.json
+axe agent "Open Settings and enable Airplane Mode" --udid "$UDID" --minimum-action-probability 0.65
+```
+
+## Text values
+
+Jev chooses operations and targets; it does not invent field content. Values written in the goal, preferably quoted, are typed directly. When a value is not in the goal, an optional OpenAI-compatible text model chooses it:
+
+```shell
+export AXE_TEXT_MODEL_API_KEY=<KEY>
+export AXE_TEXT_MODEL_BASE_URL=https://api.deepseek.com/v1   # default
+export AXE_TEXT_MODEL=deepseek-chat                          # default
+```
+
+Without an explicit value or a text model, `TYPE_TEXT` fails before typing.
+
+## Safety
+
+Before every action, AXe checks that the chosen operation and target were offered, that the model's probabilities are well formed and favour that choice, that any minimum probability is met, and that the decision is still fresh for the current screen. Screen text is labelled as untrusted in every request; the goal is the only instruction source.
+
+## Usage and cost
+
+A finished run prints Jev token usage and an estimated cost. `TYPESAFE_INPUT_USD_PER_MTOK` overrides the input price used for the estimate. With `--json`, the totals are in the result's `usage` object.
+
+## Limits
+
+- Booted simulators only, not physical devices.
+- Accessibility only, with no vision fallback, so canvas-only or poorly labelled interfaces may be blocked.
+- Text entry uses AXe's US keyboard layout.
+- Picker wheels, sliders, drag and drop and hardware buttons are not offered to the model.
+
+## Environment
+
+| Variable | Purpose | Default |
+|----------|---------|---------|
+| `TYPESAFE_API_KEY` | Jev API key, required | |
+| `TYPESAFE_BASE_URL` | TypeSafe API root | `https://api.typesafe.ai` |
+| `TYPESAFE_MODEL` / `TYPESAFE_DEFAULT_MODEL` | Jev model | `jev-latest` |
+| `TYPESAFE_INPUT_USD_PER_MTOK` | Input price for the cost estimate | `0.042` |
+| `AXE_TEXT_MODEL_API_KEY` / `TEXT_MODEL_API_KEY` | Optional text model key | |
+| `AXE_TEXT_MODEL_BASE_URL` / `TEXT_MODEL_BASE_URL` | Text model API root | `https://api.deepseek.com/v1` |
+| `AXE_TEXT_MODEL` / `TEXT_MODEL` | Text model | `deepseek-chat` |
+
+## Related
+
+- [Agent Mode](/docs/agent-mode)
+- [AI Skill](/docs/agent-skills)

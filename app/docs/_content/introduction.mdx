@@ -1,64 +1,77 @@
 <PageHeader
   breadcrumbs={["Docs"]}
   title="AXe documentation"
-  lede="AXe is a CLI for inspecting and automating iOS Simulator apps with Accessibility APIs and HID input. Use it from your terminal, scripts, CI jobs, or AI agents."
-  meta={["iOS Simulator only", "macOS 14+", "CLI automation"]}
+  lede="AXe is a command-line tool that automates iOS simulators, including the dual-screen iPhone Duo simulator, and connected iPhones and iPads. It reads the accessibility tree, sends taps, typing, gestures and hardware buttons, captures screenshots and video, and changes device settings. Agent mode gives AI agents checked, stateful control of the UI."
+  meta={["AXe 2", "macOS 14+", "Xcode 26 and 27", "MIT licensed"]}
 />
 
-## What AXe is
+## What AXe does
 
-AXe helps you automate booted iOS Simulators from the terminal. Use it when you need repeatable simulator interactions: inspect the UI, target controls, perform gestures, enter text, and capture evidence.
-
-## What you can automate
+AXe is one binary you install with Homebrew. Every command names its target with `--udid`, and the same commands work on a simulator, an iPhone Duo simulator and a paired iPhone or iPad. Use it from a terminal, a shell script, a CI job or an AI agent.
 
 <div className="feature-grid">
   <div className="feature-card">
-    <div className="feature-kicker">Inspect</div>
-    <h3>Read the current UI</h3>
-    <p>Use `describe-ui` to inspect the screen, query a point, and find stable accessibility selectors.</p>
+    <div className="feature-kicker">Read</div>
+    <h3>Inspect the UI</h3>
+    <p>`describe-ui` prints the accessibility tree as JSON, or the element at one point. Agent mode returns compact rows with a ref for each control.</p>
   </div>
   <div className="feature-card">
-    <div className="feature-kicker">Interact</div>
-    <h3>Tap, swipe, drag, and type</h3>
-    <p>Drive coordinates, accessibility identifiers, labels, values, gestures, HID keys, and text input.</p>
+    <div className="feature-kicker">Act</div>
+    <h3>Tap, type, swipe and draw</h3>
+    <p>Tap by point or by `--id`, `--label` or `--value`, long press, double tap, scroll until an element appears, pinch, rotate, drag, draw and type.</p>
   </div>
   <div className="feature-card">
-    <div className="feature-kicker">Verify</div>
-    <h3>Capture evidence</h3>
-    <p>Take screenshots, record MP4 video, stream frames, and verify UI state after each important step.</p>
+    <div className="feature-kicker">Capture</div>
+    <h3>Screenshots and video</h3>
+    <p>Save PNGs, record H.264 MP4s, stream MJPEG, JPEG or BGRA frames, and native H.264 from a physical device.</p>
   </div>
   <div className="feature-card">
-    <div className="feature-kicker">Automate</div>
-    <h3>Run repeatable flows</h3>
-    <p>Use `axe batch` for supported interaction steps, and `axe init` to install the bundled agent skill.</p>
+    <div className="feature-kicker">Configure</div>
+    <h3>Change device settings</h3>
+    <p>Set dark mode, text size, accessibility display settings, VoiceOver, a simulated location and the simulator status bar.</p>
+  </div>
+  <div className="feature-card">
+    <div className="feature-kicker">Devices</div>
+    <h3>Simulators and hardware</h3>
+    <p>Automate connected iPhones and iPads, and every screen, fold and orientation of the iPhone Duo simulator.</p>
+  </div>
+  <div className="feature-card">
+    <div className="feature-kicker">Agents</div>
+    <h3>Built for AI agents</h3>
+    <p>`--agent` checks every action against the screen the agent saw and returns the settled screen. The AXe skill teaches agents to use it.</p>
   </div>
 </div>
 
-## Recommended workflow
-
-Start with accessibility selectors. Coordinates are useful for debugging, but selectors survive layout and device changes better.
+## A first session
 
 ```shell
-axe list-simulators
-axe describe-ui --udid <UDID>
-axe tap --label "Sign In" --wait-timeout 5 --udid <UDID>
+axe list-simulators                       # find a booted simulator's UDID
+export UDID=<UDID>
+axe describe-ui --udid "$UDID"            # accessibility tree as JSON
+axe tap --label "Continue" --udid "$UDID"
+axe type 'Hello world' --udid "$UDID"
+axe screenshot --udid "$UDID" --output screen.png
 ```
 
-<Callout variant="info" title="Coordinates are orientation-aware">
-AXe translates logical coordinates for rotated landscape and letterboxed landscape-only apps automatically. Use coordinates from `describe-ui`; do not rotate them yourself.
+For a physical device, use `axe list-devices` and `axe doctor` instead of `list-simulators`; the rest is the same. See [Physical iPhone & iPad](/docs/physical-devices).
+
+<Callout variant="info" title="Coordinates are points, not pixels">
+Coordinates are logical points in the current orientation, the units `axe displays` reports. A screenshot contains pixels. AXe handles rotation and letterboxing for you.
 </Callout>
 
-<Callout variant="warn" title="Batch support is intentionally narrow">
-`axe batch` runs interaction primitives only. It does not run `slider`, `drag`, `screenshot`, `describe-ui`, video commands, `list-simulators`, or `init` as batch steps.
-</Callout>
+## Two ways to drive the UI
 
-## Command reference
+| Route | Use it for | How it works |
+|-------|-----------|--------------|
+| Plain commands | Scripts, CI and known flows | Send input by point or selector. Fast and simple; you check the result with a separate read. |
+| Agent mode (`--agent`) | AI agents and flows that must not hit the wrong control | Capture the screen as rows with refs, act on a ref, and get the settled screen back. AXe refuses input if the control changed. |
 
-Use [Command Reference](/docs/command-reference) as the canonical list of AXe commands, flags, examples, and command-specific notes.
+Read [Agent Mode](/docs/agent-mode) before connecting an AI agent to AXe, and install the [AI skill](/docs/agent-skills) so the agent knows the workflow.
 
-## Related
+## Where to go next
 
+- [What's New in AXe 2](/docs/whats-new)
 - [Installation](/docs/installation)
 - [Quick Start](/docs/quick-start)
 - [Command Reference](/docs/command-reference)
-- [Agent Skills](/docs/agent-skills)
+- [Output & Errors](/docs/output-and-errors)

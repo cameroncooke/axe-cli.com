@@ -4,15 +4,17 @@ import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import "./globals.css"
 
+const TITLE = "AXe - iOS automation for simulators, devices and AI agents"
+const DESCRIPTION =
+  "A CLI that automates iOS simulators, including the iPhone Duo simulator, and connected iPhones and iPads: accessibility reads, taps, typing, gestures, screenshots, video and device settings, with an agent mode for AI agents. Single binary, no servers."
+
 export const metadata: Metadata = {
   metadataBase: new URL("https://axe-cli.com"),
-  title: "AXe - iOS Simulator Automation via Accessibility APIs",
-  description:
-    "A comprehensive CLI tool for automating iOS Simulators using Apple's Accessibility APIs and HID functionality. Single binary, no servers, no dependencies.",
+  title: TITLE,
+  description: DESCRIPTION,
   openGraph: {
-    title: "AXe - iOS Simulator Automation via Accessibility APIs",
-    description:
-      "A comprehensive CLI tool for automating iOS Simulators using Apple's Accessibility APIs and HID functionality. Single binary, no servers, no dependencies.",
+    title: TITLE,
+    description: DESCRIPTION,
     type: "website",
     url: "https://axe-cli.com",
     images: [
@@ -26,9 +28,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "AXe - iOS Simulator Automation via Accessibility APIs",
-    description:
-      "A comprehensive CLI tool for automating iOS Simulators using Apple's Accessibility APIs and HID functionality. Single binary, no servers, no dependencies.",
+    title: TITLE,
+    description: DESCRIPTION,
     images: ["/banner.png"],
   },
 }

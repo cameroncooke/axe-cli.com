@@ -1,94 +1,95 @@
 <PageHeader
   breadcrumbs={["Docs", "Getting Started", "Quick Start"]}
   title="Quick Start"
-  lede="Find a simulator, inspect the current UI, drive one interaction, type text, and capture evidence."
+  lede="Find a simulator, read the current UI, tap a control, type text and capture the result."
 />
 
-## 1. Find a simulator
+## 1. Find a target
 
 ```shell
 axe list-simulators
 ```
 
-Example output:
-
-```text
-iPhone 16 Pro   Booted   8F2A4C9E-3C2B-4A1D-9B31-123456789ABC
-iPad Air        Shutdown 4E7D0A11-9F7E-4B49-8C7C-123456789ABC
-```
-
-Copy the UDID for a booted simulator, then keep it in your shell:
+Copy the UDID of a booted simulator and keep it in your shell:
 
 ```shell
 export UDID=<UDID>
+axe doctor --udid "$UDID"
 ```
 
-## 2. Inspect the current screen
+For a physical iPhone or iPad, run `axe list-devices` and use the hardware UDID it prints. Every command below works the same way on a device.
+
+## 2. Read the screen
 
 ```shell
-axe describe-ui --udid $UDID
-axe describe-ui --point 200,400 --udid $UDID
+axe describe-ui --udid "$UDID"                 # the whole tree as JSON
+axe describe-ui --point 200,400 --udid "$UDID" # the element at one point
 ```
 
-Simplified output:
+Each element has fields such as `AXUniqueId`, `AXLabel`, `AXValue`, `type` and `frame`:
 
 ```json
 {
-  "AXRole": "Button",
+  "type": "Button",
   "AXLabel": "Continue",
   "AXUniqueId": "ContinueButton",
   "frame": { "x": 96, "y": 642, "width": 201, "height": 50 }
 }
 ```
 
-Use `AXUniqueId` or `AXLabel` values from the JSON when possible.
+Use `AXUniqueId` or `AXLabel` values as selectors when you can.
 
-## 3. Tap by selector
-
-```shell
-axe tap --id SearchField --udid $UDID
-axe tap --label "Continue" --wait-timeout 5 --udid $UDID
-```
-
-`--wait-timeout` is the normal way to handle UI that appears after navigation or animation.
-
-## 4. Type text
+## 3. Tap
 
 ```shell
-axe type 'hello world' --udid $UDID
-echo 'Hello, "world"!' | axe type --stdin --udid $UDID
-axe type --file ./message.txt --udid $UDID
+axe tap --id ContinueButton --udid "$UDID"
+axe tap --label "Continue" --wait-timeout 5 --udid "$UDID"   # poll until it appears
+axe tap -x 200 -y 400 --udid "$UDID"                         # a point
 ```
 
-<Callout variant="warn" title="US keyboard only">
-AXe types via HID keycodes for the US keyboard layout. Accented and non-ASCII characters fail with a clear error.
-</Callout>
+`tap` prints a `✓ Tap at … completed successfully` line when the input was sent. `--wait-timeout` is the normal way to handle UI that appears after navigation or an animation.
+
+## 4. Type
+
+```shell
+axe tap --id EmailField --udid "$UDID"
+axe type 'cam@example.com' --udid "$UDID"
+axe key 40 --udid "$UDID"                       # Return
+```
+
+`type` uses the US keyboard layout. A character it cannot send, such as `é`, fails with `invalidArguments` before anything is typed.
 
 ## 5. Capture the result
 
 ```shell
-axe screenshot --output ./verify.png --udid $UDID
+axe screenshot --udid "$UDID" --output after-login.png
 ```
 
-Example result:
+`screenshot` prints the path of the PNG it wrote.
 
-```text
-Screenshot saved to ./verify.png
-```
-
-For multi-step interaction flows, move the supported interaction commands into `axe batch`, then run `screenshot` after the batch if you need visual evidence.
+## 6. Run several steps at once
 
 ```shell
-axe batch --udid $UDID \
+axe batch --udid "$UDID" \
   --step "tap --id EmailField" \
   --step "type 'cam@example.com'" \
   --step "key 40"
-
-axe screenshot --output ./after-login.png --udid $UDID
 ```
+
+## Using an AI agent?
+
+Agents should use agent mode, which checks each action against the screen and returns the new screen in the same reply:
+
+```shell
+axe describe-ui --agent --view navigation --udid "$UDID"
+axe tap --agent --snapshot-id "$SNAPSHOT_ID" --ref e9 --udid "$UDID"
+```
+
+Install the skill with `axe init` and read [Agent Mode](/docs/agent-mode).
 
 ## Related
 
+- [CLI Basics](/docs/cli)
+- [Reading & Tapping](/docs/accessibility-targeting)
+- [Output & Errors](/docs/output-and-errors)
 - [Command Reference](/docs/command-reference)
-- [Accessibility Targeting](/docs/accessibility-targeting)
-- [Batch Automation](/docs/batch)

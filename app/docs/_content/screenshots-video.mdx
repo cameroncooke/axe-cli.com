@@ -1,67 +1,99 @@
 <PageHeader
   breadcrumbs={["Docs", "Usage", "Screenshots & Video"]}
   title="Screenshots & Video"
-  lede="Capture PNGs, record MP4s, and stream live simulator frames to ffmpeg, MJPEG viewers, or custom consumers."
+  lede="Capture PNGs, record H.264 MP4s, stream frames to ffmpeg or your own reader, stream native H.264 from a device, and record one movie through iPhone Duo simulator folds and rotations."
 />
 
-Media commands keep payloads on stdout and progress on stderr. `record-video` and `stream-video` stop cleanly on Ctrl+C or SIGTERM.
+Media commands print the file path on stdout. `record-video` and `stream-video` stop cleanly on `Ctrl+C` or SIGTERM.
 
 ## Screenshots
 
 ```shell
-axe screenshot --udid <UDID>
-axe screenshot --output screen.png --udid <UDID>
-axe screenshot --output ./screens/ --udid <UDID>
+axe screenshot --udid "$UDID" --output screen.png   # a file
+axe screenshot --udid "$UDID" --output ./shots/     # an existing directory, auto-named
+axe screenshot --udid "$UDID"                       # auto-named in the current directory
 ```
 
-| Behavior | Detail |
-|----------|--------|
-| Omitted output | AXe writes an auto-named PNG in the current directory. |
-| Directory output | AXe creates the directory if needed and writes an auto-named PNG inside. |
-| Existing file | AXe replaces it. |
-| Result stream | Saved path goes to stdout; progress goes to stderr. |
+`screenshot` prints the PNG's path. With `--output json` the result is `{path, pixelWidth, pixelHeight}`:
 
-The simulator must be booted.
+```shell
+axe --output json screenshot --udid "$UDID" --output screen.png
+```
+
+Screenshots are in pixels. Divide by the screen scale that `axe displays` reports to get points for taps.
 
 ## Video recording
 
 ```shell
-axe record-video --udid <UDID> --fps 15 --output session.mp4
-axe record-video --udid <UDID> --fps 10 --quality 60 --scale 0.5 --output low-bw.mp4
+axe record-video --udid "$UDID" --fps 15 --output recording.mp4
+axe record-video --udid "$UDID" --fps 10 --quality 60 --scale 0.5 --output small.mp4
 ```
 
-| Flag | Range | Default |
-|------|-------|---------|
-| `--fps` | 1–30 | `10` |
-| `--quality` | 1–100 | `80` |
-| `--scale` | 0.1–1.0 | `1.0` |
-| `--output` | path or directory | auto-named MP4 in CWD |
+| Option | Range | Default |
+|--------|-------|---------|
+| `--fps` | 1 to 30, an upper limit | `10` |
+| `--quality` | 1 to 100; higher uses a higher bitrate | `80` |
+| `--scale` | 0.1 to 1 | `1.0` |
+| `--output` | MP4 path or existing directory | `axe-video-<timestamp>.mp4` |
 
-Press Ctrl+C to stop. AXe finalizes the MP4 and prints its path to stdout.
+Press `Ctrl+C` to stop. AXe finishes the MP4 and prints its path. Stop with SIGINT or SIGTERM, not SIGKILL.
 
 ## Video streaming
 
 ```shell
-axe stream-video --udid <UDID> --format mjpeg --fps 10 > stream.mjpeg
-axe stream-video --udid <UDID> --format ffmpeg --fps 30 | \
-  ffmpeg -f image2pipe -framerate 30 -i - -c:v libx264 -preset ultrafast out.mp4
-axe stream-video --udid <UDID> --format bgra | \
-  ffmpeg -f rawvideo -pixel_format bgra -video_size 393x852 -i - out.mp4
+axe stream-video --udid "$UDID" --fps 10 --format mjpeg > stream.mjpeg
+axe stream-video --udid "$UDID" --fps 30 --format ffmpeg | \
+  ffmpeg -f image2pipe -framerate 30 -i - -c:v libx264 -preset ultrafast output.mp4
 ```
 
 | Format | Output |
 |--------|--------|
-| `mjpeg` | Multipart MJPEG stream. |
-| `raw` | 4-byte big-endian frame length followed by JPEG bytes. |
-| `ffmpeg` | Concatenated JPEG bytes for `ffmpeg -f image2pipe`. |
-| `bgra` | Raw BGRA pixel bytes; stderr prints the matching ffmpeg command with frame size. |
+| `mjpeg` | Multipart JPEG (the default). |
+| `raw` | For each frame, a 4-byte big-endian length, then a JPEG. |
+| `ffmpeg` | Concatenated JPEGs for `ffmpeg -f image2pipe`. |
+| `bgra` | Packed BGRA pixels. A selected-screen stream prints its width and height on stderr. |
+| `h264` | Native H.264 Annex B, physical devices only. |
 
-<Callout variant="warn" title="Stdout is binary">
-Always redirect or pipe `stream-video`. Printing binary frame data to your terminal will mangle it.
+Stream bytes go to stdout and diagnostics to stderr; keep them separate. `--fps` is an upper limit. `stream-video` refuses `--output json`, because stdout carries frames.
+
+<Callout variant="warn" title="stdout is binary">
+Always redirect or pipe `stream-video`. Printing frames to a terminal will garble it.
 </Callout>
+
+## Physical devices
+
+```shell
+axe screenshot --udid "$DEVICE_UDID" --output device.png
+axe record-video --udid "$DEVICE_UDID" --fps 3 --scale 0.5 --output device.mp4
+axe stream-video --udid "$DEVICE_UDID" --format raw --fps 3 --scale 0.5 > frames.bin
+axe stream-video --udid "$DEVICE_UDID" --format h264 > device.h264
+```
+
+The screenshot stream supports `mjpeg`, `raw`, `ffmpeg` and `bgra`. Recording writes an H.264 MP4 after a clean stop; JSON is `{path, pixelWidth, pixelHeight, frames}`.
+
+Native `h264` uses the device's own encoder settings, so leave out `--fps`, `--quality` and `--scale`. Its frames keep the panel's native orientation; when they need turning, as on an iPad in portrait, stderr says how many degrees clockwise. Stopping waits for the session to end on the device, which can take about 20 seconds.
+
+The device sends one native display stream at a time. Native `h264` and Xcode Device Hub's screen view replace each other's stream, and AXe then exits with `deviceStreamReplaced`. Screenshots, the screenshot stream and recording work alongside Device Hub.
+
+## One screen, or following the active screen
+
+On any simulator, and especially the iPhone Duo simulator, you can pin a capture to one screen or follow the active one:
+
+```shell
+axe displays --udid "$UDID"   # read the active screen's id and uuid
+
+axe screenshot --udid "$UDID" --screen-id 3 --screen-uuid "$SCREEN_UUID" --output inner.png
+axe record-video --udid "$UDID" --screen-id 3 --screen-uuid "$SCREEN_UUID" --output inner.mp4
+axe stream-video --udid "$UDID" --screen-id 3 --screen-uuid "$SCREEN_UUID" --format raw > inner.bin
+axe record-video --udid "$UDID" --follow-active-display --output folds.mp4
+```
+
+With `--screen-id` and `--screen-uuid`, a capture fails if that screen stops being active, instead of switching to another one. A selected screenshot never replaces an existing file.
+
+`--follow-active-display` records one fixed-size movie that follows the active screen through folds and rotations. The first frame sets the size; later frames fit inside it upright, with black bars where they do not fill it. It is low-rate capture: it does not encode every frame of a transition animation. It cannot be combined with the screen pair.
 
 ## Related
 
-- [Command Reference](/docs/command-reference)
-- [CLI](/docs/cli)
-- [Troubleshooting](/docs/troubleshooting)
+- [iPhone Duo](/docs/iphone-duo)
+- [Physical iPhone & iPad](/docs/physical-devices)
+- [Output & Errors](/docs/output-and-errors)

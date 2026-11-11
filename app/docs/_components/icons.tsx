@@ -128,6 +128,18 @@ export const Icons = {
     </g>
   ),
   Zap: makeIcon(<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />),
+  Smartphone: makeIcon(
+    <g>
+      <rect x="6" y="2" width="12" height="20" rx="2" />
+      <line x1="11" y1="18" x2="13" y2="18" />
+    </g>
+  ),
+  Sparkles: makeIcon(
+    <g>
+      <path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z" />
+      <path d="M19 15l.7 2.3L22 18l-2.3.7L19 21l-.7-2.3L16 18l2.3-.7z" />
+    </g>
+  ),
   Key: makeIcon(
     <g>
       <circle cx="7.5" cy="15.5" r="4.5" />

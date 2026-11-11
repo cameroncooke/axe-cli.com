@@ -1,0 +1,87 @@
+<PageHeader
+  breadcrumbs={["Docs", "Usage", "Device Settings"]}
+  title="Device Settings"
+  lede="Change appearance, text size, accessibility display settings and VoiceOver, simulate a location, and override the simulator status bar, on simulators and connected iPhones and iPads."
+  meta={["Xcode 27 or later", "Simulators and devices"]}
+/>
+
+`axe settings` changes device-wide settings on a booted simulator or a connected iPhone or iPad, through `xcrun devicectl`. It needs Xcode 27 or later.
+
+## Show settings
+
+```text
+$ axe settings show --udid "$UDID"
+Appearance            light
+Text size             large
+Increase Contrast     off
+Reduce Motion         off
+Reduce Transparency   off
+Show Borders          off
+Liquid Glass          opacity 0.5
+Colour filter         off
+VoiceOver             off
+```
+
+## Change settings
+
+```shell
+axe settings set --udid "$UDID" --appearance dark --text-size accessibility-large
+axe settings set --udid "$UDID" --color-filter grayscale --reduce-motion on
+axe settings set --udid "$UDID" --voiceover on
+```
+
+| Option | Values |
+|--------|--------|
+| `--appearance` | `light`, `dark` |
+| `--text-size` | `extra-small` … `extra-extra-extra-large`, `accessibility-medium` … `accessibility-extra-extra-extra-large` |
+| `--increase-contrast`, `--reduce-motion`, `--reduce-transparency`, `--show-borders` | `on`, `off` |
+| `--liquid-glass` | `clear`, `tinted` |
+| `--liquid-glass-opacity` | 0 to 1 |
+| `--color-filter` | `off`, `grayscale`, `protanopia`, `deuteranopia`, `tritanopia` |
+| `--color-filter-intensity` | 0.25 to 1 |
+| `--voiceover` | `on`, `off` |
+
+`set` checks every value before it changes anything, then prints all settings as `show` does. An accessibility text size turns Larger Accessibility Sizes on and a standard size turns it off, so setting the original size restores the device.
+
+With `--output json`, `show` and `set` return `{udid, appearance, textSize, increaseContrast, reduceMotion, reduceTransparency, showBorders, liquidGlass: {style?, opacity}, colorFilter: {enabled, type?, intensity?}, voiceOver}`. A setting the device does not report is left out.
+
+## Simulated location
+
+```shell
+axe settings location set --latitude 37.7749 --longitude -122.4194 --udid "$UDID"
+axe settings location scenarios --udid "$UDID"
+axe settings location scenario "City Run" --udid "$UDID"
+axe settings location clear --udid "$UDID"
+```
+
+A simulated location lasts until `settings location clear`.
+
+## Status bar
+
+Status bar overrides are for simulators, for clean screenshots and for testing UI that depends on the status bar:
+
+```shell
+axe settings status-bar preset screenshot --udid "$UDID"   # also low-battery, no-service, charging
+axe settings status-bar set --udid "$UDID" --time 9:41 --wifi-bars 3 --cellular-bars 4 \
+  --battery-level 100 --battery-state charged
+axe settings status-bar clear --udid "$UDID"
+```
+
+## Limits
+
+- iOS 27.2 offers one Liquid Glass style, so `--liquid-glass` fails with `settingUnsupported`; `--liquid-glass-opacity` works.
+- Status bar overrides are simulator-only; on a physical device they fail with `settingUnsupported`.
+- Turning VoiceOver on shows a one-time "VoiceOver Gestures" alert. It stays on screen after VoiceOver is off again, and blocks input, until you tap its OK button.
+- The UI redraws after a change. Read the screen again before more input.
+
+Restore what you change, especially VoiceOver and colour filters: VoiceOver changes how every touch works.
+
+## Errors
+
+`settingUnsupported`, `settingFailed` (with devicectl's message), `invalidArguments`, `targetNotFound`, `notBooted`, and on a device that is not ready its `doctor` check code. Nothing changes when validation fails.
+
+## Related
+
+- [Physical iPhone & iPad](/docs/physical-devices)
+- [Screenshots & Video](/docs/screenshots-video)
+- [Command Reference](/docs/command-reference)

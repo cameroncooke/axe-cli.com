@@ -1,0 +1,87 @@
+<PageHeader
+  breadcrumbs={["Docs", "Overview", "What's New in AXe 2"]}
+  title="What's New in AXe 2"
+  lede="AXe 2 automates physical iPhones and iPads and the iPhone Duo simulator, adds an agent mode for AI agents, returns structured JSON with typed error codes, changes device settings and makes simulator input much faster."
+/>
+
+## Physical iPhone and iPad support
+
+AXe now automates connected iPhones and iPads as well as simulators. Pass a device's hardware UDID to the same commands you use on a simulator: screenshots, accessibility reads, taps by point or by `--id`, `--label` or `--value`, swipes, drags, `draw`, gestures, typing, keys, buttons, batches, `rotate`, `settings`, `record-video` and `stream-video`, including native H.264 with `--format h264`.
+
+```shell
+axe list-devices
+axe doctor --udid "$DEVICE_UDID"     # pairing, Developer Mode, disk image, lock state
+axe describe-ui --udid "$DEVICE_UDID"
+axe tap --id "$ELEMENT_ID" --wait-timeout 15 --udid "$DEVICE_UDID"
+```
+
+Pair the device in Xcode, turn on Developer Mode and keep it unlocked. See [Physical iPhone & iPad](/docs/physical-devices).
+
+## iPhone Duo simulator support
+
+Every input, read and capture command works on the dual-screen iPhone Duo simulator, on whichever screen is active, in any fold and orientation. New commands show the screens and move the hinge:
+
+```shell
+axe displays --udid "$UDID"               # each screen's role, size, orientation and the hinge angle
+axe hinge set tabletop --udid "$UDID"     # 0...180, or closed, tabletop, open
+axe rotate left --udid "$UDID"            # also works on physical devices
+```
+
+`--input-mode selected` with `--screen-id` and `--screen-uuid` refuses to act if a different screen becomes active, and `record-video --follow-active-display` records one movie through folds and rotations. See [iPhone Duo](/docs/iphone-duo).
+
+## Agent mode
+
+Add `--agent` to `describe-ui`, `tap`, `type`, `swipe`, `drag`, the key commands, `slider`, `touch`, `gesture double-tap`, `gesture pinch` and `batch` so an AI agent can drive the UI with every action checked. A capture returns compact rows with a ref for each control. An action names a ref; AXe checks the control is still there, sends the input and returns the new screen, so the agent needs no separate read after each action.
+
+```shell
+axe describe-ui --agent --view navigation --udid "$UDID"
+axe tap --agent --snapshot-id "$SNAPSHOT_ID" --ref e9 --udid "$UDID"
+axe type 'Ada' --agent --focus --snapshot-id "$SNAPSHOT_ID" --ref e18 --udid "$UDID"
+```
+
+`batch --agent` fills a form in one call, and a refusal sends no input and carries a typed code. Agent mode needs no model or API key. See [Agent Mode](/docs/agent-mode).
+
+## Structured output and error codes
+
+Put `--output json` before a command to get one JSON result with a typed payload, or a typed error code instead of a message to parse. Simulators and devices share one set of error codes, and JSON Schema files describe every result.
+
+```text
+$ axe --output json tap --id no-such-element --udid "$UDID"
+{"command":"tap","data":{},"didError":true,"error":{"code":"elementNotFound","message":"No accessibility element matched --id 'no-such-element'. …"},…}
+```
+
+Text output is shorter and consistent too: state commands print their state, input commands print nothing except `tap`, `slider` and `batch`, and errors read as plain sentences. `--verbose` adds the full detail without changing the exit status. See [Output & Errors](/docs/output-and-errors).
+
+## Much faster simulator input
+
+Measured on an iPhone 18 Pro simulator against AXe 1.8:
+
+| Action | AXe 1.8 | AXe 2 |
+|--------|---------|-------|
+| Tap | about 1 s | about 0.08 s |
+| Drag | 2.5 s | 0.9 s |
+| `describe-ui` | 1.1 to 1.9 s | 0.3 s |
+
+## New commands and options
+
+- **`axe settings`** changes appearance, text size, accessibility settings, VoiceOver, simulated location and the simulator status bar, on simulators and devices (Xcode 27 or later). See [Device Settings](/docs/settings).
+- **`axe draw`** moves one finger through up to 1,000 points. See [Swipes, Gestures & Drawing](/docs/gestures).
+- **Long press, double tap and two-finger tap** on `tap`: `--hold`, `--count 2`, `--touches 2`, on a point or an element.
+- **Scroll until an element is on screen** with `--until-id` and `--until-label` on scroll presets and `swipe`, plus `--distance`, `--inside-id` and `--inside-label` for scroll presets.
+- **New gestures**: `pinch`, `double-tap`, `rotate`, `two-finger-tap`, `two-finger-hold`, `two-finger-swipe`, the `swipe-from-top-right-corner` preset that opens Control Centre, and `--edge-inset` for edge swipes.
+- **`drag --hold`** rests the finger before moving, to reorder a list.
+- **`slider --endpoint minimum|maximum`**.
+- **`axe shutdown`** shuts down one simulator, and **`axe clipboard copy --stdin`** puts text in a simulator's clipboard.
+- **`axe list-devices`** and **`axe doctor`** find devices and check that a simulator or device is ready.
+- **`axe agent "<goal>"`** works towards a plain-language goal one checked action at a time. See [Autonomous Agent](/docs/autonomous-agent).
+- **Claude Code and Codex plugin marketplaces** keep the AXe skill updated as releases ship. See [AI Skill](/docs/agent-skills).
+
+## Other changes
+
+- Every command's `--help` is rewritten with a short description, examples and one-line option help.
+- The AXe skill that `axe init` installs is rewritten around agent mode.
+- Gesture presets on iPads and large iPhones now act on the whole screen; they measure the screen in the current orientation.
+- An accessibility read in the first seconds after boot no longer breaks accessibility until reboot.
+- Building from source no longer clones IDB: its frameworks live in `Packages/IDBKit`.
+
+The full list is in the [Changelog](/docs/changelog).

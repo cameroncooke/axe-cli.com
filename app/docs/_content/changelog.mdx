@@ -1,23 +1,25 @@
 <PageHeader
   breadcrumbs={["Docs", "Guides", "Changelog"]}
   title="Changelog"
-  lede="Recent AXe releases, loaded from GitHub when available, plus source-checked highlights."
+  lede="AXe releases, loaded from GitHub, with the highlights of each version."
 />
 
 <LiveChangelog limit={10} />
 
 If the live feed is unavailable, the canonical release list is at [github.com/cameroncooke/AXe/releases](https://github.com/cameroncooke/AXe/releases).
 
-## Recent highlights
+## Highlights
 
-- **v1.7.0** — Added selector-targeted `slider --id/--label --value 0...100` with AXValue tolerance verification, added `drag`, improved orientation-aware coordinates for `tap`, `swipe`, `drag`, and `touch`, and added switch/toggle activation through `--tap-style automatic|simulator|physical`.
-- **v1.6.0** — Added `--value` targeting for `tap`, `--element-type` narrowing, selector waiting through `--wait-timeout` and `--poll-interval`, and `describe-ui --point` behavior.
-- **v1.5.0** — Added `axe batch` for ordered multi-step interaction workflows and `axe init` for bundled agent skill installation.
-- **v1.3.0** — Added `key-combo` for atomic modifier+key presses.
-- **v1.2.0** — Added screenshot capture and tap by label/id.
+- **v2.0.0**: Physical iPhone and iPad support, iPhone Duo simulator support with `displays`, `hinge` and `rotate`, agent mode (`--agent`) for AI agents, `--output json` with typed error codes and JSON Schemas, `axe settings`, `axe draw`, long press, double tap and two-finger tap on `tap`, scroll-until-visible, pinch, rotate and two-finger gestures, `shutdown`, `clipboard copy`, `list-devices`, `doctor`, the experimental `axe agent` command, plugin marketplaces for the skill, and much faster simulator input. See [What's New in AXe 2](/docs/whats-new).
+- **v1.8.0**: Xcode 27 and iOS 27 simulator automation, with Xcode 26 still supported.
+- **v1.7.0**: `slider --id/--label --value` with value verification, `drag`, orientation-aware coordinates, and switch activation through `--tap-style`.
+- **v1.6.0**: `--value` targeting for `tap`, `--element-type`, and `--wait-timeout` with `--poll-interval`.
+- **v1.5.0**: `axe batch` and `axe init`.
+- **v1.3.0**: `key-combo`.
+- **v1.2.0**: Screenshots, and tap by label or accessibility ID.
+- **v1.1.0**: Video streaming and recording.
 
 ## Related
 
+- [What's New in AXe 2](/docs/whats-new)
 - [Command Reference](/docs/command-reference)
-- [Batch Automation](/docs/batch)
-- [Agent Skills](/docs/agent-skills)

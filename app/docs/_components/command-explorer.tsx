@@ -4,7 +4,7 @@ import { useMemo, useState } from "react"
 import { AXE_COMMANDS, type AxeCommandCategory } from "../_data/commands"
 import { Icons } from "./icons"
 
-const CATEGORIES: (AxeCommandCategory | "all")[] = ["all", "discovery", "interaction", "keyboard", "media", "batch", "setup"]
+const CATEGORIES: (AxeCommandCategory | "all")[] = ["all", "discovery", "interaction", "keyboard", "device", "media", "automation"]
 
 interface CommandExplorerProps {
   category?: AxeCommandCategory
@@ -51,6 +51,8 @@ export function CommandExplorer({ category: initialCategory }: CommandExplorerPr
               <span className="tc-badge">{command.category}</span>
               {command.requiresUdid ? <span className="tc-badge warn">requires UDID</span> : <span className="tc-badge">no UDID</span>}
               {command.supportsBatch ? <span className="tc-badge new">batch step</span> : null}
+              {command.supportsAgent ? <span className="tc-badge new">--agent</span> : null}
+              {command.supportsDevice ? <span className="tc-badge">physical devices</span> : null}
             </div>
             {command.flags.length > 0 ? (
               <div className="cmd-flag-table">

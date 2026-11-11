@@ -8,10 +8,11 @@ export const metadata: Metadata = {
     default: "AXe Docs",
     template: "%s · AXe Docs",
   },
-  description: "Documentation for AXe, a CLI for iOS Simulator automation through Accessibility and HID input.",
+  description:
+    "Documentation for AXe, a CLI that automates iOS simulators, including the iPhone Duo simulator, and connected iPhones and iPads, with an agent mode for AI agents.",
   openGraph: {
     title: "AXe Docs",
-    description: "Documentation for AXe, a CLI for iOS Simulator automation.",
+    description: "Documentation for AXe: iOS automation for simulators, devices and AI agents.",
     type: "website",
     url: "https://axe-cli.com/docs",
   },

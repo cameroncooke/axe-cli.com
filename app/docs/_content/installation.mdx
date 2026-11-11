@@ -1,67 +1,74 @@
 <PageHeader
   breadcrumbs={["Docs", "Getting Started", "Installation"]}
   title="Installation"
-  lede="Install AXe with Homebrew, then verify the CLI can see your booted iOS Simulators."
-  meta={["Requires macOS 14+", "Homebrew install", "iOS Simulator"]}
+  lede="Install AXe with Homebrew, add the AI skill if you use an agent, and check that your simulator or device is ready."
+  meta={["macOS 14+", "Xcode 26 or 27", "Homebrew"]}
 />
 
 ## Requirements
 
 | Requirement | Notes |
 |-------------|-------|
-| macOS | macOS 14 Sonoma or later. |
-| Homebrew | Recommended installation path for normal use. |
-| Simulator | A booted iOS Simulator is required for interaction, screenshot, and video commands. |
-
-## Xcode and simulator compatibility
-
-The current simulator command contract has been validated against these toolchain and runtime combinations:
-
-| Xcode | Simulator runtime | Status |
-|-------|-------------------|--------|
-| Xcode 26.5 (17F42) | iOS 26.5 (23F77) | Supported. |
-| Xcode 27 Beta 3 (27A5218g) | iOS 27.0 (24A5380g) | Beta support, validated with Device Hub simulators. |
-
-AXe retains its IDB-based automation approach across both versions. Xcode 27 uses Device Hub for its simulators; you do not need to launch Simulator.app for AXe commands when the target Device Hub simulator is already booted.
-
-Release builds use the immutable [`cameroncooke/idb`](https://github.com/cameroncooke/idb) fork revision `1395103ca786ee990c70514e1f8bb75fa98cdd82`, based on upstream IDB `e682506725e9efefb9c43b8b917c0b12eb2a5939`.
-
-<Callout variant="warn" title="Xcode 27 is beta software">
-Support is qualified to the exact beta build and runtime above. Later Xcode 27 betas may change private simulator behavior and require revalidation.
-</Callout>
+| macOS | macOS 14 Sonoma or later, on Apple silicon or Intel. |
+| Xcode | Xcode 26 or Xcode 27, selected with `xcode-select`. One AXe binary runs with either. `axe settings` needs Xcode 27. |
+| Simulator | A booted iOS simulator. The iPhone Duo commands need an iPhone Duo simulator runtime. |
+| Physical device (optional) | An iPhone or iPad paired in Xcode, with Developer Mode on and the screen unlocked. |
 
 ## Install with Homebrew
 
 ```shell
-brew tap cameroncooke/axe
-brew install axe
-```
-
-Or install in one command:
-
-```shell
 brew install cameroncooke/axe/axe
-```
-
-## Verify the CLI
-
-Confirm AXe is installed:
-
-```shell
 axe --help
 ```
 
-Then confirm AXe can see your simulators:
+Upgrade later with:
+
+```shell
+brew upgrade axe
+```
+
+## Check a target
+
+For a simulator:
 
 ```shell
 axe list-simulators
+axe doctor --udid <UDID>
 ```
 
-If `list-simulators` prints your simulator devices, AXe is ready to use.
+For a physical iPhone or iPad:
 
-<Callout variant="info" title="Need a simulator first?">
-Boot an iOS Simulator before running interaction commands. `list-simulators` is the fastest check that AXe can reach the simulator runtime.
+```shell
+axe list-devices
+axe doctor --udid <DEVICE_UDID>
+```
+
+`doctor` checks that a simulator is booted, or that a device is paired, in Developer Mode, connected, unlocked and has its developer disk image and screenshot service. A failed check exits nonzero and names the check that is not ready.
+
+<Callout variant="info" title="AXe never picks a device for you">
+Every command needs an explicit `--udid`. AXe looks the UDID up among simulators first, then among the devices Xcode knows.
 </Callout>
+
+## Add the AI skill
+
+If you use Claude Code, Codex or another agent, install the AXe skill so the agent knows how to drive the UI with agent mode:
+
+```shell
+axe init
+```
+
+To keep the skill updated as releases ship, install it from the AXe plugin marketplace instead:
+
+```shell
+claude plugin marketplace add cameroncooke/AXe && claude plugin install axe@axe
+codex plugin marketplace add cameroncooke/AXe && codex plugin add axe@axe
+```
+
+See [AI Skill](/docs/agent-skills) for every option.
+
+## Build from source
+
+See [Contributing](/docs/contributing). Source builds need XcodeGen for the bundled IDBKit frameworks.
 
 ## Next step
 
