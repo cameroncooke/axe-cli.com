@@ -153,6 +153,17 @@ axe stream-video --format h264 --udid "$DEVICE_UDID" > device.h264
 
 See [Screenshots & Video](/docs/screenshots-video).
 
+## Mirror
+
+```shell
+axe mirror pair
+axe mirror --udid "$UDID"
+axe mirror viewers
+axe mirror unpair "$VIEWER_ID"
+```
+
+`mirror pair` shows a one-time code for the AXe Mirror app on an iPhone or iPad. `mirror` hosts one booted simulator for paired viewers, `mirror viewers` lists them and `mirror unpair` removes one. Apple silicon Macs only. See [AXe Mirror](/docs/mirror).
+
 ## Automation
 
 ### `batch`

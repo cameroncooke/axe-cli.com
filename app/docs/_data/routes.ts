@@ -13,6 +13,7 @@ export type DocSlug =
   | "keyboard-input"
   | "batch"
   | "screenshots-video"
+  | "mirror"
   | "settings"
   | "physical-devices"
   | "iphone-duo"
@@ -54,6 +55,7 @@ export const PAGES_ORDER: DocSlug[] = [
   "keyboard-input",
   "batch",
   "screenshots-video",
+  "mirror",
   "settings",
   "physical-devices",
   "iphone-duo",
@@ -140,6 +142,12 @@ export const PAGE_META: Record<DocSlug, DocRoute> = {
     group: "Usage",
     description: "Capture PNGs, record MP4s, stream frames and native H.264, and follow folds and rotations.",
   },
+  mirror: {
+    slug: "mirror",
+    title: "AXe Mirror",
+    group: "Usage",
+    description: "See and touch a simulator from an iPhone or iPad: pairing, the mirror commands, events, relays and security.",
+  },
   settings: {
     slug: "settings",
     title: "Device Settings",
@@ -217,6 +225,7 @@ export const SIDEBAR_GROUPS: SidebarGroup[] = [
       { slug: "keyboard-input" },
       { slug: "batch" },
       { slug: "screenshots-video" },
+      { slug: "mirror" },
       { slug: "settings" },
     ],
   },
