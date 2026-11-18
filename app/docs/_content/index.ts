@@ -14,6 +14,7 @@ import InstallationPage from "./installation.mdx"
 import IntroductionPage from "./introduction.mdx"
 import IPhoneDuoPage from "./iphone-duo.mdx"
 import KeyboardInputPage from "./keyboard-input.mdx"
+import MirrorPage from "./mirror.mdx"
 import OutputAndErrorsPage from "./output-and-errors.mdx"
 import PhysicalDevicesPage from "./physical-devices.mdx"
 import QuickStartPage from "./quick-start.mdx"
@@ -36,6 +37,7 @@ export const PAGE_COMPONENTS: Record<DocSlug, ComponentType> = {
   "keyboard-input": KeyboardInputPage,
   batch: BatchPage,
   "screenshots-video": ScreenshotsVideoPage,
+  mirror: MirrorPage,
   settings: SettingsPage,
   "physical-devices": PhysicalDevicesPage,
   "iphone-duo": IPhoneDuoPage,

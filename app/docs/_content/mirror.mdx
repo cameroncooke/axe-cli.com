@@ -1,0 +1,142 @@
+<PageHeader
+  breadcrumbs={["Docs", "Usage", "AXe Mirror"]}
+  title="AXe Mirror"
+  lede="See and touch an iOS Simulator running on your Mac from an iPhone or iPad. The axe mirror command hosts the simulator, and the free AXe Mirror app shows it and sends your touches back."
+  meta={["Apple silicon, macOS 14.5 or later", "iOS or iPadOS 17.5 or later", "Simulators only"]}
+/>
+
+## Overview
+
+`axe mirror` hosts one booted simulator for a viewer on another device. The viewer is AXe Mirror, a free companion app for iPhone and iPad that is coming to the App Store.
+
+- Video is HEVC at up to 60 frames a second, with a bitrate that adapts to the link.
+- Touches, including multi-touch, and the Home and other hardware buttons are sent back to the simulator.
+- Only viewers you have paired with the Mac can connect.
+- The connection is end-to-end encrypted, and direct between the two devices when they can reach each other.
+
+<Callout variant="info" title="Try it without a Mac">
+The app has a "Try the demo" button. It connects to a demo simulator run by the AXe project.
+</Callout>
+
+## Requirements
+
+- **Mac:** Apple silicon and macOS 14.5 or later, with AXe and Xcode's Simulator.
+- **iPhone or iPad:** iOS or iPadOS 17.5 or later, with the AXe Mirror app.
+
+## Quick start
+
+```shell
+axe mirror pair                # shows a one-time code and a QR code
+axe mirror --udid "$UDID"      # hosts the booted simulator for paired viewers
+```
+
+1. On the Mac, run `axe mirror pair`.
+2. In AXe Mirror, scan the QR code or type the code.
+3. On the Mac, run `axe mirror --udid "$UDID"` with the UDID of a booted simulator. `axe list-simulators` prints the UDIDs.
+
+You pair a viewer once. After that, it can connect whenever `axe mirror` is running.
+
+## Commands
+
+### `mirror pair`
+
+```shell
+axe mirror pair
+axe mirror pair --name "Office Mac"
+axe mirror pair --json
+```
+
+Shows a one-time code and the same code as a QR code, then waits for a viewer to use it. The code has ten characters, shown as `XXXXX-XXXXX`. It works once, and for ten minutes. The host does not have to be running while you pair.
+
+```text
+Scan this with the viewer app, or type the code. It works once, for ten minutes.
+
+  <QR code>
+
+  Code: XXXXX-XXXXX
+
+Waiting for the viewer. Press Ctrl+C to cancel.
+Paired with <viewer name>.
+```
+
+| Option | Meaning |
+|--------|---------|
+| `--name <name>` | The name the viewer shows for this Mac. Defaults to the Mac's own name. |
+| `--json` | Print JSON lines instead of the QR code: one with the code, one when a viewer has paired. |
+| `--relay-url <url>` | Pair through this relay. By default AXe picks from its published list. |
+
+With `--json`, the first line is a `code` event with `code`, `link`, `expires` and `relay`. The second is a `paired` event with `viewer`, the viewer's ID, and `name`.
+
+### `mirror`
+
+```shell
+axe mirror --udid "$UDID"
+axe mirror --udid "$UDID" --relay-url "$RELAY_URL"
+```
+
+Hosts one booted simulator for paired viewers. It prints one JSON line per [event](#events) on stdout, and logs go to stderr. Stop it with `Ctrl+C` or SIGTERM.
+
+| Option | Meaning |
+|--------|---------|
+| `--udid <UDID>` | UDID of the booted simulator. Required. |
+| `--relay-url <url>` | Use this relay and no other. By default AXe picks from its published list. |
+
+`axe mirror` runs against simulators only. `axe mirror start` is the same command.
+
+### `mirror viewers`
+
+```shell
+axe mirror viewers
+axe mirror viewers --json
+```
+
+Lists the viewers paired with this Mac, one per line: the name, the time it was paired and the ID. With no viewers it prints `No viewers are paired with this Mac.`
+
+With `--json`, the result is `{viewers: [{id, name, paired}]}`.
+
+### `mirror unpair`
+
+```shell
+axe mirror unpair "My iPhone"
+axe mirror unpair "$VIEWER_ID"
+```
+
+Removes one paired viewer and prints `Removed <name> (<id>).` Pass the viewer's name, its ID, or the first characters of its ID, as shown by `axe mirror viewers`.
+
+## Events
+
+`axe mirror --udid <UDID>` prints one JSON line for each event:
+
+| Event | Meaning |
+|-------|---------|
+| `relays` | The relays the host uses. |
+| `endpoint` | The host has started. The line includes the host ID. |
+| `ready` | The host is ready for viewers. |
+| `viewerConnected` | A paired viewer connected. |
+| `streaming` | Video is being sent to the viewer. |
+| `path` | How the traffic travels. `kind` is `direct` or `relay`. |
+| `refused` | A viewer that is not paired tried to connect and was refused. |
+| `viewerDisconnected` | The viewer disconnected. |
+| `stopped` | The host has stopped. |
+
+## How it connects
+
+The two devices connect directly when they can: on the same network, or through NAT hole punching. When they cannot, traffic goes through a relay run by the AXe project. There is currently one, in Nuremberg, Germany: `eu1.relay.axe-cli.com`.
+
+The list of relays is published in DNS, so relays can be added without a new release of AXe. `--relay-url` makes the host use one relay and no other.
+
+The `path` event tells you which route is in use: `direct` or `relay`.
+
+## Security
+
+- **Pairing.** Only paired viewers can connect. A viewer pairs by using a code from `axe mirror pair`, which works once and for ten minutes. Any other viewer is refused before any video or touch is exchanged.
+- **End-to-end encryption.** The connection is QUIC, through the open-source iroh library, and is encrypted from end to end. A relay forwards encrypted packets and cannot read the video or the touches.
+- **Host identity.** The host ID is the public half of a key that AXe creates on first use and keeps in `~/Library/Application Support/AXe/mirror/host.key`, readable by your user alone. AXe never replaces an existing key, because a new key would unpair every viewer.
+- **Unpairing.** Run `axe mirror viewers` to see who is paired, then `axe mirror unpair <name or ID>`. The viewer can no longer connect. A session it has open is not affected until it reconnects.
+
+## Related
+
+- [AXe Mirror support](/mirror/support)
+- [AXe Mirror privacy policy](/mirror/privacy)
+- [Screenshots & Video](/docs/screenshots-video)
+- [Command Reference](/docs/command-reference#mirror)
