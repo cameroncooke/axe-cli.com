@@ -52,16 +52,17 @@ export function MirrorShell({ children }: { children: ReactNode }) {
       <header className="border-b border-axe-dark-600/50 bg-axe-dark-100/80 backdrop-blur-xl sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center gap-4 h-16">
-            <Link href="/" className="flex items-center gap-1 hover:opacity-80 transition-opacity">
+            <Link href="/" className="flex shrink-0 items-center gap-1 hover:opacity-80 transition-opacity">
               <Image src="/icon.png" alt="AXe" width={32} height={32} className="w-8 h-8 rounded-lg icon-glow" />
-              <Image src="/axe-text.png" alt="AXe" width={791} height={315} className="h-6 w-auto" />
+              {/* The wordmark gives way on a phone, where the four links need the width. */}
+              <Image src="/axe-text.png" alt="" width={791} height={315} className="h-6 w-auto max-[430px]:hidden" />
             </Link>
-            <nav className="flex items-center gap-5 sm:gap-8">
+            <nav className="flex items-center gap-4 sm:gap-8">
               {NAV_ITEMS.map((item) => (
                 <Link
                   key={item.label}
                   href={item.href}
-                  className="text-sm text-axe-text-secondary hover:text-axe-cyan transition-colors"
+                  className="whitespace-nowrap text-sm text-axe-text-secondary hover:text-axe-cyan transition-colors"
                 >
                   {item.label}
                 </Link>
