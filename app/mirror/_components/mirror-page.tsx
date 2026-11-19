@@ -3,6 +3,7 @@ import Link from "next/link"
 import type { ReactNode } from "react"
 
 export const ISSUES_URL = "https://github.com/cameroncooke/AXe/issues"
+export const APP_STORE_URL = "https://apps.apple.com/app/id6836545597"
 
 const NAV_ITEMS = [
   { label: "AXe Mirror", href: "/mirror" },
@@ -32,6 +33,21 @@ interface MirrorPageProps {
 
 export function MirrorPage({ title, lede, eyebrow = "AXe Mirror", note, children }: MirrorPageProps) {
   return (
+    <MirrorShell>
+      <article className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20">
+        {eyebrow ? <p className="mb-3 text-sm font-medium text-axe-cyan">{eyebrow}</p> : null}
+        <h1 className="text-3xl sm:text-4xl font-bold tracking-tight mb-5">{title}</h1>
+        <p className="text-lg text-axe-text-secondary leading-relaxed">{lede}</p>
+        {note ? <p className="mt-3 text-sm text-axe-text-muted">{note}</p> : null}
+        <div className={PROSE}>{children}</div>
+      </article>
+    </MirrorShell>
+  )
+}
+
+/** The header and footer every AXe Mirror page shares. The page lays out its own content. */
+export function MirrorShell({ children }: { children: ReactNode }) {
+  return (
     <div className="min-h-screen flex flex-col bg-axe-dark-100 text-axe-text-primary circuit-bg">
       <header className="border-b border-axe-dark-600/50 bg-axe-dark-100/80 backdrop-blur-xl sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -55,15 +71,7 @@ export function MirrorPage({ title, lede, eyebrow = "AXe Mirror", note, children
         </div>
       </header>
 
-      <main className="flex-1">
-        <article className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20">
-          {eyebrow ? <p className="mb-3 text-sm font-medium text-axe-cyan">{eyebrow}</p> : null}
-          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight mb-5">{title}</h1>
-          <p className="text-lg text-axe-text-secondary leading-relaxed">{lede}</p>
-          {note ? <p className="mt-3 text-sm text-axe-text-muted">{note}</p> : null}
-          <div className={PROSE}>{children}</div>
-        </article>
-      </main>
+      <main className="flex-1">{children}</main>
 
       <footer className="border-t border-axe-dark-600/30 py-8">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
