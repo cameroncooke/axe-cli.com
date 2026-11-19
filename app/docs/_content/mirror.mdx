@@ -7,7 +7,7 @@
 
 ## Overview
 
-`axe mirror` hosts one booted simulator for a viewer on another device. The viewer is AXe Mirror, a free companion app for iPhone and iPad that is coming to the App Store.
+`axe mirror` hosts one booted simulator for a viewer on another device. The viewer is AXe Mirror, a free and open-source companion app for iPhone and iPad. It is coming to the App Store, and you can [build it yourself](#get-the-app) today.
 
 - Video is HEVC at up to 60 frames a second, with a bitrate that adapts to the link.
 - Touches, including multi-touch, and the Home and other hardware buttons are sent back to the simulator.
@@ -16,6 +16,27 @@
 
 <Callout variant="info" title="Try it without a Mac">
 The app has a "Try the demo" button. It connects to a demo simulator run by the AXe project.
+</Callout>
+
+## Get the app
+
+There are two ways to get AXe Mirror. Both give you the same app.
+
+- **App Store.** The app is in review and will be listed there once approved.
+- **Build it yourself.** The app's source is in the [`AXeMirror` folder](https://github.com/cameroncooke/AXe/tree/main/AXeMirror) of the AXe repository, under the MIT licence. You need a Mac with Xcode and an Apple ID.
+
+```shell
+brew install xcodegen
+git clone https://github.com/cameroncooke/AXe.git
+cd AXe/AXeMirror
+xcodegen generate
+open AXeMirror.xcodeproj
+```
+
+In Xcode, select the AXeMirror target, open Signing & Capabilities, choose your own team and change the bundle identifier to one of your own. Then connect your iPhone or iPad and press Run. The folder's README has the full steps, including a command-line build.
+
+<Callout variant="info" title="Free Apple ID">
+With a free Apple ID, an app you build yourself stops opening after seven days and has to be installed again. The Macs you paired stay paired as long as you do not delete the app.
 </Callout>
 
 ## Requirements
@@ -81,7 +102,7 @@ Hosts one booted simulator for paired viewers. It prints one JSON line per [even
 | `--udid <UDID>` | UDID of the booted simulator. Required. |
 | `--relay-url <url>` | Use this relay and no other. By default AXe picks from its published list. |
 
-`axe mirror` runs against simulators only. `axe mirror start` is the same command.
+`axe mirror` runs against simulators only.
 
 ### `mirror viewers`
 
@@ -116,6 +137,8 @@ Removes one paired viewer and prints `Removed <name> (<id>).` Pass the viewer's 
 | `streaming` | Video is being sent to the viewer. |
 | `path` | How the traffic travels. `kind` is `direct` or `relay`. |
 | `refused` | A viewer that is not paired tried to connect and was refused. |
+| `warning` | Something the host can work around. `code` names it and `message` explains it. See [Local Network permission](#local-network-permission). |
+| `error` | Something the host cannot work around. `message` explains it. |
 | `viewerDisconnected` | The viewer disconnected. |
 | `stopped` | The host has stopped. |
 
@@ -126,6 +149,14 @@ The two devices connect directly when they can: on the same network, or through 
 The list of relays is published in DNS, so relays can be added without a new release of AXe. `--relay-url` makes the host use one relay and no other.
 
 The `path` event tells you which route is in use: `direct` or `relay`.
+
+### Local Network permission
+
+macOS asks you to allow each app onto your local network, and `axe` inherits the answer of the terminal you run it from. Without the permission, a viewer on the same network as the Mac cannot connect directly.
+
+`axe mirror` checks when it starts. If macOS is blocking it, the host prints a `warning` event with the code `localNetworkBlocked`, and a viewer on the same network goes through the relay: it reconnects once when it arrives, and its stream is slower. Viewers on other networks are not affected.
+
+To fix it, allow your terminal app in System Settings > Privacy & Security > Local Network. You do not need to restart `axe mirror`: it asks macOS again when the next viewer on your network connects. Apple's Terminal and SSH sessions are always allowed. Other terminal apps and launch agents need the permission.
 
 ## Security
 
