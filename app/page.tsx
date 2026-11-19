@@ -26,10 +26,12 @@ import {
   Columns2,
   RotateCw,
   Sparkles,
+  Play,
+  MonitorSmartphone,
 } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
-import { useState, useEffect, type ReactNode } from "react"
+import { useState, useEffect, useRef, type ReactNode } from "react"
 
 interface GitHubStats {
   stars: number
@@ -108,12 +110,91 @@ function CheckList({ items }: { items: string[] }) {
   )
 }
 
+/**
+ * A short silent clip that plays while it is on screen and stops when it is not. Nothing is
+ * downloaded until it scrolls into view. With "reduce motion" on it does not start by itself and
+ * shows controls instead.
+ */
+function LoopVideo({ name, label }: { name: string; label: string }) {
+  const ref = useRef<HTMLVideoElement>(null)
+  useEffect(() => {
+    const video = ref.current
+    if (!video) return
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      video.controls = true
+      return
+    }
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) video.play().catch(() => {})
+        else video.pause()
+      },
+      { threshold: 0.35 },
+    )
+    observer.observe(video)
+    return () => observer.disconnect()
+  }, [])
+  return (
+    <video
+      ref={ref}
+      muted
+      loop
+      playsInline
+      preload="none"
+      poster={`/home/${name}.jpg`}
+      aria-label={label}
+      className="block aspect-video w-full bg-axe-dark-100"
+    >
+      <source src={`/home/${name}.mp4`} type="video/mp4" />
+    </video>
+  )
+}
+
+/** A card with a clip on top and words underneath. */
+function MediaCard({
+  clip,
+  label,
+  eyebrow,
+  title,
+  href,
+  cta,
+  children,
+}: {
+  clip: string
+  label: string
+  eyebrow?: string
+  title: string
+  href?: string
+  cta?: string
+  children: ReactNode
+}) {
+  return (
+    <div className="card-glow group flex flex-col overflow-hidden rounded-2xl border border-axe-dark-600/50 bg-axe-dark-200/60">
+      <div className="border-b border-axe-dark-600/50">
+        <LoopVideo name={clip} label={label} />
+      </div>
+      <div className="flex flex-1 flex-col p-6">
+        {eyebrow ? <p className="mb-2 font-mono text-xs uppercase tracking-[0.18em] text-axe-cyan">{eyebrow}</p> : null}
+        <h3 className="text-xl font-semibold text-white">{title}</h3>
+        <div className="mt-2 flex-1 text-sm leading-relaxed text-axe-text-secondary">{children}</div>
+        {href && cta ? (
+          <Link href={href} className="mt-5 inline-flex items-center gap-2 text-sm text-axe-cyan transition-colors hover:text-axe-cyan-light">
+            {cta}
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        ) : null}
+      </div>
+    </div>
+  )
+}
+
 export default function AXeLanding() {
   const [githubStats, setGithubStats] = useState<GitHubStats>({ stars: 0, forks: 0 })
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [copiedText, setCopiedText] = useState<string | null>(null)
   const navItems = [
     { label: "Features", href: "#features" },
+    { label: "Mirror", href: "/mirror" },
     { label: "Agent Mode", href: "#agent-mode" },
     { label: "Devices", href: "#devices" },
     { label: "Get Started", href: "#get-started" },
@@ -237,14 +318,14 @@ export default function AXeLanding() {
         <CircuitDecoration className="absolute bottom-10 right-10 w-40 h-40 opacity-50 rotate-180" />
 
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <Link
-            href="/docs/whats-new"
+          <a
+            href="#new"
             className="inline-flex items-center gap-2 px-4 py-1.5 mb-8 rounded-full border border-axe-cyan/20 bg-axe-dark-400/50 text-sm text-axe-text-secondary hover:border-axe-cyan/40 hover:text-axe-text-primary transition-colors"
           >
             <span className="w-2 h-2 rounded-full bg-axe-cyan animate-pulse" />
-            AXe 2: physical devices, iPhone Duo simulator and agent mode
+            New in AXe 2.1: your simulator on your iPhone, and web pages for agents
             <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
+          </a>
 
           <div className="mb-8 flex items-center justify-center gap-3">
             <Image src="/icon.png" alt="AXe" width={96} height={96} className="w-24 h-24 rounded-2xl icon-glow" />
@@ -264,6 +345,18 @@ export default function AXeLanding() {
             accessibility tree, tap, type, swipe and draw, capture screenshots and video, and change device settings.
             Agent mode gives AI agents checked, stateful control of the UI.
           </p>
+
+          <div className="mx-auto mb-8 flex max-w-xl items-center gap-2 rounded-xl border border-axe-dark-600/60 bg-axe-dark-200/80 p-3 pl-4 font-mono text-sm terminal-glow">
+            <span className="select-none text-axe-cyan">$</span>
+            <code className="flex-1 overflow-x-auto whitespace-nowrap text-left text-axe-text-primary">brew install cameroncooke/axe/axe</code>
+            <button
+              onClick={() => copyToClipboard("brew install cameroncooke/axe/axe", "hero")}
+              aria-label="Copy the install command"
+              className="shrink-0 rounded p-1.5 transition-colors hover:bg-axe-dark-400"
+            >
+              {copiedText === "hero" ? <CheckCircle className="h-4 w-4 text-green-400" /> : <Copy className="h-4 w-4 text-axe-text-muted" />}
+            </button>
+          </div>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
             <a
@@ -290,7 +383,7 @@ export default function AXeLanding() {
           </div>
 
           <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-axe-text-muted">
-            {["MIT Licensed", "Single Binary", "Simulators & Devices", "Xcode 26 & 27", "AI Agent Ready"].map((item) => (
+            {["Open Source", "Single Binary", "Simulators & Devices", "Xcode 26 & 27", "AI Agent Ready"].map((item) => (
               <span key={item} className="flex items-center gap-1.5">
                 <CheckCircle className="w-3.5 h-3.5 text-axe-cyan" />
                 {item}
@@ -300,41 +393,124 @@ export default function AXeLanding() {
         </div>
       </section>
 
+      {/* The tour */}
+      <section id="tour" className="relative pb-20">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="terminal-glow overflow-hidden rounded-2xl border border-axe-dark-600/50 bg-black">
+            <video
+              controls
+              playsInline
+              preload="none"
+              poster="/home/axe-tour-poster.jpg"
+              className="block aspect-video w-full"
+              aria-label="A 90-second tour of AXe: a tap in 80 milliseconds, agent mode, the iPhone Duo simulator and a real iPhone painting a picture."
+            >
+              <source src="/home/axe-tour.mp4" type="video/mp4" />
+            </video>
+          </div>
+          <p className="mt-3 flex items-center justify-center gap-2 text-sm text-axe-text-muted">
+            <Play className="h-3.5 w-3.5 text-axe-cyan" />
+            AXe in 90 seconds. Every screen in it is a real recording driven by AXe.
+          </p>
+        </div>
+      </section>
+
+      {/* New in 2.1 */}
+      <section id="new" className="relative scroll-mt-20 py-20">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-axe-dark-200/50 to-transparent" />
+        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <Pill tone="green">New in AXe 2.1</Pill>
+            <h2 className="text-3xl sm:text-4xl font-bold mb-4">
+              Your agent&apos;s simulator, <span className="text-axe-cyan">wherever you are</span>
+            </h2>
+            <p className="text-axe-text-secondary text-lg max-w-2xl mx-auto">
+              Two additions for people who build apps with coding agents.
+            </p>
+          </div>
+          <div className="grid gap-6 lg:grid-cols-2">
+            <MediaCard
+              clip="mirror"
+              label="An iPhone Duo showing a coding agent on the left and a live simulator on the right, with the Mac at home showing the same simulator."
+              eyebrow="AXe Mirror"
+              title="See and touch the simulator from your iPhone or iPad"
+              href="/mirror"
+              cta="Meet AXe Mirror"
+            >
+              <p>
+                <code className="font-mono text-axe-cyan">axe mirror</code> streams a simulator on your Mac to the free AXe
+                Mirror app, live, and sends your touches back. Leave your Mac and your agent working, and watch, touch
+                and steer from anywhere. Encrypted from end to end, and direct between your devices when it can be.
+              </p>
+            </MediaCard>
+            <MediaCard
+              clip="web"
+              label="An agent filling in a web sign-in page inside an app, with the email field, password field and button labelled w3, w4 and w5."
+              eyebrow="Agent mode"
+              title="Agents can read and use web pages"
+              href="/docs/changelog"
+              cta="See the 2.1 release notes"
+            >
+              <p>
+                <code className="font-mono text-axe-cyan">describe-ui --agent --web</code> lists a page&apos;s links, buttons
+                and fields as refs an agent can tap and type into. It works in web views in any app, in Safari and in
+                sign-in sheets, so a web sign-in no longer stops your agent.
+              </p>
+            </MediaCard>
+          </div>
+        </div>
+      </section>
+
       {/* Runs on */}
-      <section className="pb-12 relative">
+      <section className="relative py-20">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-center text-sm text-axe-text-muted mb-6">One set of commands, one set of error codes, every target</p>
-          <div className="grid sm:grid-cols-3 gap-4">
-            {[
-              {
-                icon: Smartphone,
-                title: "iOS Simulator",
-                desc: "iPhone and iPad simulators on Xcode 26 and 27, in every orientation.",
-              },
-              {
-                icon: Columns2,
-                title: "iPhone Duo Simulator",
-                desc: "Both screens of the dual-screen iPhone Duo simulator, in every fold and orientation, with hinge control.",
-              },
-              {
-                icon: Tablet,
-                title: "iPhone & iPad",
-                desc: "Connected devices over Xcode's CoreDevice. Pass the hardware UDID to the same commands.",
-              },
-            ].map((target) => (
-              <div
-                key={target.title}
-                className="flex items-start gap-4 p-5 rounded-xl border border-axe-dark-600/50 bg-axe-dark-200/50"
-              >
-                <div className="w-10 h-10 rounded-lg bg-axe-cyan/10 flex items-center justify-center shrink-0">
-                  <target.icon className="w-5 h-5 text-axe-cyan" />
-                </div>
-                <div>
-                  <h3 className="font-semibold mb-1">{target.title}</h3>
-                  <p className="text-sm text-axe-text-secondary leading-relaxed">{target.desc}</p>
-                </div>
-              </div>
-            ))}
+          <div className="text-center mb-12">
+            <h2 className="text-3xl sm:text-4xl font-bold mb-4">
+              One CLI, <span className="text-axe-cyan">every target</span>
+            </h2>
+            <p className="text-axe-text-secondary text-lg max-w-2xl mx-auto">
+              One set of commands and one set of error codes, on simulators, on the dual-screen iPhone Duo simulator and on
+              real hardware.
+            </p>
+          </div>
+          <div className="grid gap-6 md:grid-cols-3">
+            <MediaCard
+              clip="speed"
+              label="A progress bar comparing one tap in AXe 1.8 with the same tap in AXe 2, which takes 0.08 seconds."
+              eyebrow="iOS Simulator"
+              title="A tap in 80 milliseconds"
+            >
+              <p>
+                iPhone and iPad simulators on Xcode 26 and 27, in every orientation. A warm input connection is reused
+                across commands, so input is fast enough to feel live.
+              </p>
+            </MediaCard>
+            <MediaCard
+              clip="duo"
+              label="The iPhone Duo simulator opening, folding to a tabletop posture and closing as AXe moves its hinge."
+              eyebrow="iPhone Duo Simulator"
+              title="Two screens, every fold"
+              href="/docs/iphone-duo"
+              cta="iPhone Duo guide"
+            >
+              <p>
+                Read both screens, move the hinge, rotate, and drive whichever display is active, in any fold and
+                orientation.
+              </p>
+            </MediaCard>
+            <MediaCard
+              clip="device"
+              label="A real iPhone painting a picture of a red car, one stroke at a time, driven by AXe."
+              eyebrow="iPhone and iPad"
+              title="Real devices, precise enough to paint"
+              href="/docs/physical-devices"
+              cta="Physical devices guide"
+            >
+              <p>
+                Connected devices over Xcode&apos;s CoreDevice. Pass the hardware UDID to the same commands:{" "}
+                <code className="font-mono text-axe-cyan">doctor</code> tells you what a device still needs.
+              </p>
+            </MediaCard>
           </div>
         </div>
       </section>
@@ -406,7 +582,7 @@ export default function AXeLanding() {
               {
                 icon: Layers,
                 title: "Batch Automation",
-                desc: "Run many input steps in one command and one input session, with selector waiting between steps.",
+                desc: "Run many input steps in one command and one input session, or keep one process open with axe serve and send it a command per line.",
                 color: "text-teal-400",
                 bg: "bg-teal-400/10",
               },
@@ -488,6 +664,9 @@ export default function AXeLanding() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="order-2 lg:order-1 space-y-4">
+              <div className="terminal-glow overflow-hidden rounded-xl border border-axe-dark-600/50">
+                <LoopVideo name="agent" label="An agent's commands on the left and an iPhone simulator on the right: each action is checked and each reply carries the new screen." />
+              </div>
               <TerminalWindow title="agent session">
                 <div className="p-5 font-mono text-xs space-y-4">
                   <div>
@@ -513,7 +692,9 @@ e12|tap|button|Save|`}</pre>
             </div>
 
             <div className="order-1 lg:order-2">
-              <Pill tone="green">New in AXe 2</Pill>
+              <Pill tone="green">
+                <Bot className="w-3 h-3" /> Agent mode
+              </Pill>
               <h2 className="text-3xl sm:text-4xl font-bold mb-4">
                 <span className="text-axe-cyan">Agent mode</span> for AI agents
               </h2>
@@ -528,6 +709,7 @@ e12|tap|button|Save|`}</pre>
                   "Refusals send no input and carry a typed code with the current screen",
                   "Batch up to eight same-screen taps and types in one call",
                   "Focus a field and type in one command",
+                  "Web pages too: --web lists a page's controls as refs (new in 2.1)",
                   "No model or API key required",
                 ]}
               />
@@ -548,7 +730,9 @@ e12|tap|button|Save|`}</pre>
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-axe-dark-200/50 to-transparent" />
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <Pill tone="green">New in AXe 2</Pill>
+            <Pill tone="blue">
+              <MonitorSmartphone className="w-3 h-3" /> Beyond the simulator
+            </Pill>
             <h2 className="text-3xl sm:text-4xl font-bold mb-4">
               Real devices &amp; <span className="text-axe-cyan">dual screens</span>
             </h2>
@@ -847,6 +1031,13 @@ e12|tap|button|Save|`}</pre>
               What&apos;s new in AXe 2
               <ArrowRight className="w-4 h-4" />
             </Link>
+            <Link
+              href="/mirror"
+              className="inline-flex items-center gap-2 text-sm text-axe-cyan hover:text-axe-cyan-light transition-colors"
+            >
+              AXe Mirror for iPhone and iPad
+              <ArrowRight className="w-4 h-4" />
+            </Link>
           </div>
         </div>
       </section>
@@ -865,7 +1056,8 @@ e12|tap|button|Save|`}</pre>
               <Image src="/icon.png" alt="AXe" width={64} height={64} className="w-16 h-16 mx-auto rounded-xl icon-glow mb-6" />
               <h2 className="text-3xl sm:text-4xl font-bold mb-4">Open source, community driven</h2>
               <p className="text-axe-text-secondary text-lg max-w-xl mx-auto mb-8">
-                AXe is MIT licensed and welcomes contributions. Help shape the future of iOS automation.
+                AXe is open source under the GPL version 3 and welcomes contributions. Help shape the future of iOS
+                automation.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <Link
@@ -899,6 +1091,9 @@ e12|tap|button|Save|`}</pre>
             </div>
 
             <div className="flex items-center gap-6">
+              <Link href="/mirror" className="text-sm text-axe-text-muted hover:text-axe-cyan transition-colors">
+                AXe Mirror
+              </Link>
               <Link
                 href="/docs"
                 className="text-sm text-axe-text-muted hover:text-axe-cyan transition-colors flex items-center gap-1.5"
