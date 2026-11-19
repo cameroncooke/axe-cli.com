@@ -20,12 +20,15 @@ export const metadata: Metadata = {
 export default function MirrorLandingPage() {
   return (
     <MirrorPage
-      eyebrow="Coming to the App Store"
+      eyebrow="Free on the App Store"
       title="AXe Mirror"
       lede="AXe Mirror lets you see and touch an iOS Simulator running on your Mac from an iPhone or iPad. It is a free companion app for the AXe command-line tool. The simulator's screen is sent to your device as video, and your touches are sent back."
     >
       <h2>Get started</h2>
       <ol>
+        <li>
+          Get <a href="https://apps.apple.com/app/id6836545597">AXe Mirror on the App Store</a>. It is free.
+        </li>
         <li>
           Install <Link href="/docs/installation">AXe</Link> on an Apple silicon Mac.
         </li>

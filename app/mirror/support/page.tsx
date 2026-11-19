@@ -21,7 +21,7 @@ export default function MirrorSupportPage() {
   return (
     <MirrorPage
       title="Support"
-      lede="AXe Mirror lets you see and touch an iOS Simulator running on your Mac from an iPhone or iPad. It is a free companion app for the AXe command-line tool, and it is coming to the App Store."
+      lede="AXe Mirror lets you see and touch an iOS Simulator running on your Mac from an iPhone or iPad. It is a free companion app for the AXe command-line tool, and it is on the App Store."
     >
       <h2>What you need</h2>
       <ul>
