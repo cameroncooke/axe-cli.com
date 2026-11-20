@@ -319,7 +319,7 @@ export default function AXeLanding() {
 
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <a
-            href="#new"
+            href="#anywhere"
             className="inline-flex items-center gap-2 px-4 py-1.5 mb-8 rounded-full border border-axe-cyan/20 bg-axe-dark-400/50 text-sm text-axe-text-secondary hover:border-axe-cyan/40 hover:text-axe-text-primary transition-colors"
           >
             <span className="w-2 h-2 rounded-full bg-axe-cyan animate-pulse" />
@@ -403,29 +403,31 @@ export default function AXeLanding() {
               preload="none"
               poster="/home/axe-tour-poster.jpg"
               className="block aspect-video w-full"
-              aria-label="A 90-second tour of AXe: a tap in 80 milliseconds, agent mode, the iPhone Duo simulator and a real iPhone painting a picture."
+              aria-label="A tour of AXe: a tap in 80 milliseconds, agent mode, web pages, an agent benchmark, the iPhone Duo simulator, a real iPhone painting a picture and AXe Mirror on an iPhone Duo."
             >
               <source src="/home/axe-tour.mp4" type="video/mp4" />
             </video>
           </div>
           <p className="mt-3 flex items-center justify-center gap-2 text-sm text-axe-text-muted">
             <Play className="h-3.5 w-3.5 text-axe-cyan" />
-            AXe in 90 seconds. Every screen in it is a real recording driven by AXe.
+            A tour of AXe. Every screen in it is a real recording driven by AXe.
           </p>
         </div>
       </section>
 
-      {/* New in 2.1 */}
-      <section id="new" className="relative scroll-mt-20 py-20">
+      {/* Mirror and web pages */}
+      <section id="anywhere" className="relative scroll-mt-20 py-20">
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-axe-dark-200/50 to-transparent" />
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <Pill tone="green">New in AXe 2.1</Pill>
+            <Pill tone="green">
+              <Sparkles className="w-3 h-3" /> For agent workflows
+            </Pill>
             <h2 className="text-3xl sm:text-4xl font-bold mb-4">
               Your agent&apos;s simulator, <span className="text-axe-cyan">wherever you are</span>
             </h2>
             <p className="text-axe-text-secondary text-lg max-w-2xl mx-auto">
-              Two additions for people who build apps with coding agents.
+              For people who build apps with coding agents.
             </p>
           </div>
           <div className="grid gap-6 lg:grid-cols-2">
@@ -448,8 +450,8 @@ export default function AXeLanding() {
               label="An agent filling in a web sign-in page inside an app, with the email field, password field and button labelled w3, w4 and w5."
               eyebrow="Agent mode"
               title="Agents can read and use web pages"
-              href="/docs/changelog"
-              cta="See the 2.1 release notes"
+              href="/docs/agent-mode"
+              cta="Read the agent mode guide"
             >
               <p>
                 <code className="font-mono text-axe-cyan">describe-ui --agent --web</code> lists a page&apos;s links, buttons
@@ -476,7 +478,7 @@ export default function AXeLanding() {
           <div className="grid gap-6 md:grid-cols-3">
             <MediaCard
               clip="speed"
-              label="A progress bar comparing one tap in AXe 1.8 with the same tap in AXe 2, which takes 0.08 seconds."
+              label="One axe tap played back in real time: it takes 0.08 seconds. A drag takes 0.9 seconds and reading the screen 0.3 seconds."
               eyebrow="iOS Simulator"
               title="A tap in 80 milliseconds"
             >
@@ -709,7 +711,7 @@ e12|tap|button|Save|`}</pre>
                   "Refusals send no input and carry a typed code with the current screen",
                   "Batch up to eight same-screen taps and types in one call",
                   "Focus a field and type in one command",
-                  "Web pages too: --web lists a page's controls as refs (new in 2.1)",
+                  "Web pages too: --web lists a page's links, buttons and fields as refs",
                   "No model or API key required",
                 ]}
               />
@@ -880,21 +882,21 @@ e12|tap|button|Save|`}</pre>
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <Pill tone="purple">
-              <Zap className="w-3 h-3" /> Faster in AXe 2
+              <Zap className="w-3 h-3" /> Performance
             </Pill>
             <h2 className="text-3xl sm:text-4xl font-bold mb-4">
               Simulator input in <span className="text-axe-cyan">milliseconds</span>
             </h2>
             <p className="text-axe-text-secondary text-lg max-w-2xl mx-auto">
-              Measured on an iPhone 18 Pro simulator against AXe 1.8.
+              Single commands, measured on an iPhone 18 Pro simulator.
             </p>
           </div>
 
           <div className="grid sm:grid-cols-3 gap-4">
             {[
-              { label: "Tap", now: "0.08 s", before: "about 1 s" },
-              { label: "Drag", now: "0.9 s", before: "2.5 s" },
-              { label: "describe-ui", now: "0.3 s", before: "1.1 to 1.9 s" },
+              { label: "Tap", now: "0.08 s", what: "for one tap" },
+              { label: "Drag", now: "0.9 s", what: "for a drag" },
+              { label: "describe-ui", now: "0.3 s", what: "to read the whole screen" },
             ].map((stat) => (
               <div
                 key={stat.label}
@@ -902,7 +904,7 @@ e12|tap|button|Save|`}</pre>
               >
                 <div className="text-sm text-axe-text-muted mb-2 font-mono">{stat.label}</div>
                 <div className="text-4xl font-bold text-axe-cyan neon-glow mb-2">{stat.now}</div>
-                <div className="text-sm text-axe-text-secondary">was {stat.before}</div>
+                <div className="text-sm text-axe-text-secondary">{stat.what}</div>
               </div>
             ))}
           </div>
@@ -1025,10 +1027,10 @@ e12|tap|button|Save|`}</pre>
               <ArrowRight className="w-4 h-4" />
             </Link>
             <Link
-              href="/docs/whats-new"
+              href="/docs/changelog"
               className="inline-flex items-center gap-2 text-sm text-axe-cyan hover:text-axe-cyan-light transition-colors"
             >
-              What&apos;s new in AXe 2
+              Release notes
               <ArrowRight className="w-4 h-4" />
             </Link>
             <Link
