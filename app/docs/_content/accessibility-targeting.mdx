@@ -80,6 +80,17 @@ axe tap --label "Weather Alerts" --udid "$UDID"
 axe tap --label "Weather Alerts" --tap-style simulator --udid "$UDID"
 ```
 
+## When a tap does nothing
+
+A tap is a real touch at the centre of the control. Some rows are one button whose real action sits on a small button at one edge, such as a contact row with a Call button: the centre is empty, so the tap lands and nothing happens. `--semantic-press` presses the control through accessibility instead, as VoiceOver does, and sends no touch.
+
+```shell
+axe tap --id "$ELEMENT_ID" --semantic-press --input-mode selected --udid "$UDID"
+axe tap --agent --semantic-press --snapshot-id "$SNAPSHOT_ID" --ref e12 --udid "$UDID"
+```
+
+It works on a native Button or CheckBox with an accessibility ID; anything else is refused and nothing is sent. A CheckBox must change value. A Button reports `buttonPressAccepted`, which means the app took the press, not that anything happened, so check the screen afterwards. Use it only after a tap has failed: a press can run an action no finger could reach.
+
 ## Sliders
 
 `slider` sets a slider to a percentage and checks the new value:

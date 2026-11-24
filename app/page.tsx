@@ -440,7 +440,7 @@ export default function AXeLanding() {
               cta="Meet AXe Mirror"
             >
               <p>
-                <code className="font-mono text-axe-cyan">axe mirror</code> streams a simulator on your Mac to the free AXe
+                <code className="font-mono text-axe-cyan">axe remote</code> streams a simulator on your Mac to the free AXe
                 Mirror app, live, and sends your touches back. Leave your Mac and your agent working, and watch, touch
                 and steer from anywhere. Encrypted from end to end, and direct between your devices when it can be.
               </p>
