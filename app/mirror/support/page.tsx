@@ -39,32 +39,32 @@ export default function MirrorSupportPage() {
       <h2>Pair the app with your Mac</h2>
       <ol>
         <li>
-          On the Mac, run <code>axe mirror pair</code>. It shows a QR code and a one-time code in the form{" "}
+          On the Mac, run <code>axe remote pair</code>. It shows a QR code and a one-time code in the form{" "}
           <code>XXXXX-XXXXX</code>.
         </li>
         <li>In AXe Mirror, scan the QR code or type the code. The code works once, and for ten minutes.</li>
         <li>
-          On the Mac, run <code>axe mirror --udid &lt;UDID&gt;</code> with the UDID of a booted simulator.{" "}
-          <code>axe list-simulators</code> prints the UDIDs.
+          On the Mac, run <code>axe remote</code>, then tap your Mac in the app and choose a simulator. To show one
+          simulator only, run <code>axe remote mirror --udid &lt;UDID&gt;</code> with the UDID of a booted simulator.
         </li>
       </ol>
       <p>
-        You pair once. After that, the app can connect whenever <code>axe mirror</code> is running. Press{" "}
+        You pair once. After that, the app can connect whenever <code>axe remote</code> is running. Press{" "}
         <code>Ctrl+C</code> on the Mac to stop.
       </p>
 
       <h2>Troubleshooting</h2>
       <ul>
         <li>
-          <strong>The code has expired.</strong> Run <code>axe mirror pair</code> again to get a new one.
+          <strong>The code has expired.</strong> Run <code>axe remote pair</code> again to get a new one.
         </li>
         <li>
-          <strong>The app says &quot;not paired&quot;.</strong> Pair again, or run <code>axe mirror viewers</code> on the
+          <strong>The app says &quot;not paired&quot;.</strong> Pair again, or run <code>axe remote devices</code> on the
           Mac to check that your device is in the list.
         </li>
         <li>
           <strong>The app cannot connect.</strong> Check that the Mac is awake and online, and that{" "}
-          <code>axe mirror</code> is running.
+          <code>axe remote</code> is running.
         </li>
         <li>
           <strong>The picture is laggy on the same Wi-Fi.</strong> A wired network connection for the Mac helps.

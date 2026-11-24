@@ -99,7 +99,7 @@ function Step({ n, title, children, picture }: { n: number; title: string; child
   )
 }
 
-/** What `axe mirror pair` prints, with a sample code. The code shown was cancelled when it was made. */
+/** What `axe remote pair` prints, with a sample code. The code shown was cancelled when it was made. */
 function PairingTerminal() {
   return (
     <div className="terminal-glow overflow-hidden rounded-xl border border-axe-dark-600/50 bg-axe-dark-200/80">
@@ -111,7 +111,7 @@ function PairingTerminal() {
       </div>
       <div className="px-4 py-4 font-mono text-[13px] leading-relaxed text-axe-text-secondary">
         <p className="text-axe-text-primary">
-          <span className="text-axe-cyan">❯ </span>axe mirror pair
+          <span className="text-axe-cyan">❯ </span>axe remote pair
         </p>
         <p className="mt-2">Scan this with the viewer app, or type the code. It works once, for ten minutes.</p>
         <Image
@@ -161,9 +161,9 @@ const FAQ: { q: string; a: ReactNode }[] = [
     q: "Can somebody else connect to my Mac?",
     a: (
       <>
-        Only a device you have paired can connect. Pairing needs a code from <Code>axe mirror pair</Code>, which works once
+        Only a device you have paired can connect. Pairing needs a code from <Code>axe remote pair</Code>, which works once
         and for ten minutes. Any other device is refused before any picture or touch is exchanged. Run{" "}
-        <Code>axe mirror viewers</Code> to see what is paired and <Code>axe mirror unpair</Code> to remove a device.
+        <Code>axe remote devices</Code> to see what is paired and <Code>axe remote unpair</Code> to remove a device.
       </>
     ),
   },
@@ -172,7 +172,7 @@ const FAQ: { q: string; a: ReactNode }[] = [
     a: (
       <>
         Only the screen of the one simulator you name with <Code>--udid</Code>, as video, and only while{" "}
-        <Code>axe mirror</Code> is running. It does not send your Mac&apos;s screen, your files or your source code, and the
+        <Code>axe remote</Code> is running. It does not send your Mac&apos;s screen, your files or your source code, and the
         touches it receives go to that simulator and nowhere else.
       </>
     ),
@@ -181,7 +181,7 @@ const FAQ: { q: string; a: ReactNode }[] = [
     q: "Does it work when I am away from home?",
     a: (
       <>
-        Yes, on Wi-Fi or mobile data. Your Mac has to be awake and online with <Code>axe mirror</Code> running. Nothing on
+        Yes, on Wi-Fi or mobile data. Your Mac has to be awake and online with <Code>axe remote</Code> running. Nothing on
         your router needs setting up: there are no ports to open and no VPN to install.
       </>
     ),
@@ -330,7 +330,7 @@ export default function MirrorLandingPage() {
 
           <Step n={2} title="Pair it with your Mac, once" picture={<PairingTerminal />}>
             <p>On your Mac, run the pairing command. It prints a QR code and a ten-character code.</p>
-            <Command>axe mirror pair</Command>
+            <Command>axe remote pair</Command>
             <p>
               In the app, tap <strong className="font-medium text-axe-text-primary">Pair with your Mac</strong> and scan the QR
               code, or type the code. The code works once, and for ten minutes. After that your device stays paired until
@@ -339,11 +339,11 @@ export default function MirrorLandingPage() {
           </Step>
 
           <Step n={3} title="Mirror a simulator" picture={<Shot src="/mirror/app-stream.jpg" alt="AXe Mirror showing a simulator live, with Home, app switcher and Lock buttons." />}>
-            <p>Start hosting a booted simulator. This is the one your agent uses.</p>
-            <Command>{'axe mirror --udid "$UDID"'}</Command>
+            <p>Start the host, then tap your Mac&apos;s name in the app and choose a simulator.</p>
+            <Command>axe remote</Command>
             <p>
-              Then tap your Mac&apos;s name in the app. <Code>axe list-simulators</Code> prints the UDIDs, and{" "}
-              <Code>Ctrl+C</Code> stops hosting.
+              To show one simulator only, such as the one your agent uses, run{" "}
+              <Code>{'axe remote mirror --udid "$UDID"'}</Code> instead. <Code>Ctrl+C</Code> stops hosting.
             </p>
           </Step>
         </div>
@@ -370,7 +370,7 @@ export default function MirrorLandingPage() {
           <Card title="You can always tell">
             The app shows <strong className="font-medium text-axe-text-primary">Direct</strong> or{" "}
             <strong className="font-medium text-axe-text-primary">Relay</strong> beside the picture, and{" "}
-            <Code>axe mirror</Code> prints the route it is using.
+            <Code>axe remote</Code> prints the route it is using.
           </Card>
         </div>
       </Section>
@@ -400,7 +400,7 @@ export default function MirrorLandingPage() {
             and its own key, on your device, and nothing else.
           </Card>
           <Card title="Only what you choose to share">
-            <Code>axe mirror</Code> sends one simulator&apos;s screen, while you run it. It never sends your Mac&apos;s screen,
+            <Code>axe remote</Code> sends one simulator&apos;s screen, while you run it. It never sends your Mac&apos;s screen,
             your files or your code. The camera is used only to scan the pairing code, and its images stay on the device.
           </Card>
         </div>

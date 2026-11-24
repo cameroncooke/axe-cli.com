@@ -57,7 +57,7 @@ export function ConnectionDiagram() {
     <svg viewBox="0 0 760 380" role="img" aria-labelledby="conn-title conn-desc" className="w-full h-auto">
       <title id="conn-title">How AXe Mirror connects</title>
       <desc id="conn-desc">
-        Your Mac, running axe mirror, and your iPhone or iPad, running AXe Mirror, connect directly when they can. When
+        Your Mac, running axe remote, and your iPhone or iPad, running AXe Mirror, connect directly when they can. When
         they cannot, the same encrypted traffic passes through a relay, which cannot read it.
       </desc>
 
@@ -99,7 +99,7 @@ export function ConnectionDiagram() {
         Your Mac
       </text>
       <text x="100" y="332" textAnchor="middle" fontFamily={MONO} fontSize="12.5" fill={SUB}>
-        axe mirror
+        axe remote
       </text>
       <text x="100" y="352" textAnchor="middle" fontFamily={FONT} fontSize="12.5" fill={MUTED}>
         the simulator and your agent

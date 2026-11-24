@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   robots: { index: false },
 }
 
-// The QR code that `axe mirror pair` prints holds this page's address with the code after `#`.
+// The QR code that `axe remote pair` prints holds this page's address with the code after `#`.
 // Scanned inside AXe Mirror it pairs at once; scanned with the Camera app it opens this page.
 export default function PairPage() {
   return (
@@ -36,7 +36,7 @@ export default function PairPage() {
         </li>
       </ol>
       <p>
-        The code works once, and for ten minutes. If it has expired, run <code>axe mirror pair</code> on your Mac again.
+        The code works once, and for ten minutes. If it has expired, run <code>axe remote pair</code> on your Mac again.
       </p>
       <p className="!mt-8">
         <a href={APP_STORE_URL} className="inline-block transition-opacity hover:opacity-85">
