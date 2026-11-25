@@ -1,21 +1,27 @@
 <PageHeader
   breadcrumbs={["Docs", "Usage", "AXe Mirror"]}
   title="AXe Mirror"
-  lede="See and touch an iOS Simulator running on your Mac from an iPhone or iPad. The axe mirror command hosts the simulator, and the free AXe Mirror app shows it and sends your touches back."
+  lede="Use your Mac's iOS Simulators from an iPhone or iPad, and install your own builds on it. The axe remote command is the Mac's side, and the free AXe Mirror app is the other."
   meta={["Apple silicon, macOS 14.5 or later", "iOS or iPadOS 17.5 or later", "Simulators only"]}
 />
 
 ## Overview
 
-`axe mirror` hosts one booted simulator for a viewer on another device. The viewer is AXe Mirror, a free and open-source companion app for iPhone and iPad. Get it [on the App Store](https://apps.apple.com/app/id6836545597), or [build it yourself](#get-the-app).
+`axe remote` runs a host on your Mac for the devices you have paired with it. The other side is AXe Mirror, a free and open-source companion app for iPhone and iPad. Get it [on the App Store](https://apps.apple.com/app/id6836545597), or [build it yourself](#get-the-app).
 
-- Video is HEVC at up to 60 frames a second, with a bitrate that adapts to the link.
-- Touches, including multi-touch, and the Home and other hardware buttons are sent back to the simulator.
-- Only viewers you have paired with the Mac can connect.
+- **Simulators.** Choose any of the Mac's iPhone and iPad simulators in the app, boot one that is shut down, or create a new one. You see its screen live and your touches go back to it.
+- **Builds.** `axe remote build` puts a build of your app on the device in your hand, over the pairing alone: no TestFlight, cable, VPN or server.
+- **iPhone Duo.** A Duo simulator is shown on whichever screen is lit, and you fold it with your fingers.
+- Video is HEVC at up to 60 frames a second, with a bitrate that adapts to the link. Touches, including multi-touch, and the Home, app switcher and Lock buttons are sent back.
+- Only devices you have paired with the Mac can connect, and every paired device can be connected at once.
 - The connection is end-to-end encrypted, and direct between the two devices when they can reach each other.
 
 <Callout variant="info" title="Try it without a Mac">
 The app has a "Try the demo" button. It connects to a demo simulator run by the AXe project.
+</Callout>
+
+<Callout variant="info" title="Renamed in AXe 2.2">
+These commands were `axe mirror` in AXe 2.1, and `axe mirror viewers` is now `axe remote devices`. The old names still run, so scripts keep working. What is new on this page needs AXe 2.2 and version 1.2 of the app.
 </Callout>
 
 ## Get the app
@@ -42,104 +48,173 @@ With a free Apple ID, an app you build yourself stops opening after seven days a
 ## Requirements
 
 - **Mac:** Apple silicon and macOS 14.5 or later, with AXe and Xcode's Simulator.
-- **iPhone or iPad:** iOS or iPadOS 17.5 or later, with the AXe Mirror app.
+- **iPhone or iPad:** iOS or iPadOS 17.5 or later, with the AXe Mirror app. Choosing simulators, installing builds and folding a Duo need version 1.2 of the app.
 
 ## Quick start
 
 ```shell
-axe mirror pair                # shows a one-time code and a QR code
-axe mirror --udid "$UDID"      # hosts the booted simulator for paired viewers
+axe remote pair     # once: shows a one-time code and a QR code
+axe remote          # starts the host
 ```
 
-1. On the Mac, run `axe mirror pair`.
+1. On the Mac, run `axe remote pair`.
 2. In AXe Mirror, scan the QR code or type the code.
-3. On the Mac, run `axe mirror --udid "$UDID"` with the UDID of a booted simulator. `axe list-simulators` prints the UDIDs.
+3. On the Mac, run `axe remote`.
+4. In the app, tap the Mac, then Simulators, and choose one.
 
-You pair a viewer once. After that, it can connect whenever `axe mirror` is running.
+You pair a device once. After that, it can connect whenever the host is running.
 
-## Commands
+## Simulators from your phone
 
-### `mirror pair`
+Started with `axe remote`, the host opens no simulator at first. The app opens the Mac on a menu, Simulators and Apps, and says whether it reaches the Mac directly or through a relay.
+
+- **Open one.** Simulators lists the Mac's iPhone and iPad simulators, running ones first. Tap one to open it. One that is shut down is booted first, which takes a few seconds, or about a minute for a simulator that has never run. Pull the list down to read it again.
+- **Create one.** "New simulator" makes one from a name, a device and an installed iOS version, then boots and opens it.
+- **Use it elsewhere.** The app shows the simulator's UDID and copies it with one tap, so you can paste it into an agent or a command. Info says what is on screen: its name, device, iOS version and screen size.
+- **Leave it.** Close goes back to the list and asks whether to leave the simulator running or shut it down. Each simulator's menu shuts it down, restarts it or deletes it; deleting asks first.
+- **When it stops answering.** The app says so and offers Restart. The host never restarts a simulator by itself, because that closes the apps in it and an agent may be using it. The app also says when the Mac itself is overloaded and the picture may lag.
+
+Each connected device has its own simulator and its own picture. Two devices may open the same simulator, and the touches of both reach it.
+
+<Callout variant="warn" title="Anyone you pair can do all of this">
+A paired device can boot, create and delete simulators. When someone should see one simulator and no more, start the host with `axe remote mirror --udid`.
+</Callout>
+
+## One simulator only
 
 ```shell
-axe mirror pair
-axe mirror pair --name "Office Mac"
-axe mirror pair --json
+axe remote mirror --udid "$UDID"
 ```
 
-Shows a one-time code and the same code as a QR code, then waits for a viewer to use it. The code has ten characters, shown as `XXXXX-XXXXX`. It works once, and for ten minutes. The host does not have to be running while you pair.
+Hosts that one booted simulator, and the app opens it at once. `axe list-simulators` prints the UDIDs.
 
-```text
-Scan this with the viewer app, or type the code. It works once, for ten minutes.
+## Install your builds
 
-  <QR code>
-
-  Code: XXXXX-XXXXX
-
-Waiting for the viewer. Press Ctrl+C to cancel.
-Paired with <viewer name>.
+```shell
+axe remote build --project App.xcodeproj --scheme App --notes "Fixes the login screen"
+axe remote publish App.ipa --notes "Fixes the login screen"
+axe remote builds
 ```
+
+`build` archives the scheme with xcodebuild, exports it for Ad Hoc distribution with the project's own signing, checks the result and publishes it. `publish` takes an IPA you already have. A running host offers what is published to paired devices: in the app, tap Apps on the Mac's menu, then Install.
+
+- **Checked first.** An IPA must be a device app signed for Ad Hoc distribution, with profiles that have not expired. One that iOS would refuse is refused here, with the reason. The result names which of the devices this Mac knows the build will install on.
+- **Registered devices.** The device has to be in the provisioning profile. `--allow-provisioning-updates` lets Xcode make the profile again, which is how a device registered since gets in.
+- **One-time setup.** iOS installs an app only over HTTPS from a name it trusts, so the first Install on each Mac opens a short setup: you install a certificate and switch it on in Settings, with a video of the taps playing alongside. The certificate can vouch only for the three names the app uses, and you can remove it in Settings › General › VPN & Device Management.
+- **Nothing else in the way.** The build travels over the paired connection, direct when it can be and through the relay when not. A download that loses its connection carries on where it stopped.
+
+`axe remote builds` lists what is on offer and manages it:
 
 | Option | Meaning |
 |--------|---------|
-| `--name <name>` | The name the viewer shows for this Mac. Defaults to the Mac's own name. |
-| `--json` | Print JSON lines instead of the QR code: one with the code, one when a viewer has paired. |
-| `--relay-url <url>` | Pair through this relay. By default AXe picks from its published list. |
+| `--remove <id>` | Remove a build by its ID or the start of it. Repeat for more. |
+| `--keep <n>` | Keep the newest `n` builds of each app and remove the rest. |
+| `--notes <id> "<text>"` | Replace a build's notes. |
+| `--clean` | Remove archives and logs that building left behind. |
+| `--json` | Print the result as JSON. |
 
-With `--json`, the first line is a `code` event with `code`, `link`, `expires` and `relay`. The second is a `paired` event with `viewer`, the viewer's ID, and `name`.
+Removing a build stops it being offered. It does not take it off a device that has installed it.
 
-### `mirror`
+## iPhone Duo
+
+An iPhone Duo simulator is streamed from whichever of its two screens is lit, the outer one when closed and the inner one when open, and touches go to that screen. Fold, in the app, turns the live picture into a 3D Duo that you fold by dragging its halves; the simulator's hinge follows your finger. On a real iPhone Duo held half folded, the picture sits above the hinge and the controls below it, where a trackpad can drive the simulator. See [iPhone Duo](/docs/iphone-duo) for the simulator itself.
+
+## Commands
+
+### `remote`
 
 ```shell
-axe mirror --udid "$UDID"
-axe mirror --udid "$UDID" --relay-url "$RELAY_URL"
+axe remote
+axe remote --relay-url "$RELAY_URL"
+axe remote --no-builds
 ```
 
-Hosts one booted simulator for paired viewers. It prints one JSON line per [event](#events) on stdout, and logs go to stderr. Stop it with `Ctrl+C` or SIGTERM.
+Starts the host. Paired devices choose a simulator and install builds. It prints one JSON line per [event](#events) on stdout, and logs go to stderr. Stop it with `Ctrl+C`, SIGTERM or by closing its terminal.
+
+| Option | Meaning |
+|--------|---------|
+| `--relay-url <url>` | Use this relay and no other. By default AXe picks from its published list. |
+| `--builds <folder>` | Offer the builds in this folder instead of AXe's own store. Defaults to `AXE_MIRROR_BUILDS`. |
+| `--no-builds` | Offer no builds to install. |
+
+### `remote mirror`
+
+```shell
+axe remote mirror --udid "$UDID"
+axe remote mirror --udid "$UDID" --demo --demo-app com.example.MyApp
+```
+
+Starts the host on one booted simulator. It takes the options of `axe remote`, and these:
 
 | Option | Meaning |
 |--------|---------|
 | `--udid <UDID>` | UDID of the booted simulator. Required. |
-| `--relay-url <url>` | Use this relay and no other. By default AXe picks from its published list. |
+| `--demo` | Run a public demo: anyone may connect without pairing, one at a time, and is kept inside one app. Needs `--demo-app`. |
+| `--demo-app <bundle ID>` | The app a demo's visitors are kept inside. |
 
-`axe mirror` runs against simulators only.
-
-### `mirror viewers`
-
-```shell
-axe mirror viewers
-axe mirror viewers --json
-```
-
-Lists the viewers paired with this Mac, one per line: the name, the time it was paired and the ID. With no viewers it prints `No viewers are paired with this Mac.`
-
-With `--json`, the result is `{viewers: [{id, name, paired}]}`.
-
-### `mirror unpair`
+### `remote pair`
 
 ```shell
-axe mirror unpair "My iPhone"
-axe mirror unpair "$VIEWER_ID"
+axe remote pair
+axe remote pair --name "Office Mac"
+axe remote pair --json
 ```
 
-Removes one paired viewer and prints `Removed <name> (<id>).` Pass the viewer's name, its ID, or the first characters of its ID, as shown by `axe mirror viewers`.
+Shows a one-time code and the same code as a QR code, then waits for a device to use it. The code has ten characters, shown as `XXXXX-XXXXX`. It works once, and for ten minutes. The host does not have to be running while you pair.
+
+| Option | Meaning |
+|--------|---------|
+| `--name <name>` | The name the app shows for this Mac. Defaults to the Mac's own name. |
+| `--json` | Print JSON lines instead of the QR code: one with the code, one when a device has paired. |
+| `--relay-url <url>` | Pair through this relay. By default AXe picks from its published list. |
+
+With `--json`, the first line is a `code` event with `code`, `link`, `expires` and `relay`. The second is a `paired` event with `viewer`, the device's ID, and `name`.
+
+### `remote devices`
+
+```shell
+axe remote devices
+axe remote devices --json
+```
+
+Lists the devices paired with this Mac, one per line: the name, the time it was paired and the ID. With `--json`, the result is `{viewers: [{id, name, paired}]}`.
+
+### `remote unpair`
+
+```shell
+axe remote unpair "My iPhone"
+axe remote unpair "$DEVICE_ID"
+```
+
+Removes one paired device and prints `Removed <name> (<id>).` Pass its name, its ID, or the first characters of its ID, as shown by `axe remote devices`. A running host closes the session that device has open within a second.
+
+### `remote build`, `remote publish` and `remote builds`
+
+See [Install your builds](#install-your-builds). `build` also takes `--workspace`, `--configuration`, `--team-id`, `--export-options`, `--device <udid>`, `--keep-archive` and `--json`.
 
 ## Events
 
-`axe mirror --udid <UDID>` prints one JSON line for each event:
+The host prints one JSON line for each event. Every value is a string. An event that comes from a device also carries `viewer`, its ID, and `viewerName`.
 
 | Event | Meaning |
 |-------|---------|
 | `relays` | The relays the host uses. |
 | `endpoint` | The host has started. The line includes the host ID. |
-| `ready` | The host is ready for viewers. |
-| `viewerConnected` | A paired viewer connected. |
-| `streaming` | Video is being sent to the viewer. |
+| `ready` | The host is ready. With `remote mirror`, the line includes the `udid`. |
+| `viewerConnected`, `viewerDisconnected` | A paired device connected or left. |
+| `simulatorSelected`, `simulatorReleased` | A device opened a simulator, or went back to the list. |
+| `simulatorCreated`, `simulatorShutDown`, `simulatorDeleted`, `simulatorRestarting` | A device had the host do that. |
+| `streaming` | Video is being sent, with its `width` and `height`. |
 | `path` | How the traffic travels. `kind` is `direct` or `relay`. |
-| `refused` | A viewer that is not paired tried to connect and was refused. |
+| `rotated` | The simulator's screen turned. `orientation` says which way. |
+| `screenChanged`, `folded` | On an iPhone Duo: the other screen lit, or a fold asked for in the app is done. |
+| `unresponsive`, `responsive` | The simulator on screen stopped answering, or answers again. |
+| `macBusy`, `macNotBusy` | The Mac has been overloaded for ten seconds, or has been quiet for ten. |
+| `buildsChanged`, `installRequested` | The builds on offer changed, or a build reached a device and was handed to iOS. |
+| `refused` | A device that is not paired tried to connect and was refused. |
+| `unpaired` | A connected device was removed with `remote unpair`. |
 | `warning` | Something the host can work around. `code` names it and `message` explains it. See [Local Network permission](#local-network-permission). |
 | `error` | Something the host cannot work around. `message` explains it. |
-| `viewerDisconnected` | The viewer disconnected. |
 | `stopped` | The host has stopped. |
 
 ## How it connects
@@ -152,22 +227,22 @@ The `path` event tells you which route is in use: `direct` or `relay`.
 
 ### Local Network permission
 
-macOS asks you to allow each app onto your local network, and `axe` inherits the answer of the terminal you run it from. Without the permission, a viewer on the same network as the Mac cannot connect directly.
+macOS asks you to allow each app onto your local network, and `axe` inherits the answer of the terminal you run it from. Without the permission, a device on the same network as the Mac cannot connect directly.
 
-`axe mirror` checks when it starts. If macOS is blocking it, the host prints a `warning` event with the code `localNetworkBlocked`, and a viewer on the same network goes through the relay: it reconnects once when it arrives, and its stream is slower. Viewers on other networks are not affected.
+The host checks when it starts. If macOS is blocking it, the host prints a `warning` event with the code `localNetworkBlocked`, and a device on the same network goes through the relay: it reconnects once when it arrives, and its stream is slower. Devices on other networks are not affected.
 
-To fix it, allow your terminal app in System Settings > Privacy & Security > Local Network. You do not need to restart `axe mirror`: it asks macOS again when the next viewer on your network connects. Apple's Terminal and SSH sessions are always allowed. Other terminal apps and launch agents need the permission.
+To fix it, allow your terminal app in System Settings > Privacy & Security > Local Network. You do not need to restart the host: it asks macOS again when the next device on your network connects. Apple's Terminal and SSH sessions are always allowed. Other terminal apps and launch agents need the permission.
 
 ## Security
 
-- **Pairing.** Only paired viewers can connect. A viewer pairs by using a code from `axe mirror pair`, which works once and for ten minutes. Any other viewer is refused before any video or touch is exchanged.
-- **End-to-end encryption.** The connection is QUIC, through the open-source iroh library, and is encrypted from end to end. A relay forwards encrypted packets and cannot read the video or the touches.
-- **Host identity.** The host ID is the public half of a key that AXe creates on first use and keeps in `~/Library/Application Support/AXe/mirror/host.key`, readable by your user alone. AXe never replaces an existing key, because a new key would unpair every viewer.
-- **Unpairing.** Run `axe mirror viewers` to see who is paired, then `axe mirror unpair <name or ID>`. The viewer can no longer connect. A session it has open is not affected until it reconnects.
+- **Pairing.** Only paired devices can connect. A device pairs by using a code from `axe remote pair`, which works once and for ten minutes. Any other is refused before any video or touch is exchanged.
+- **End-to-end encryption.** The connection is QUIC, through the open-source iroh library, and is encrypted from end to end. A relay forwards encrypted packets and cannot read the video, the touches or a build.
+- **Host identity.** The host ID is the public half of a key that AXe creates on first use and keeps in `~/Library/Application Support/AXe/mirror/host.key`, readable by your user alone. AXe never replaces an existing key, because a new key would unpair every device.
+- **Unpairing.** Run `axe remote devices` to see what is paired, then `axe remote unpair <name or ID>`. The device loses its access at once, including a session it has open.
 
 ## Related
 
 - [AXe Mirror support](/mirror/support)
 - [AXe Mirror privacy policy](/mirror/privacy)
-- [Screenshots & Video](/docs/screenshots-video)
-- [Command Reference](/docs/command-reference#mirror)
+- [iPhone Duo](/docs/iphone-duo)
+- [Command Reference](/docs/command-reference#remote)

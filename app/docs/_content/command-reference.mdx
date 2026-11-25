@@ -153,16 +153,20 @@ axe stream-video --format h264 --udid "$DEVICE_UDID" > device.h264
 
 See [Screenshots & Video](/docs/screenshots-video).
 
-## Mirror
+## Remote
 
 ```shell
-axe mirror pair
-axe mirror --udid "$UDID"
-axe mirror viewers
-axe mirror unpair "$VIEWER_ID"
+axe remote pair
+axe remote
+axe remote mirror --udid "$UDID"
+axe remote devices
+axe remote unpair "$DEVICE_ID"
+axe remote build --project App.xcodeproj --scheme App --notes "What changed"
+axe remote publish App.ipa
+axe remote builds
 ```
 
-`mirror pair` shows a one-time code for the AXe Mirror app on an iPhone or iPad. `mirror` hosts one booted simulator for paired viewers, `mirror viewers` lists them and `mirror unpair` removes one. Apple silicon Macs only. See [AXe Mirror](/docs/mirror).
+`remote pair` shows a one-time code for the AXe Mirror app on an iPhone or iPad. `remote` starts the host: paired devices choose, boot or create a simulator and install the builds this Mac offers. `remote mirror` starts it on one booted simulator. `remote devices` lists the paired devices and `remote unpair` removes one. `remote build` builds an app for Ad Hoc distribution and offers it to install, `remote publish` offers an IPA you already have, and `remote builds` lists and manages what is on offer. Apple silicon Macs only. These were `axe mirror` commands before AXe 2.2, and the old names still run. See [AXe Mirror](/docs/mirror).
 
 ## Automation
 
