@@ -1,13 +1,19 @@
 <PageHeader
   breadcrumbs={["Docs"]}
   title="AXe documentation"
-  lede="AXe is a command-line tool that automates iOS simulators, including the dual-screen iPhone Duo simulator, and connected iPhones and iPads. It reads the accessibility tree, sends taps, typing, gestures and hardware buttons, captures screenshots and video, and changes device settings. Agent mode gives AI agents checked, stateful control of the UI."
+  lede="AXe is a command-line toolbox for building iOS apps with agents. It automates iOS simulators, including the dual-screen iPhone Duo simulator, and connected iPhones and iPads: it reads the accessibility tree, sends taps, typing, gestures and hardware buttons, captures screenshots and video, and changes device settings. Agent mode gives AI agents checked, stateful control of the UI. AXe Mirror puts a simulator on your iPhone or iPad, and Builds installs your app on it."
   meta={["AXe 2", "macOS 14+", "Xcode 26 and 27", "GPL-3.0"]}
 />
 
 ## What AXe does
 
-AXe is one binary you install with Homebrew. Every command names its target with `--udid`, and the same commands work on a simulator, an iPhone Duo simulator and a paired iPhone or iPad. Use it from a terminal, a shell script, a CI job or an AI agent.
+AXe is one binary you install with Homebrew. It has three tools:
+
+- **UI automation.** Read the screen and drive it. Every command names its target with `--udid`, and the same commands work on a simulator, an iPhone Duo simulator and a paired iPhone or iPad. Use it from a terminal, a shell script, a CI job or an AI agent, so your agent can test its own work.
+- **Mirror.** `axe remote` shows your Mac's simulators in the free AXe Mirror app on an iPhone or iPad and sends your touches back, so the simulator your agent is using is in your hand wherever you are.
+- **Builds.** `axe remote build` builds your app, signs it for your devices and offers it in AXe Mirror, which installs the real app on your phone.
+
+AXe works with any agent that can run a command, and needs none.
 
 <div className="feature-grid">
   <div className="feature-card">
@@ -39,6 +45,16 @@ AXe is one binary you install with Homebrew. Every command names its target with
     <div className="feature-kicker">Agents</div>
     <h3>Built for AI agents</h3>
     <p>`--agent` checks every action against the screen the agent saw and returns the settled screen. The AXe skill teaches agents to use it.</p>
+  </div>
+  <div className="feature-card">
+    <div className="feature-kicker">Mirror</div>
+    <h3>Your simulator, in your hand</h3>
+    <p>`axe remote` streams a simulator to the AXe Mirror app on an iPhone or iPad, live, with touch. Encrypted from end to end.</p>
+  </div>
+  <div className="feature-card">
+    <div className="feature-kicker">Builds</div>
+    <h3>The real app, on your phone</h3>
+    <p>`axe remote build` archives, signs and publishes your app, and AXe Mirror installs it over the pairing alone.</p>
   </div>
 </div>
 
@@ -74,4 +90,5 @@ Read [Agent Mode](/docs/agent-mode) before connecting an AI agent to AXe, and in
 - [Installation](/docs/installation)
 - [Quick Start](/docs/quick-start)
 - [Command Reference](/docs/command-reference)
+- [AXe Mirror and Builds](/docs/mirror)
 - [Output & Errors](/docs/output-and-errors)

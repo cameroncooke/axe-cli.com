@@ -4,9 +4,9 @@ import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import "./globals.css"
 
-const TITLE = "AXe - iOS automation for simulators, devices and AI agents"
+const TITLE = "AXe - the iOS toolbox for agents: UI automation, Mirror and Builds"
 const DESCRIPTION =
-  "A CLI that automates iOS simulators, including the iPhone Duo simulator, and connected iPhones and iPads: accessibility reads, taps, typing, gestures, screenshots, video and device settings, with an agent mode for AI agents. Single binary, no servers."
+  "A CLI that automates iOS simulators, including the iPhone Duo simulator, and connected iPhones and iPads, from scripts, CI and any coding agent: accessibility reads, taps, typing, gestures, screenshots, video and device settings, with an agent mode. AXe Mirror puts the simulator on your iPhone or iPad, and Builds installs your app on it. Single binary."
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://axe-cli.com"),

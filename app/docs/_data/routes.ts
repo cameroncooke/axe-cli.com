@@ -74,7 +74,7 @@ export const PAGE_META: Record<DocSlug, DocRoute> = {
     title: "Introduction",
     group: "Overview",
     description:
-      "AXe is a single-binary CLI that automates iOS simulators, including the dual-screen iPhone Duo simulator, and connected iPhones and iPads, with an agent mode for AI agents.",
+      "AXe is a single-binary toolbox for building iOS apps with agents: UI automation for simulators, including the dual-screen iPhone Duo simulator, and connected iPhones and iPads, with an agent mode; Mirror for your simulator on your phone; and Builds for your app on it.",
   },
   "whats-new": {
     slug: "whats-new",
@@ -134,7 +134,7 @@ export const PAGE_META: Record<DocSlug, DocRoute> = {
     slug: "batch",
     title: "Batch Automation",
     group: "Usage",
-    description: "Run several input steps in order in one AXe command.",
+    description: "Run several input steps in order in one AXe command, or keep one process open with axe serve.",
   },
   "screenshots-video": {
     slug: "screenshots-video",
@@ -146,7 +146,7 @@ export const PAGE_META: Record<DocSlug, DocRoute> = {
     slug: "mirror",
     title: "AXe Mirror",
     group: "Usage",
-    description: "See and touch a simulator from an iPhone or iPad: pairing, the mirror commands, events, relays and security.",
+    description: "See and touch a simulator from an iPhone or iPad, and install your builds on it: pairing, the remote commands, events, relays and security.",
   },
   settings: {
     slug: "settings",
