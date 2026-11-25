@@ -3,6 +3,7 @@ import Image from "next/image"
 import Link from "next/link"
 import type { ReactNode } from "react"
 import { ConnectionDiagram, PairingDiagram, VisibilityDiagram } from "./_components/diagrams"
+import { Card, Code, Command, OtherTools, Section, Step } from "../_components/tool-page"
 import { APP_STORE_URL, ISSUES_URL, MirrorShell } from "./_components/mirror-page"
 
 const TITLE = "AXe Mirror - your iOS Simulator and your builds, on your iPhone or iPad"
@@ -35,66 +36,10 @@ function AppStoreBadge({ className = "" }: { className?: string }) {
   )
 }
 
-function Section({ id, eyebrow, title, intro, children }: { id: string; eyebrow?: string; title: string; intro?: ReactNode; children: ReactNode }) {
-  return (
-    <section id={id} className="scroll-mt-24 border-t border-axe-dark-600/30 py-16 lg:py-20">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        {eyebrow ? <p className="mb-3 font-mono text-xs uppercase tracking-[0.2em] text-axe-cyan">{eyebrow}</p> : null}
-        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">{title}</h2>
-        {intro ? <p className="mt-4 max-w-3xl text-lg leading-relaxed text-axe-text-secondary">{intro}</p> : null}
-        <div className="mt-10">{children}</div>
-      </div>
-    </section>
-  )
-}
-
-function Card({ title, children }: { title: string; children: ReactNode }) {
-  return (
-    <div className="card-glow rounded-xl border border-axe-dark-600/50 bg-axe-dark-200/50 p-6">
-      <h3 className="text-lg font-semibold text-white">{title}</h3>
-      <div className="mt-2 leading-relaxed text-axe-text-secondary">{children}</div>
-    </div>
-  )
-}
-
-function Code({ children }: { children: ReactNode }) {
-  return (
-    <code className="rounded border border-axe-dark-600/50 bg-axe-dark-300 px-1.5 py-0.5 font-mono text-[0.88em] text-axe-text-primary">
-      {children}
-    </code>
-  )
-}
-
-function Command({ children }: { children: string }) {
-  return (
-    <div className="terminal-glow mt-4 overflow-x-auto rounded-lg border border-axe-dark-600/50 bg-axe-dark-200/80 px-4 py-3 font-mono text-sm text-axe-text-primary">
-      <span className="select-none text-axe-cyan">❯ </span>
-      {children}
-    </div>
-  )
-}
-
 function Shot({ src, alt }: { src: string; alt: string }) {
   return (
     <div className="mx-auto w-full max-w-[230px] overflow-hidden rounded-[2rem] border-4 border-axe-dark-600 bg-black shadow-2xl shadow-black/50">
       <Image src={src} alt={alt} width={598} height={1300} className="h-auto w-full" />
-    </div>
-  )
-}
-
-function Step({ n, title, children, picture }: { n: number; title: string; children: ReactNode; picture: ReactNode }) {
-  return (
-    <div className="grid items-center gap-8 md:grid-cols-[1fr_300px] md:gap-12">
-      <div>
-        <div className="flex items-center gap-4">
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-axe-cyan/60 bg-axe-dark-200 text-lg font-semibold text-axe-cyan">
-            {n}
-          </span>
-          <h3 className="text-xl font-semibold text-white">{title}</h3>
-        </div>
-        <div className="mt-4 leading-relaxed text-axe-text-secondary [&_p]:mt-3">{children}</div>
-      </div>
-      <div>{picture}</div>
     </div>
   )
 }
@@ -218,7 +163,7 @@ const FAQ: { q: string; a: ReactNode }[] = [
       <>
         Yes. <Code>axe remote build</Code> builds your app, signs it for Ad Hoc distribution and offers it in AXe Mirror,
         where you tap Install. The device has to be registered with your Apple developer team, as for any Ad Hoc build.
-        See <Link href="/docs/mirror#install-your-builds">Install your builds</Link>.
+        See <Link href="/builds">Builds</Link>.
       </>
     ),
   },
@@ -362,35 +307,21 @@ export default function MirrorLandingPage() {
 
       <Section
         id="builds"
-        eyebrow="Builds"
-        title="The real app, on your phone"
-        intro="A simulator shows you that the app works. Holding it tells you how it feels. When you are happy with what you see in the mirror, ask for a build and install it from the same app."
+        eyebrow="Then hold it"
+        title="When it looks right, install the real app"
+        intro="A simulator shows you that the app works. Holding it tells you how it feels. AXe Mirror also installs your own builds, straight from your Mac."
       >
-        <div className="mx-auto max-w-2xl">
-          <Command>{'axe remote build --project App.xcodeproj --scheme App --notes "What changed"'}</Command>
-        </div>
-        <div className="mt-8 grid gap-5 md:grid-cols-3">
-          <Card title="One command">
-            <Code>axe remote build</Code> archives your app with Xcode, signs it for your devices with the project&apos;s own
-            signing, and offers it to the devices you paired. Your agent can run it for you.
-          </Card>
-          <Card title="Tap Install">
-            The build appears in AXe Mirror, under Apps on your Mac&apos;s menu, with its version and your notes. Tap Install
-            and iOS puts the app on your Home screen.
-          </Card>
-          <Card title="Nothing else in the way">
-            The build travels over the pairing you already have, direct when it can be: no TestFlight, no cable and no
-            server to set up. Have an IPA already? <Code>axe remote publish</Code> offers that instead.
-          </Card>
-        </div>
-        <p className="mt-6 text-center text-sm text-axe-text-muted">
-          Builds are signed for Ad Hoc distribution, so they install on devices registered with your Apple developer team.
-          The{" "}
-          <Link href="/docs/mirror#install-your-builds" className="text-axe-cyan hover:text-axe-cyan-light">
-            documentation
-          </Link>{" "}
-          has the details.
-        </p>
+        <Link
+          href="/builds"
+          className="card-glow group block rounded-xl border border-axe-dark-600/50 bg-axe-dark-200/50 p-6 transition-colors hover:border-axe-cyan/40"
+        >
+          <p className="font-mono text-xs uppercase tracking-[0.18em] text-axe-cyan">Builds</p>
+          <p className="mt-2 text-xl font-semibold text-white">The real app, on your phone.</p>
+          <p className="mt-2 leading-relaxed text-axe-text-secondary">
+            One command builds your app and signs it for your devices. It appears in AXe Mirror, and you tap Install.
+          </p>
+          <p className="mt-3 text-sm text-axe-cyan group-hover:text-axe-cyan-light">How Builds works →</p>
+        </Link>
       </Section>
 
       <Section
@@ -524,6 +455,7 @@ export default function MirrorLandingPage() {
           </div>
         </div>
       </section>
+      <OtherTools current="mirror" />
     </MirrorShell>
   )
 }

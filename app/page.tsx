@@ -31,7 +31,8 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
-import { useState, useEffect, useRef, type ReactNode } from "react"
+import { useState, useEffect, type ReactNode } from "react"
+import { LoopVideo, MediaCard } from "./_components/media"
 
 interface GitHubStats {
   stars: number
@@ -110,93 +111,15 @@ function CheckList({ items }: { items: string[] }) {
   )
 }
 
-/**
- * A short silent clip that plays while it is on screen and stops when it is not. Nothing is
- * downloaded until it scrolls into view. With "reduce motion" on it does not start by itself and
- * shows controls instead.
- */
-function LoopVideo({ name, label }: { name: string; label: string }) {
-  const ref = useRef<HTMLVideoElement>(null)
-  useEffect(() => {
-    const video = ref.current
-    if (!video) return
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      video.controls = true
-      return
-    }
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) video.play().catch(() => {})
-        else video.pause()
-      },
-      { threshold: 0.35 },
-    )
-    observer.observe(video)
-    return () => observer.disconnect()
-  }, [])
-  return (
-    <video
-      ref={ref}
-      muted
-      loop
-      playsInline
-      preload="none"
-      poster={`/home/${name}.jpg`}
-      aria-label={label}
-      className="block aspect-video w-full bg-axe-dark-100"
-    >
-      <source src={`/home/${name}.mp4`} type="video/mp4" />
-    </video>
-  )
-}
-
-/** A card with a clip on top and words underneath. */
-function MediaCard({
-  clip,
-  label,
-  eyebrow,
-  title,
-  href,
-  cta,
-  children,
-}: {
-  clip: string
-  label: string
-  eyebrow?: string
-  title: string
-  href?: string
-  cta?: string
-  children: ReactNode
-}) {
-  return (
-    <div className="card-glow group flex flex-col overflow-hidden rounded-2xl border border-axe-dark-600/50 bg-axe-dark-200/60">
-      <div className="border-b border-axe-dark-600/50">
-        <LoopVideo name={clip} label={label} />
-      </div>
-      <div className="flex flex-1 flex-col p-6">
-        {eyebrow ? <p className="mb-2 font-mono text-xs uppercase tracking-[0.18em] text-axe-cyan">{eyebrow}</p> : null}
-        <h3 className="text-xl font-semibold text-white">{title}</h3>
-        <div className="mt-2 flex-1 text-sm leading-relaxed text-axe-text-secondary">{children}</div>
-        {href && cta ? (
-          <Link href={href} className="mt-5 inline-flex items-center gap-2 text-sm text-axe-cyan transition-colors hover:text-axe-cyan-light">
-            {cta}
-            <ArrowRight className="h-4 w-4" />
-          </Link>
-        ) : null}
-      </div>
-    </div>
-  )
-}
-
 export default function AXeLanding() {
   const [githubStats, setGithubStats] = useState<GitHubStats>({ stars: 0, forks: 0 })
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [copiedText, setCopiedText] = useState<string | null>(null)
   const navItems = [
-    { label: "Features", href: "#features" },
+    { label: "UI automation", href: "/automation" },
     { label: "Mirror", href: "/mirror" },
-    { label: "Agent Mode", href: "#agent-mode" },
-    { label: "Devices", href: "#devices" },
+    { label: "Builds", href: "/builds" },
+    { label: "Features", href: "#features" },
     { label: "Get Started", href: "#get-started" },
     { label: "Docs", href: "/docs" },
   ]
@@ -438,8 +361,8 @@ export default function AXeLanding() {
               label="A coding agent's conversation beside an iPhone simulator. The agent types Japan into a search field it has just added, and the list narrows to Kyoto."
               eyebrow="UI automation"
               title="Your agent tests its own work"
-              href="#features"
-              cta="What AXe can drive"
+              href="/automation"
+              cta="More about UI automation"
             >
               <p>
                 Read the screen, tap, type, swipe and capture, on simulators and connected devices.{" "}
@@ -454,7 +377,7 @@ export default function AXeLanding() {
               eyebrow="Mirror"
               title="Your simulator, in your hand"
               href="/mirror"
-              cta="Meet AXe Mirror"
+              cta="More about Mirror"
             >
               <p>
                 <code className="font-mono text-axe-cyan">axe remote</code> shows your Mac&apos;s simulators in the free AXe
@@ -467,8 +390,8 @@ export default function AXeLanding() {
               label="AXe Mirror on an iPhone Duo offers a new build of an app with an Install button. It is installed, and the real app opens beside the agent."
               eyebrow="Builds"
               title="The real app, on your phone"
-              href="/docs/mirror#install-your-builds"
-              cta="How Builds works"
+              href="/builds"
+              cta="More about Builds"
             >
               <p>
                 <code className="font-mono text-axe-cyan">axe remote build</code> builds your app, signs it for your
@@ -682,7 +605,7 @@ export default function AXeLanding() {
         <CircuitDecoration className="absolute bottom-10 left-0 w-32 h-32 opacity-40 rotate-90" />
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="order-2 lg:order-1 space-y-4">
+            <div className="order-2 lg:order-1 space-y-4 min-w-0">
               <div className="terminal-glow overflow-hidden rounded-xl border border-axe-dark-600/50">
                 <LoopVideo name="agent" label="An agent's commands on the left and an iPhone simulator on the right: each action is checked and each reply carries the new screen." />
               </div>

@@ -1,16 +1,7 @@
-import Image from "next/image"
-import Link from "next/link"
 import type { ReactNode } from "react"
+import { ToolShell } from "../../_components/tool-page"
 
-export const ISSUES_URL = "https://github.com/cameroncooke/AXe/issues"
-export const APP_STORE_URL = "https://apps.apple.com/app/id6836545597"
-
-const NAV_ITEMS = [
-  { label: "AXe Mirror", href: "/mirror" },
-  { label: "Support", href: "/mirror/support" },
-  { label: "Privacy", href: "/mirror/privacy" },
-  { label: "Docs", href: "/docs/mirror" },
-]
+export { APP_STORE_URL, ISSUES_URL } from "../../_components/tool-page"
 
 const PROSE = [
   "text-axe-text-secondary leading-relaxed",
@@ -45,67 +36,7 @@ export function MirrorPage({ title, lede, eyebrow = "AXe Mirror", note, children
   )
 }
 
-/** The header and footer every AXe Mirror page shares. The page lays out its own content. */
+/** The header and footer every AXe Mirror page shares: the tool pages' own, with Mirror marked as the current one. */
 export function MirrorShell({ children }: { children: ReactNode }) {
-  return (
-    <div className="min-h-screen flex flex-col bg-axe-dark-100 text-axe-text-primary circuit-bg">
-      <header className="border-b border-axe-dark-600/50 bg-axe-dark-100/80 backdrop-blur-xl sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center gap-4 h-16">
-            <Link href="/" className="flex shrink-0 items-center gap-1 hover:opacity-80 transition-opacity">
-              <Image src="/icon.png" alt="AXe" width={32} height={32} className="w-8 h-8 rounded-lg icon-glow" />
-              {/* The wordmark gives way on a phone, where the four links need the width. */}
-              <Image src="/axe-text.png" alt="" width={791} height={315} className="h-6 w-auto max-[430px]:hidden" />
-            </Link>
-            <nav className="flex items-center gap-4 sm:gap-8">
-              {NAV_ITEMS.map((item) => (
-                <Link
-                  key={item.label}
-                  href={item.href}
-                  className="whitespace-nowrap text-sm text-axe-text-secondary hover:text-axe-cyan transition-colors"
-                >
-                  {item.label}
-                </Link>
-              ))}
-            </nav>
-          </div>
-        </div>
-      </header>
-
-      <main className="flex-1">{children}</main>
-
-      <footer className="border-t border-axe-dark-600/30 py-8">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-1">
-              <Image src="/icon.png" alt="AXe" width={20} height={20} className="w-5 h-5 rounded icon-glow" />
-              <Image src="/axe-text.png" alt="AXe" width={791} height={315} className="h-5 w-auto" />
-              <span className="text-sm text-axe-text-muted ml-2">&copy; {new Date().getFullYear()} Cameron Cooke</span>
-            </div>
-            <div className="flex items-center gap-6">
-              <Link href="/mirror/support" className="text-sm text-axe-text-muted hover:text-axe-cyan transition-colors">
-                Support
-              </Link>
-              <Link href="/mirror/privacy" className="text-sm text-axe-text-muted hover:text-axe-cyan transition-colors">
-                Privacy
-              </Link>
-              <Link href="/docs" className="text-sm text-axe-text-muted hover:text-axe-cyan transition-colors">
-                Docs
-              </Link>
-              <a
-                href="https://github.com/cameroncooke/AXe"
-                className="text-sm text-axe-text-muted hover:text-axe-cyan transition-colors"
-              >
-                GitHub
-              </a>
-            </div>
-          </div>
-          <p className="mt-6 text-center sm:text-left text-xs text-axe-text-muted">
-            AXe is an independent open-source project and is not affiliated with Deque Systems or its axe® accessibility
-            products.
-          </p>
-        </div>
-      </footer>
-    </div>
-  )
+  return <ToolShell current="mirror">{children}</ToolShell>
 }
