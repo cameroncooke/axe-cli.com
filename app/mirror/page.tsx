@@ -3,9 +3,10 @@ import Image from "next/image"
 import Link from "next/link"
 import type { ReactNode } from "react"
 import { ConnectionDiagram, PairingDiagram, VisibilityDiagram } from "./_components/diagrams"
+import { AppStoreBadge } from "../_components/app-store-badge"
 import { ToolFilm } from "../_components/media"
 import { Card, Code, Command, OtherTools, Section, Step } from "../_components/tool-page"
-import { APP_STORE_URL, ISSUES_URL, MirrorShell } from "./_components/mirror-page"
+import { ISSUES_URL, MirrorShell } from "./_components/mirror-page"
 
 const TITLE = "AXe Mirror - your iOS Simulator and your builds, on your iPhone or iPad"
 const DESCRIPTION =
@@ -21,20 +22,6 @@ export const metadata: Metadata = {
     url: "https://axe-cli.com/mirror",
     images: [{ url: "https://axe-cli.com/mirror/axe-mirror-poster.jpg", width: 1920, height: 1080 }],
   },
-}
-
-function AppStoreBadge({ className = "" }: { className?: string }) {
-  return (
-    <a href={APP_STORE_URL} className={`inline-block transition-opacity hover:opacity-85 ${className}`}>
-      <Image
-        src="/mirror/app-store-badge.svg"
-        alt="Download AXe Mirror on the App Store"
-        width={180}
-        height={60}
-        className="h-[60px] w-auto"
-      />
-    </a>
-  )
 }
 
 function Shot({ src, alt }: { src: string; alt: string }) {

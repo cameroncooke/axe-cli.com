@@ -1,9 +1,9 @@
 import type { Metadata } from "next"
-import Image from "next/image"
 import Link from "next/link"
 import type { ReactNode } from "react"
 import { ToolFilm } from "../_components/media"
-import { APP_STORE_URL, Card, Code, Command, OtherTools, Section, Step, ToolHero, ToolShell } from "../_components/tool-page"
+import { AppStoreBadge } from "../_components/app-store-badge"
+import { Card, Code, Command, OtherTools, Section, Step, ToolHero, ToolShell } from "../_components/tool-page"
 
 const TITLE = "AXe Builds - the real app, on your phone"
 const DESCRIPTION =
@@ -91,9 +91,7 @@ export default function BuildsPage() {
           your devices and offers it in the AXe Mirror app, where you tap Install. No TestFlight, and no cable.
         </p>
         <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row sm:gap-6">
-          <a href={APP_STORE_URL} className="inline-block transition-opacity hover:opacity-85">
-            <Image src="/mirror/app-store-badge.svg" alt="Download AXe Mirror on the App Store" width={180} height={60} className="h-[60px] w-auto" />
-          </a>
+          <AppStoreBadge />
           <a href="#how-it-works" className="text-sm font-medium text-axe-cyan transition-colors hover:text-axe-cyan-light">
             How it works ↓
           </a>
@@ -112,7 +110,7 @@ export default function BuildsPage() {
       <Section
         id="how-it-works"
         eyebrow="How it works"
-        title="Ask, tap, hold"
+        title="Pair, ask, tap, hold"
         intro={
           <>
             You need <Link href="/mirror" className="text-axe-cyan hover:text-axe-cyan-light">AXe Mirror</Link> paired with
@@ -121,7 +119,16 @@ export default function BuildsPage() {
         }
       >
         <div className="space-y-14">
-          <Step n={1} title="Ask for a build">
+          <Step n={1} title="Get AXe Mirror and pair it">
+            <p>
+              Builds arrive in the AXe Mirror app. It is free for iPhone and iPad. Pair it with your Mac once, with{" "}
+              <Code>axe remote pair</Code>.
+            </p>
+            <div className="mt-5">
+              <AppStoreBadge />
+            </div>
+          </Step>
+          <Step n={2} title="Ask for a build">
             <p>Run one command, or ask your agent to. Say what changed in the notes.</p>
             <Command>{'axe remote build --project App.xcodeproj --scheme App --notes "What changed"'}</Command>
             <p>
@@ -129,14 +136,14 @@ export default function BuildsPage() {
               publishes it.
             </p>
           </Step>
-          <Step n={2} title="It arrives in AXe Mirror">
+          <Step n={3} title="It arrives in AXe Mirror">
             <p>
               The build appears under Apps on your Mac&apos;s menu, with its version and your notes. If you are in the
               mirror when it lands, a <strong className="font-medium text-axe-text-primary">Build ready</strong> banner
               offers it there and then.
             </p>
           </Step>
-          <Step n={3} title="Tap Install">
+          <Step n={4} title="Tap Install">
             <p>iOS asks you to confirm, and the app is on your Home screen like any other.</p>
           </Step>
         </div>
@@ -180,6 +187,9 @@ export default function BuildsPage() {
           <Card title="On your iPhone or iPad">
             The AXe Mirror app, version 1.2 or later, paired with your Mac. The device has to be registered with your Apple
             developer team, as for any Ad Hoc build.
+            <div className="mt-5">
+              <AppStoreBadge />
+            </div>
           </Card>
         </div>
       </Section>

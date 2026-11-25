@@ -52,6 +52,7 @@ export function MediaCard({
   title,
   href,
   cta,
+  footer,
   children,
 }: {
   clip: string
@@ -60,6 +61,8 @@ export function MediaCard({
   title: string
   href?: string
   cta?: string
+  /** Shown at the foot of the card, under the link. */
+  footer?: ReactNode
   children: ReactNode
 }) {
   return (
@@ -77,6 +80,7 @@ export function MediaCard({
             <ArrowRight className="h-4 w-4" />
           </Link>
         ) : null}
+        {footer ? <div className="mt-5">{footer}</div> : null}
       </div>
     </div>
   )

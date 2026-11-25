@@ -19,6 +19,7 @@ import {
 import Link from "next/link"
 import Image from "next/image"
 import { useState, useEffect, type ReactNode } from "react"
+import { AppStoreBadge, GetTheApp } from "./_components/app-store-badge"
 import { MediaCard } from "./_components/media"
 
 interface GitHubStats {
@@ -257,6 +258,14 @@ export default function AXeLanding() {
             </Link>
           </div>
 
+          <div className="mb-12 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-5">
+            <AppStoreBadge />
+            <p className="text-sm text-axe-text-secondary">
+              AXe Mirror, the companion app for iPhone and iPad.
+              <br className="hidden sm:block" /> Free, with no account.
+            </p>
+          </div>
+
           <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-axe-text-muted">
             {["Open Source", "Single Binary", "Simulators & Devices", "Xcode 26 & 27", "Works with any agent"].map((item) => (
               <span key={item} className="flex items-center gap-1.5">
@@ -327,6 +336,7 @@ export default function AXeLanding() {
               title="Your simulator, in your hand"
               href="/mirror"
               cta="More about Mirror"
+              footer={<AppStoreBadge small />}
             >
               <p>
                 The simulator your agent is using, live on your iPhone or iPad, with your touches sent back. Leave your
@@ -340,6 +350,7 @@ export default function AXeLanding() {
               title="The real app, on your phone"
               href="/builds"
               cta="More about Builds"
+              footer={<AppStoreBadge small />}
             >
               <p>
                 One command builds your app and signs it for your devices. Tap Install in AXe Mirror, and it is on the
@@ -417,6 +428,13 @@ export default function AXeLanding() {
                 </div>
               </div>
             ))}
+          </div>
+
+          <div className="mt-6">
+            <GetTheApp>
+              Then get AXe Mirror on your iPhone or iPad, for your simulator in your hand and your builds on your phone.
+              It is free, with no account.
+            </GetTheApp>
           </div>
 
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-6">
