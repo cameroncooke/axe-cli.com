@@ -5,9 +5,9 @@ import type { ReactNode } from "react"
 import { ConnectionDiagram, PairingDiagram, VisibilityDiagram } from "./_components/diagrams"
 import { APP_STORE_URL, ISSUES_URL, MirrorShell } from "./_components/mirror-page"
 
-const TITLE = "AXe Mirror - see and touch your iOS Simulator from an iPhone or iPad"
+const TITLE = "AXe Mirror - your iOS Simulator and your builds, on your iPhone or iPad"
 const DESCRIPTION =
-  "AXe Mirror is a free companion app for the AXe command-line tool. It shows an iOS Simulator running on your Mac on an iPhone or iPad and sends your touches back, so you can watch and steer your coding agent's work from anywhere."
+  "AXe Mirror is a free companion app for the AXe command-line tool. It shows an iOS Simulator running on your Mac on an iPhone or iPad and sends your touches back, so you can watch and steer your coding agent's work from anywhere. It also installs your own builds on the device in your hand."
 
 export const metadata: Metadata = {
   title: TITLE,
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     description: DESCRIPTION,
     type: "website",
     url: "https://axe-cli.com/mirror",
-    images: [{ url: "https://axe-cli.com/mirror/axe-2.1-film-poster.jpg", width: 1920, height: 1080 }],
+    images: [{ url: "https://axe-cli.com/mirror/axe-mirror-poster.jpg", width: 1920, height: 1080 }],
   },
 }
 
@@ -171,9 +171,9 @@ const FAQ: { q: string; a: ReactNode }[] = [
     q: "What exactly does it send from my Mac?",
     a: (
       <>
-        Only the screen of the one simulator you name with <Code>--udid</Code>, as video, and only while{" "}
-        <Code>axe remote</Code> is running. It does not send your Mac&apos;s screen, your files or your source code, and the
-        touches it receives go to that simulator and nowhere else.
+        The screen of the simulator you open in the app, as video, and the builds you publish with{" "}
+        <Code>axe remote build</Code>, and only while <Code>axe remote</Code> is running. It does not send your Mac&apos;s
+        screen, your files or your source code, and the touches it receives go to that simulator and nowhere else.
       </>
     ),
   },
@@ -210,7 +210,17 @@ const FAQ: { q: string; a: ReactNode }[] = [
   },
   {
     q: "Does it mirror a real iPhone, or my Mac's screen?",
-    a: "No. It mirrors iOS Simulators running on your Mac, one simulator to one viewer at a time.",
+    a: "No. It mirrors iOS Simulators running on your Mac.",
+  },
+  {
+    q: "Can it put my own app on my phone?",
+    a: (
+      <>
+        Yes. <Code>axe remote build</Code> builds your app, signs it for Ad Hoc distribution and offers it in AXe Mirror,
+        where you tap Install. The device has to be registered with your Apple developer team, as for any Ad Hoc build.
+        See <Link href="/docs/mirror#install-your-builds">Install your builds</Link>.
+      </>
+    ),
   },
   {
     q: "The picture is slow when both are on the same Wi-Fi. Why?",
@@ -244,12 +254,13 @@ export default function MirrorLandingPage() {
         <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-14 lg:pt-20 text-center">
           <p className="mb-4 font-mono text-xs uppercase tracking-[0.2em] text-axe-cyan">Free for iPhone and iPad</p>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white">
-            Your agent&apos;s simulator,
-            <br className="hidden sm:block" /> wherever you are.
+            Your simulator,
+            <br className="hidden sm:block" /> in your hand.
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-axe-text-secondary">
             AXe Mirror shows an iOS Simulator running on your Mac on your iPhone or iPad, live, and sends your touches back.
-            Leave your Mac and your coding agent working, and watch, touch and steer from anywhere.
+            Leave your Mac and your coding agent working, and watch, touch and steer from anywhere. When the work is ready,
+            it installs the real app on the device in your hand.
           </p>
           <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row sm:gap-6">
             <AppStoreBadge />
@@ -267,15 +278,15 @@ export default function MirrorLandingPage() {
               controls
               playsInline
               preload="none"
-              poster="/mirror/axe-2.1-film-poster.jpg"
+              poster="/mirror/axe-mirror-poster.jpg"
               className="block aspect-video w-full"
-              aria-label="A 90-second film: an agent on a Mac books a trip in a simulator while its owner watches and touches the same simulator from an iPhone Duo."
+              aria-label="A two-minute film. At a desk, a coding agent adds a feature to an app and tests it in the simulator. Its owner goes out, carries on from an iPhone Duo with the agent beside AXe Mirror, tries the app by hand in the mirrored simulator, then asks for a build and installs it on the phone."
             >
-              <source src="/mirror/axe-2.1-film.mp4" type="video/mp4" />
+              <source src="/home/axe-tour.mp4" type="video/mp4" />
             </video>
           </div>
           <p className="mt-3 text-sm text-axe-text-muted">
-            One real session, recorded on an iPhone Duo and on the Mac. Shown faster than real time, with waiting cut.
+            One take, recorded on a Mac and an iPhone Duo. Shown faster than real time, with waiting cut.
           </p>
         </div>
       </section>
@@ -292,8 +303,8 @@ export default function MirrorLandingPage() {
             your agent gets there.
           </Card>
           <Card title="Touch it yourself">
-            Tap, swipe and pinch with one or two fingers, and press Home, the app switcher or Lock. Your touches land on
-            the same simulator your agent is using.
+            Tap, swipe and pinch with one or two fingers, and press Home, the app switcher or Lock. It is the same
+            simulator your agent is using, not a copy, so your touches land on your Mac.
           </Card>
           <Card title="Keep directing">
             Say what should change, watch the agent rebuild, and try the result a moment later. It works with any agent
@@ -350,6 +361,39 @@ export default function MirrorLandingPage() {
       </Section>
 
       <Section
+        id="builds"
+        eyebrow="Builds"
+        title="The real app, on your phone"
+        intro="A simulator shows you that the app works. Holding it tells you how it feels. When you are happy with what you see in the mirror, ask for a build and install it from the same app."
+      >
+        <div className="mx-auto max-w-2xl">
+          <Command>{'axe remote build --project App.xcodeproj --scheme App --notes "What changed"'}</Command>
+        </div>
+        <div className="mt-8 grid gap-5 md:grid-cols-3">
+          <Card title="One command">
+            <Code>axe remote build</Code> archives your app with Xcode, signs it for your devices with the project&apos;s own
+            signing, and offers it to the devices you paired. Your agent can run it for you.
+          </Card>
+          <Card title="Tap Install">
+            The build appears in AXe Mirror, under Apps on your Mac&apos;s menu, with its version and your notes. Tap Install
+            and iOS puts the app on your Home screen.
+          </Card>
+          <Card title="Nothing else in the way">
+            The build travels over the pairing you already have, direct when it can be: no TestFlight, no cable and no
+            server to set up. Have an IPA already? <Code>axe remote publish</Code> offers that instead.
+          </Card>
+        </div>
+        <p className="mt-6 text-center text-sm text-axe-text-muted">
+          Builds are signed for Ad Hoc distribution, so they install on devices registered with your Apple developer team.
+          The{" "}
+          <Link href="/docs/mirror#install-your-builds" className="text-axe-cyan hover:text-axe-cyan-light">
+            documentation
+          </Link>{" "}
+          has the details.
+        </p>
+      </Section>
+
+      <Section
         id="how-it-connects"
         eyebrow="How it connects"
         title="Straight from your Mac to your device"
@@ -400,8 +444,8 @@ export default function MirrorLandingPage() {
             and its own key, on your device, and nothing else.
           </Card>
           <Card title="Only what you choose to share">
-            <Code>axe remote</Code> sends one simulator&apos;s screen, while you run it. It never sends your Mac&apos;s screen,
-            your files or your code. The camera is used only to scan the pairing code, and its images stay on the device.
+            <Code>axe remote</Code> sends the screen of the simulator you open and the builds you publish, while you run
+            it. It never sends your Mac&apos;s screen, your files or your code. The camera is used only to scan the pairing code, and its images stay on the device.
           </Card>
         </div>
         <div className="mt-8 rounded-2xl border border-axe-dark-600/50 bg-axe-dark-200/40 p-4 sm:p-8">
@@ -425,7 +469,7 @@ export default function MirrorLandingPage() {
           <Card title="On your Mac">
             Apple silicon and macOS 14.5 or later, with{" "}
             <Link href="/docs/installation" className="text-axe-cyan hover:text-axe-cyan-light">
-              AXe 2.1 or later
+              AXe 2.2 or later
             </Link>{" "}
             and Xcode&apos;s Simulator.
             <Command>brew install cameroncooke/axe/axe</Command>

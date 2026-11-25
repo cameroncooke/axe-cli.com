@@ -238,6 +238,7 @@ export default function AXeLanding() {
     { label: "Install with Homebrew:", text: "brew install cameroncooke/axe/axe", key: "brew" },
     { label: "Check a booted simulator or connected device:", text: "axe doctor --udid <UDID>", key: "doctor" },
     { label: "Teach your AI agent to use AXe:", text: "axe init", key: "init" },
+    { label: "Pair your iPhone or iPad with AXe Mirror:", text: "axe remote pair", key: "pair" },
   ]
 
   return (
@@ -319,11 +320,11 @@ export default function AXeLanding() {
 
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <a
-            href="#anywhere"
+            href="#toolbox"
             className="inline-flex items-center gap-2 px-4 py-1.5 mb-8 rounded-full border border-axe-cyan/20 bg-axe-dark-400/50 text-sm text-axe-text-secondary hover:border-axe-cyan/40 hover:text-axe-text-primary transition-colors"
           >
             <span className="w-2 h-2 rounded-full bg-axe-cyan animate-pulse" />
-            New in AXe 2.1: your simulator on your iPhone, and web pages for agents
+            UI automation, Mirror and Builds
             <ArrowRight className="w-3.5 h-3.5" />
           </a>
 
@@ -333,17 +334,17 @@ export default function AXeLanding() {
           </div>
 
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1] mb-6">
-            iOS automation
+            The iOS toolbox
             <br />
             <span className="bg-gradient-to-r from-axe-cyan via-axe-blue to-axe-purple bg-clip-text text-transparent">
-              for simulators, devices &amp; agents
+              for agents
             </span>
           </h1>
 
           <p className="text-lg sm:text-xl text-axe-text-secondary max-w-3xl mx-auto mb-10 leading-relaxed">
-            One CLI for iOS simulators, including the dual-screen iPhone Duo simulator, and connected iPhones and iPads. Read the
-            accessibility tree, tap, type, swipe and draw, capture screenshots and video, and change device settings.
-            Agent mode gives AI agents checked, stateful control of the UI.
+            One CLI that automates iOS simulators, including the dual-screen iPhone Duo simulator, and connected iPhones
+            and iPads, from scripts, CI jobs and any coding agent. Your agent tests its own work, AXe Mirror puts the
+            simulator in your hand, and Builds puts the real app on your phone.
           </p>
 
           <div className="mx-auto mb-8 flex max-w-xl items-center gap-2 rounded-xl border border-axe-dark-600/60 bg-axe-dark-200/80 p-3 pl-4 font-mono text-sm terminal-glow">
@@ -383,7 +384,7 @@ export default function AXeLanding() {
           </div>
 
           <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-axe-text-muted">
-            {["Open Source", "Single Binary", "Simulators & Devices", "Xcode 26 & 27", "AI Agent Ready"].map((item) => (
+            {["Open Source", "Single Binary", "Simulators & Devices", "Xcode 26 & 27", "Works with any agent"].map((item) => (
               <span key={item} className="flex items-center gap-1.5">
                 <CheckCircle className="w-3.5 h-3.5 text-axe-cyan" />
                 {item}
@@ -403,60 +404,76 @@ export default function AXeLanding() {
               preload="none"
               poster="/home/axe-tour-poster.jpg"
               className="block aspect-video w-full"
-              aria-label="A tour of AXe: a tap in 80 milliseconds, agent mode, web pages, an agent benchmark, the iPhone Duo simulator, a real iPhone painting a picture and AXe Mirror on an iPhone Duo."
+              aria-label="A two-minute tour of AXe. At a desk, a coding agent adds a search field to an app and tests it in the simulator. Its owner goes out, carries on from an iPhone Duo with the agent beside AXe Mirror, asks for a second feature, tries it by hand, then asks for a build and installs it on the phone."
             >
               <source src="/home/axe-tour.mp4" type="video/mp4" />
             </video>
           </div>
           <p className="mt-3 flex items-center justify-center gap-2 text-sm text-axe-text-muted">
             <Play className="h-3.5 w-3.5 text-axe-cyan" />
-            A tour of AXe. Every screen in it is a real recording driven by AXe.
+            A two-minute tour: one feature, from your desk to your phone. One take, recorded on a Mac and an iPhone Duo.
           </p>
         </div>
       </section>
 
-      {/* Mirror and web pages */}
-      <section id="anywhere" className="relative scroll-mt-20 py-20">
+      {/* The toolbox */}
+      <section id="toolbox" className="relative scroll-mt-20 py-20">
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-axe-dark-200/50 to-transparent" />
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <Pill tone="green">
-              <Sparkles className="w-3 h-3" /> For agent workflows
+              <Sparkles className="w-3 h-3" /> The toolbox
             </Pill>
             <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-              Your agent&apos;s simulator, <span className="text-axe-cyan">wherever you are</span>
+              Three tools for <span className="text-axe-cyan">building with your agent</span>
             </h2>
             <p className="text-axe-text-secondary text-lg max-w-2xl mx-auto">
-              For people who build apps with coding agents.
+              AXe works with any agent that can run a command, and just as well with none: every tool is a plain command
+              you can type or script.
             </p>
           </div>
-          <div className="grid gap-6 lg:grid-cols-2">
+          <div className="grid gap-6 md:grid-cols-3">
+            <MediaCard
+              clip="automation"
+              label="A coding agent's conversation beside an iPhone simulator. The agent types Japan into a search field it has just added, and the list narrows to Kyoto."
+              eyebrow="UI automation"
+              title="Your agent tests its own work"
+              href="#features"
+              cta="What AXe can drive"
+            >
+              <p>
+                Read the screen, tap, type, swipe and capture, on simulators and connected devices.{" "}
+                <a href="#agent-mode" className="text-axe-cyan hover:text-axe-cyan-light">Agent mode</a> checks every
+                action against the screen the agent saw, in apps and on web pages. The same commands run in your
+                scripts and CI jobs.
+              </p>
+            </MediaCard>
             <MediaCard
               clip="mirror"
-              label="An iPhone Duo showing a coding agent on the left and a live simulator on the right, with the Mac at home showing the same simulator."
-              eyebrow="AXe Mirror"
-              title="See and touch the simulator from your iPhone or iPad"
+              label="An iPhone Duo with a coding agent on the left and a live simulator on the right. A small Mac in the corner shows the same simulator following each touch."
+              eyebrow="Mirror"
+              title="Your simulator, in your hand"
               href="/mirror"
               cta="Meet AXe Mirror"
             >
               <p>
-                <code className="font-mono text-axe-cyan">axe remote</code> streams a simulator on your Mac to the free AXe
-                Mirror app, live, and sends your touches back. Leave your Mac and your agent working, and watch, touch
-                and steer from anywhere. Encrypted from end to end, and direct between your devices when it can be.
+                <code className="font-mono text-axe-cyan">axe remote</code> shows your Mac&apos;s simulators in the free AXe
+                Mirror app on an iPhone or iPad, live, and sends your touches back. It is the same simulator your agent is
+                using, so you can leave your desk and keep watching, touching and steering. Encrypted from end to end.
               </p>
             </MediaCard>
             <MediaCard
-              clip="web"
-              label="An agent filling in a web sign-in page inside an app, with the email field, password field and button labelled w3, w4 and w5."
-              eyebrow="Agent mode"
-              title="Agents can read and use web pages"
-              href="/docs/agent-mode"
-              cta="Read the agent mode guide"
+              clip="builds"
+              label="AXe Mirror on an iPhone Duo offers a new build of an app with an Install button. It is installed, and the real app opens beside the agent."
+              eyebrow="Builds"
+              title="The real app, on your phone"
+              href="/docs/mirror#install-your-builds"
+              cta="How Builds works"
             >
               <p>
-                <code className="font-mono text-axe-cyan">describe-ui --agent --web</code> lists a page&apos;s links, buttons
-                and fields as refs an agent can tap and type into. It works in web views in any app, in Safari and in
-                sign-in sheets, so a web sign-in no longer stops your agent.
+                <code className="font-mono text-axe-cyan">axe remote build</code> builds your app, signs it for your
+                devices and offers it in AXe Mirror. Tap Install and the real app is on the phone in your hand, over the
+                pairing alone: no TestFlight and no cable.
               </p>
             </MediaCard>
           </div>
@@ -523,7 +540,7 @@ export default function AXeLanding() {
           <div className="text-center mb-16">
             <h2 className="text-3xl sm:text-4xl font-bold mb-4">
               Everything you need for
-              <span className="text-axe-cyan"> iOS automation</span>
+              <span className="text-axe-cyan"> UI automation</span>
             </h2>
             <p className="text-axe-text-secondary text-lg max-w-2xl mx-auto">
               Read the screen, drive any input, capture the result and configure the device, from your terminal.
@@ -921,7 +938,7 @@ e12|tap|button|Save|`}</pre>
               Why <span className="text-axe-cyan">AXe</span>?
             </h2>
             <p className="text-axe-text-secondary text-lg max-w-2xl mx-auto">
-              Practical iOS automation for terminals, scripts, CI jobs and AI agents.
+              A practical toolbox for terminals, scripts, CI jobs and AI agents.
             </p>
           </div>
 
@@ -958,7 +975,7 @@ e12|tap|button|Save|`}</pre>
               {
                 icon: Sparkles,
                 title: "Agent First",
-                desc: "Agent mode, a bundled skill and plugin marketplaces make AXe the iOS hands for your coding agent.",
+                desc: "Agent mode, a bundled skill and plugin marketplaces make AXe the iOS hands for your coding agent, whichever agent that is.",
                 color: "text-blue-400",
                 bg: "bg-blue-400/10",
               },
