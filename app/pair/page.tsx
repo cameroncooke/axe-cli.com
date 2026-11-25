@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
+import Image from "next/image"
 import Link from "next/link"
-import { AppStoreBadge } from "../_components/app-store-badge"
-import { MirrorPage } from "../mirror/_components/mirror-page"
+import { APP_STORE_URL, MirrorPage } from "../mirror/_components/mirror-page"
 import { PairCode } from "./pair-code"
 
 const TITLE = "Pair AXe Mirror with your Mac"
@@ -39,7 +39,9 @@ export default function PairPage() {
         The code works once, and for ten minutes. If it has expired, run <code>axe remote pair</code> on your Mac again.
       </p>
       <p className="!mt-8">
-        <AppStoreBadge />
+        <a href={APP_STORE_URL} className="inline-block transition-opacity hover:opacity-85">
+          <Image src="/mirror/app-store-badge.svg" alt="Download AXe Mirror on the App Store" width={180} height={60} className="h-[60px] w-auto" />
+        </a>
       </p>
       <p>
         New here? <Link href="/mirror">See what AXe Mirror does</Link>.

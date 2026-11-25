@@ -1,7 +1,6 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { ISSUES_URL, MirrorPage } from "../_components/mirror-page"
-import { AppStoreBadge } from "../../_components/app-store-badge"
 
 const TITLE = "AXe Mirror Support"
 const DESCRIPTION =
@@ -32,9 +31,6 @@ export default function MirrorSupportPage() {
         </li>
         <li>An iPhone or iPad running iOS or iPadOS 17.5 or later, with the AXe Mirror app.</li>
       </ul>
-      <p>
-        <AppStoreBadge />
-      </p>
       <p>
         You can also try the app without a Mac. The <strong>Try the demo</strong> button connects to a demo simulator run
         by the AXe project.

@@ -1,9 +1,8 @@
 import Image from "next/image"
 import Link from "next/link"
 import type { ReactNode } from "react"
-import { GetTheApp } from "./app-store-badge"
 
-export { APP_STORE_URL } from "./app-store-badge"
+export const APP_STORE_URL = "https://apps.apple.com/app/id6836545597"
 export const ISSUES_URL = "https://github.com/cameroncooke/AXe/issues"
 
 /** AXe's three tools. Each has its own page, and every one of those pages links to the other two. */
@@ -172,9 +171,6 @@ export function OtherTools({ current }: { current: ToolID }) {
               <p className="mt-3 text-sm text-axe-cyan group-hover:text-axe-cyan-light">Read more →</p>
             </Link>
           ))}
-        </div>
-        <div className="mt-5">
-          <GetTheApp>Mirror and Builds need the AXe Mirror app. It is free for iPhone and iPad, with no account.</GetTheApp>
         </div>
       </div>
     </section>
