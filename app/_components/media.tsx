@@ -81,3 +81,40 @@ export function MediaCard({
     </div>
   )
 }
+
+/**
+ * A tool page's short film. It plays silently while it is on screen and loops, and has controls,
+ * so a visitor can turn the sound on or go back. With "reduce motion" on it waits to be played.
+ */
+export function ToolFilm({ name, label }: { name: string; label: string }) {
+  const ref = useRef<HTMLVideoElement>(null)
+  useEffect(() => {
+    const video = ref.current
+    if (!video) return
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) video.play().catch(() => {})
+        else video.pause()
+      },
+      { threshold: 0.35 },
+    )
+    observer.observe(video)
+    return () => observer.disconnect()
+  }, [])
+  return (
+    <video
+      ref={ref}
+      muted
+      loop
+      controls
+      playsInline
+      preload="none"
+      poster={`/tools/${name}.jpg`}
+      aria-label={label}
+      className="block aspect-video w-full bg-axe-dark-100"
+    >
+      <source src={`/tools/${name}.mp4`} type="video/mp4" />
+    </video>
+  )
+}

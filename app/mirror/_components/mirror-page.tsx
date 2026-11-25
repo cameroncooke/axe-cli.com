@@ -5,7 +5,7 @@ export { APP_STORE_URL, ISSUES_URL } from "../../_components/tool-page"
 
 const PROSE = [
   "text-axe-text-secondary leading-relaxed",
-  "[&_h2]:mt-12 [&_h2]:mb-4 [&_h2]:text-2xl [&_h2]:font-semibold [&_h2]:text-white",
+  "[&_h2]:mt-12 [&_h2]:mb-4 [&_h2]:scroll-mt-24 [&_h2]:text-2xl [&_h2]:font-semibold [&_h2]:text-white",
   "[&_p]:mt-4",
   "[&_ul]:mt-4 [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:mt-4 [&_ol]:list-decimal [&_ol]:pl-6 [&_li]:mt-2",
   "[&_strong]:font-medium [&_strong]:text-axe-text-primary",

@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import Image from "next/image"
 import Link from "next/link"
 import type { ReactNode } from "react"
-import { LoopVideo } from "../_components/media"
+import { ToolFilm } from "../_components/media"
 import { APP_STORE_URL, Card, Code, Command, OtherTools, Section, Step, ToolHero, ToolShell } from "../_components/tool-page"
 
 const TITLE = "AXe Builds - the real app, on your phone"
@@ -99,13 +99,13 @@ export default function BuildsPage() {
           </a>
         </div>
         <div className="terminal-glow mx-auto mt-12 max-w-4xl overflow-hidden rounded-2xl border border-axe-dark-600/50 bg-black">
-          <LoopVideo
+          <ToolFilm
             name="builds"
-            label="AXe Mirror on an iPhone Duo offers a new build of an app with an Install button. It is installed, and the real app opens beside the agent."
+            label="A twenty-second film. On an iPhone Duo, someone asks their coding agent for a build. AXe builds and signs it, AXe Mirror offers it with an Install button, and the real app opens on the phone."
           />
         </div>
         <p className="mt-3 text-sm text-axe-text-muted">
-          A real session: the build arrives in AXe Mirror, is installed, and opens on the phone.
+          A real session, shown faster than real time: the build is asked for, arrives, is installed and opens.
         </p>
       </ToolHero>
 

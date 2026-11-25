@@ -3,6 +3,7 @@ import Image from "next/image"
 import Link from "next/link"
 import type { ReactNode } from "react"
 import { ConnectionDiagram, PairingDiagram, VisibilityDiagram } from "./_components/diagrams"
+import { ToolFilm } from "../_components/media"
 import { Card, Code, Command, OtherTools, Section, Step } from "../_components/tool-page"
 import { APP_STORE_URL, ISSUES_URL, MirrorShell } from "./_components/mirror-page"
 
@@ -219,19 +220,13 @@ export default function MirrorLandingPage() {
           </p>
 
           <div className="terminal-glow mt-12 overflow-hidden rounded-2xl border border-axe-dark-600/50 bg-black">
-            <video
-              controls
-              playsInline
-              preload="none"
-              poster="/mirror/axe-mirror-poster.jpg"
-              className="block aspect-video w-full"
-              aria-label="A two-minute film. At a desk, a coding agent adds a feature to an app and tests it in the simulator. Its owner goes out, carries on from an iPhone Duo with the agent beside AXe Mirror, tries the app by hand in the mirrored simulator, then asks for a build and installs it on the phone."
-            >
-              <source src="/home/axe-tour.mp4" type="video/mp4" />
-            </video>
+            <ToolFilm
+              name="mirror"
+              label="A twenty-five-second film. An iPhone Duo opens a coding agent's app, brings AXe Mirror in beside it and connects to a Mac. The Mac's simulator appears live, and its owner taps through the app in it while the Mac's own simulator follows."
+            />
           </div>
           <p className="mt-3 text-sm text-axe-text-muted">
-            One take, recorded on a Mac and an iPhone Duo. Shown faster than real time, with waiting cut.
+            A real session, recorded on a Mac and an iPhone Duo and shown faster than real time.
           </p>
         </div>
       </section>

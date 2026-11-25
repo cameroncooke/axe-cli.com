@@ -4,35 +4,22 @@ import {
   Github,
   Download,
   Terminal,
-  Zap,
   Copy,
   CheckCircle,
   Menu,
   X,
   Smartphone,
-  Tablet,
-  Keyboard,
-  Camera,
-  Layers,
   ArrowRight,
   BookOpen,
-  MousePointerClick,
   Timer,
   Bot,
-  Braces,
-  SlidersHorizontal,
-  ScanEye,
-  ShieldCheck,
-  Columns2,
-  RotateCw,
   Sparkles,
   Play,
-  MonitorSmartphone,
 } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { useState, useEffect, type ReactNode } from "react"
-import { LoopVideo, MediaCard } from "./_components/media"
+import { MediaCard } from "./_components/media"
 
 interface GitHubStats {
   stars: number
@@ -59,30 +46,7 @@ function CircuitDecoration({ className }: { className?: string }) {
   )
 }
 
-function TerminalWindow({ title, children }: { title: string; children: ReactNode }) {
-  return (
-    <div className="terminal-glow rounded-xl border border-axe-dark-600/50 bg-axe-dark-200/80 overflow-hidden">
-      <div className="px-4 py-2.5 border-b border-axe-dark-600/50 flex items-center gap-2">
-        <div className="flex gap-1.5">
-          <div className="w-3 h-3 rounded-full bg-[#ff5f57]" />
-          <div className="w-3 h-3 rounded-full bg-[#febc2e]" />
-          <div className="w-3 h-3 rounded-full bg-[#28c840]" />
-        </div>
-        <span className="text-xs text-axe-text-muted ml-2 font-mono">{title}</span>
-      </div>
-      {children}
-    </div>
-  )
-}
 
-function Cmd({ comment, children }: { comment?: string; children: ReactNode }) {
-  return (
-    <div>
-      {comment ? <div className="text-axe-text-muted text-xs mb-1"># {comment}</div> : null}
-      <span className="text-axe-cyan">$</span> <span className="text-axe-text-primary break-words">{children}</span>
-    </div>
-  )
-}
 
 function Pill({ children, tone = "cyan" }: { children: ReactNode; tone?: "cyan" | "green" | "blue" | "purple" }) {
   const tones = {
@@ -98,18 +62,6 @@ function Pill({ children, tone = "cyan" }: { children: ReactNode; tone?: "cyan" 
   )
 }
 
-function CheckList({ items }: { items: string[] }) {
-  return (
-    <ul className="space-y-3">
-      {items.map((item) => (
-        <li key={item} className="flex items-start gap-3 text-sm text-axe-text-secondary">
-          <CheckCircle className="w-4 h-4 text-axe-cyan mt-0.5 shrink-0" />
-          {item}
-        </li>
-      ))}
-    </ul>
-  )
-}
 
 export default function AXeLanding() {
   const [githubStats, setGithubStats] = useState<GitHubStats>({ stars: 0, forks: 0 })
@@ -119,7 +71,6 @@ export default function AXeLanding() {
     { label: "UI automation", href: "/automation" },
     { label: "Mirror", href: "/mirror" },
     { label: "Builds", href: "/builds" },
-    { label: "Features", href: "#features" },
     { label: "Get Started", href: "#get-started" },
     { label: "Docs", href: "/docs" },
   ]
@@ -365,10 +316,8 @@ export default function AXeLanding() {
               cta="More about UI automation"
             >
               <p>
-                Read the screen, tap, type, swipe and capture, on simulators and connected devices.{" "}
-                <a href="#agent-mode" className="text-axe-cyan hover:text-axe-cyan-light">Agent mode</a> checks every
-                action against the screen the agent saw, in apps and on web pages. The same commands run in your
-                scripts and CI jobs.
+                AXe reads the screen and uses the app, so your agent can check what it has just built. The same commands
+                run in your scripts and CI jobs.
               </p>
             </MediaCard>
             <MediaCard
@@ -380,9 +329,8 @@ export default function AXeLanding() {
               cta="More about Mirror"
             >
               <p>
-                <code className="font-mono text-axe-cyan">axe remote</code> shows your Mac&apos;s simulators in the free AXe
-                Mirror app on an iPhone or iPad, live, and sends your touches back. It is the same simulator your agent is
-                using, so you can leave your desk and keep watching, touching and steering. Encrypted from end to end.
+                The simulator your agent is using, live on your iPhone or iPad, with your touches sent back. Leave your
+                desk and keep watching, touching and steering.
               </p>
             </MediaCard>
             <MediaCard
@@ -394,534 +342,47 @@ export default function AXeLanding() {
               cta="More about Builds"
             >
               <p>
-                <code className="font-mono text-axe-cyan">axe remote build</code> builds your app, signs it for your
-                devices and offers it in AXe Mirror. Tap Install and the real app is on the phone in your hand, over the
-                pairing alone: no TestFlight and no cable.
+                One command builds your app and signs it for your devices. Tap Install in AXe Mirror, and it is on the
+                phone in your hand.
               </p>
             </MediaCard>
           </div>
         </div>
       </section>
 
-      {/* Runs on */}
+      {/* Underneath */}
       <section className="relative py-20">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-              One CLI, <span className="text-axe-cyan">every target</span>
+              A plain command <span className="text-axe-cyan">underneath</span>
             </h2>
             <p className="text-axe-text-secondary text-lg max-w-2xl mx-auto">
-              One set of commands and one set of error codes, on simulators, on the dual-screen iPhone Duo simulator and on
-              real hardware.
+              Everything AXe does is a command you can type, script or hand to an agent.
             </p>
           </div>
-          <div className="grid gap-6 md:grid-cols-3">
-            <MediaCard
-              clip="speed"
-              label="One axe tap played back in real time: it takes 0.08 seconds. A drag takes 0.9 seconds and reading the screen 0.3 seconds."
-              eyebrow="iOS Simulator"
-              title="A tap in 80 milliseconds"
-            >
-              <p>
-                iPhone and iPad simulators on Xcode 26 and 27, in every orientation. A warm input connection is reused
-                across commands, so input is fast enough to feel live.
-              </p>
-            </MediaCard>
-            <MediaCard
-              clip="duo"
-              label="The iPhone Duo simulator opening, folding to a tabletop posture and closing as AXe moves its hinge."
-              eyebrow="iPhone Duo Simulator"
-              title="Two screens, every fold"
-              href="/docs/iphone-duo"
-              cta="iPhone Duo guide"
-            >
-              <p>
-                Read both screens, move the hinge, rotate, and drive whichever display is active, in any fold and
-                orientation.
-              </p>
-            </MediaCard>
-            <MediaCard
-              clip="device"
-              label="A real iPhone painting a picture of a red car, one stroke at a time, driven by AXe."
-              eyebrow="iPhone and iPad"
-              title="Real devices, precise enough to paint"
-              href="/docs/physical-devices"
-              cta="Physical devices guide"
-            >
-              <p>
-                Connected devices over Xcode&apos;s CoreDevice. Pass the hardware UDID to the same commands:{" "}
-                <code className="font-mono text-axe-cyan">doctor</code> tells you what a device still needs.
-              </p>
-            </MediaCard>
-          </div>
-        </div>
-      </section>
-
-      {/* Features */}
-      <section id="features" className="py-24 relative">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-              Everything you need for
-              <span className="text-axe-cyan"> UI automation</span>
-            </h2>
-            <p className="text-axe-text-secondary text-lg max-w-2xl mx-auto">
-              Read the screen, drive any input, capture the result and configure the device, from your terminal.
-            </p>
-          </div>
-
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {[
-              {
-                icon: ScanEye,
-                title: "Accessibility Reads",
-                desc: "The full accessibility tree as JSON, or the element at one point. Tap by ID, label or value, and wait for elements to appear.",
-                color: "text-yellow-400",
-                bg: "bg-yellow-400/10",
-              },
-              {
-                icon: MousePointerClick,
-                title: "Touch & Gestures",
-                desc: "Taps, long presses, double and two-finger taps, swipes, scroll-until-visible, pinch, rotate, drag to reorder and one-finger drawing.",
-                color: "text-axe-cyan",
-                bg: "bg-axe-cyan/10",
-              },
-              {
-                icon: Keyboard,
-                title: "Text & Keyboard",
-                desc: "Type text from an argument, stdin or a file. Single keys, key sequences and shortcuts such as Cmd+A by HID key code.",
-                color: "text-blue-400",
-                bg: "bg-blue-400/10",
-              },
-              {
-                icon: Camera,
-                title: "Screenshots & Video",
-                desc: "PNG screenshots, H.264 MP4 recording, MJPEG, JPEG and BGRA streams, and native H.264 from a physical device.",
-                color: "text-green-400",
-                bg: "bg-green-400/10",
-              },
-              {
-                icon: SlidersHorizontal,
-                title: "Device Settings",
-                desc: "Dark mode, text size, contrast, reduce motion, colour filters, VoiceOver, a simulated location and a clean status bar.",
-                color: "text-orange-400",
-                bg: "bg-orange-400/10",
-              },
-              {
-                icon: Braces,
-                title: "Structured Output",
-                desc: "Put --output json before any command for one typed result, or a typed error code to branch on. JSON Schemas describe every result.",
-                color: "text-purple-400",
-                bg: "bg-purple-400/10",
-              },
-              {
-                icon: RotateCw,
-                title: "Buttons & Rotation",
-                desc: "Home, lock, side button, Siri and Apple Pay. Rotate the iPhone Duo simulator or a physical device and wait for the new orientation.",
-                color: "text-pink-400",
-                bg: "bg-pink-400/10",
-              },
-              {
-                icon: Layers,
-                title: "Batch Automation",
-                desc: "Run many input steps in one command and one input session, or keep one process open with axe serve and send it a command per line.",
-                color: "text-teal-400",
-                bg: "bg-teal-400/10",
-              },
-              {
-                icon: Bot,
-                title: "Agent Mode",
-                desc: "Compact captures with refs, actions checked against the screen the agent saw, and the settled screen in every reply.",
-                color: "text-axe-cyan",
-                bg: "bg-axe-cyan/10",
-              },
-            ].map((feature) => (
-              <div
-                key={feature.title}
-                className="card-glow group p-6 rounded-xl border border-axe-dark-600/50 bg-axe-dark-200/50 hover:bg-axe-dark-300/50 transition-all duration-300"
-              >
-                <div className={`w-10 h-10 rounded-lg ${feature.bg} flex items-center justify-center mb-4`}>
-                  <feature.icon className={`w-5 h-5 ${feature.color}`} />
+              { icon: Timer, title: "A tap in 80 ms", desc: "Simulator input fast enough to feel live." },
+              { icon: Terminal, title: "Scripts and CI", desc: "One binary, typed JSON results and error codes to branch on." },
+              { icon: Smartphone, title: "Simulators and devices", desc: "iPhone and iPad simulators, the iPhone Duo simulator and connected devices." },
+              { icon: Bot, title: "Any agent", desc: "A bundled skill teaches yours. No model or API key." },
+            ].map((fact) => (
+              <div key={fact.title} className="card-glow rounded-xl border border-axe-dark-600/50 bg-axe-dark-200/50 p-6">
+                <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-axe-cyan/10">
+                  <fact.icon className="h-5 w-5 text-axe-cyan" />
                 </div>
-                <h3 className="text-lg font-semibold mb-2">{feature.title}</h3>
-                <p className="text-sm text-axe-text-secondary leading-relaxed">{feature.desc}</p>
+                <h3 className="text-lg font-semibold mb-2">{fact.title}</h3>
+                <p className="text-sm leading-relaxed text-axe-text-secondary">{fact.desc}</p>
               </div>
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* CLI Examples */}
-      <section id="examples" className="py-24 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-axe-dark-200/50 to-transparent" />
-        <CircuitDecoration className="absolute top-20 right-0 w-32 h-32 opacity-40" />
-        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <Pill>Simple &amp; Powerful</Pill>
-              <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-                Intuitive <span className="text-axe-cyan">CLI</span> commands
-              </h2>
-              <p className="text-axe-text-secondary text-lg mb-6 leading-relaxed">
-                Every interaction is one command with an explicit target. Coordinates are points in the current
-                orientation, and AXe handles rotation, letterboxing and each iPhone Duo simulator screen for you.
-              </p>
-              <CheckList
-                items={[
-                  "Selector taps by accessibility ID, label or value, with waiting",
-                  "Scroll until an element is on screen, then stop exactly there",
-                  "Gesture presets that measure the real screen size",
-                  "Text from arguments, files or stdin for flexible scripting",
-                ]}
-              />
-            </div>
-
-            <TerminalWindow title="Terminal">
-              <div className="p-5 font-mono text-sm space-y-4">
-                <Cmd comment="Tap by accessibility label, waiting for it to appear">
-                  axe tap --label &quot;Sign In&quot; --wait-timeout 5 --udid $UDID
-                </Cmd>
-                <Cmd comment="Scroll until an element is on screen">
-                  axe gesture scroll-up --until-label &quot;Privacy&quot; --udid $UDID
-                </Cmd>
-                <Cmd comment="Long press, then pinch to zoom">
-                  axe tap --label &quot;Photo&quot; --hold 1 --udid $UDID
-                </Cmd>
-                <Cmd>axe gesture pinch --scale 2 --udid $UDID</Cmd>
-                <Cmd comment="Dark mode and a large text size">
-                  axe settings set --appearance dark --text-size accessibility-large --udid $UDID
-                </Cmd>
-                <Cmd comment="Typed JSON result">
-                  axe --output json screenshot --output screen.png --udid $UDID
-                </Cmd>
-              </div>
-            </TerminalWindow>
-          </div>
-        </div>
-      </section>
-
-      {/* Agent Mode */}
-      <section id="agent-mode" className="py-24 relative">
-        <CircuitDecoration className="absolute bottom-10 left-0 w-32 h-32 opacity-40 rotate-90" />
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="order-2 lg:order-1 space-y-4 min-w-0">
-              <div className="terminal-glow overflow-hidden rounded-xl border border-axe-dark-600/50">
-                <LoopVideo name="agent" label="An agent's commands on the left and an iPhone simulator on the right: each action is checked and each reply carries the new screen." />
-              </div>
-              <TerminalWindow title="agent session">
-                <div className="p-5 font-mono text-xs space-y-4">
-                  <div>
-                    <Cmd comment="Capture the screen as rows with refs">
-                      axe describe-ui --agent --view navigation --udid $UDID
-                    </Cmd>
-                    <pre className="mt-2 text-axe-text-secondary leading-relaxed overflow-x-auto">{`snapshotID 3FF70D78-…
-e7|tap|text-field|First name|
-e9|tap|text-field|Last name|
-e12|tap|button|Save|`}</pre>
-                  </div>
-                  <div>
-                    <Cmd comment="Fill the form in one checked call">
-                      {`axe batch --agent --udid $UDID --steps-json '{"snapshotID":"3FF70D78-…","steps":[{"action":"type","ref":"e7","text":"Ada","focus":true},{"action":"type","ref":"e9","text":"Lovelace","focus":true},{"action":"tap","ref":"e12"}]}'`}
-                    </Cmd>
-                    <div className="mt-2 space-y-1">
-                      <div className="text-green-400">completedSteps 3 · input checked before every step</div>
-                      <div className="text-axe-cyan neon-glow">returns the settled screen with a new snapshot</div>
-                    </div>
-                  </div>
-                </div>
-              </TerminalWindow>
-            </div>
-
-            <div className="order-1 lg:order-2">
-              <Pill tone="green">
-                <Bot className="w-3 h-3" /> Agent mode
-              </Pill>
-              <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-                <span className="text-axe-cyan">Agent mode</span> for AI agents
-              </h2>
-              <p className="text-axe-text-secondary text-lg mb-6 leading-relaxed">
-                Add <code className="text-axe-cyan font-mono text-base">--agent</code> and every read and action is
-                checked. AXe confirms the control is still the one the agent saw, sends the input and returns the new
-                screen, so an agent never taps the wrong thing after a layout change and needs no extra read.
-              </p>
-              <CheckList
-                items={[
-                  "Compact rows with a ref for each control, in navigation, reading or full views",
-                  "Refusals send no input and carry a typed code with the current screen",
-                  "Batch up to eight same-screen taps and types in one call",
-                  "Focus a field and type in one command",
-                  "Web pages too: --web lists a page's links, buttons and fields as refs",
-                  "No model or API key required",
-                ]}
-              />
-              <Link
-                href="/docs/agent-mode"
-                className="mt-8 inline-flex items-center gap-2 text-sm text-axe-cyan hover:text-axe-cyan-light transition-colors"
-              >
-                Read the agent mode guide
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Devices */}
-      <section id="devices" className="py-24 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-axe-dark-200/50 to-transparent" />
-        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <Pill tone="blue">
-              <MonitorSmartphone className="w-3 h-3" /> Beyond the simulator
-            </Pill>
-            <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-              Real devices &amp; <span className="text-axe-cyan">dual screens</span>
-            </h2>
-            <p className="text-axe-text-secondary text-lg max-w-2xl mx-auto">
-              Automate connected iPhones and iPads, and every screen and fold of the iPhone Duo simulator, with the commands you
-              already use.
-            </p>
-          </div>
-
-          <div className="grid lg:grid-cols-2 gap-6">
-            <div className="card-glow relative rounded-2xl border border-axe-dark-600/50 bg-gradient-to-br from-axe-dark-300/80 to-axe-dark-200/50 p-8 overflow-hidden">
-              <div className="absolute top-0 right-0 w-48 h-48 bg-axe-cyan/5 rounded-full blur-[60px]" />
-              <CircuitDecoration className="absolute -top-4 -right-4 w-24 h-24 opacity-30" />
-              <div className="relative">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-lg bg-axe-cyan/10 flex items-center justify-center">
-                    <Tablet className="w-5 h-5 text-axe-cyan" />
-                  </div>
-                  <h3 className="text-2xl font-bold">Physical iPhone &amp; iPad</h3>
-                </div>
-                <p className="text-axe-text-secondary mb-6 leading-relaxed">
-                  Pass the hardware UDID to screenshots, accessibility reads, selector taps, gestures, typing, buttons,
-                  batches, rotation, settings and video, including native H.264. <code className="text-axe-cyan font-mono text-sm">doctor</code> tells
-                  you exactly what a device still needs.
-                </p>
-                <div className="rounded-lg bg-axe-dark-100 p-4 font-mono text-xs border border-axe-dark-600/30 space-y-2">
-                  <Cmd>axe list-devices</Cmd>
-                  <Cmd>axe doctor --udid $DEVICE</Cmd>
-                  <Cmd>axe tap --id Continue --wait-timeout 15 --udid $DEVICE</Cmd>
-                  <Cmd>axe stream-video --format h264 --udid $DEVICE &gt; screen.h264</Cmd>
-                </div>
-              </div>
-            </div>
-
-            <div className="card-glow relative rounded-2xl border border-axe-dark-600/50 bg-gradient-to-br from-axe-dark-300/80 to-axe-dark-200/50 p-8 overflow-hidden">
-              <div className="absolute top-0 right-0 w-48 h-48 bg-axe-blue/5 rounded-full blur-[60px]" />
-              <CircuitDecoration className="absolute -bottom-4 -left-4 w-24 h-24 opacity-30 rotate-180" />
-              <div className="relative">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-lg bg-axe-blue/10 flex items-center justify-center">
-                    <Columns2 className="w-5 h-5 text-axe-blue" />
-                  </div>
-                  <h3 className="text-2xl font-bold">iPhone Duo Simulator</h3>
-                </div>
-                <p className="text-axe-text-secondary mb-6 leading-relaxed">
-                  Every input, read and capture command works on the dual-screen simulator, on whichever screen is active, in any fold and
-                  orientation. Show the screens, move the hinge, rotate, guard input to one screen, and record one movie
-                  through every fold.
-                </p>
-                <div className="rounded-lg bg-axe-dark-100 p-4 font-mono text-xs border border-axe-dark-600/30 space-y-2">
-                  <Cmd>axe displays --udid $UDID</Cmd>
-                  <Cmd>axe hinge set tabletop --udid $UDID</Cmd>
-                  <Cmd>axe rotate left --udid $UDID</Cmd>
-                  <Cmd>axe record-video --follow-active-display --udid $UDID</Cmd>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* AI Integration */}
-      <section className="py-24 relative">
-        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-              Built for <span className="text-axe-cyan">AI agents</span>
-            </h2>
-            <p className="text-axe-text-secondary text-lg max-w-2xl mx-auto">
-              The AXe skill teaches your coding agent to test and operate iOS apps with agent mode.
-            </p>
-          </div>
-
-          <div className="grid lg:grid-cols-2 gap-6">
-            <div className="card-glow relative rounded-2xl border border-axe-dark-600/50 bg-gradient-to-br from-axe-dark-300/80 to-axe-dark-200/50 p-8 overflow-hidden">
-              <div className="absolute top-0 right-0 w-48 h-48 bg-axe-cyan/5 rounded-full blur-[60px]" />
-              <div className="relative">
-                <Pill>AI Skill</Pill>
-                <h3 className="text-2xl font-bold mb-4">One command setup</h3>
-                <p className="text-axe-text-secondary mb-6 leading-relaxed">
-                  Run <code className="text-axe-cyan font-mono text-sm">axe init</code> to install the skill bundled
-                  with your binary, or add the AXe plugin marketplace to Claude Code or Codex so the skill stays
-                  updated as releases ship.
-                </p>
-                <div className="rounded-lg bg-axe-dark-100 p-4 font-mono text-xs border border-axe-dark-600/30 space-y-3">
-                  <Cmd>axe init</Cmd>
-                  <Cmd>claude plugin marketplace add cameroncooke/AXe &amp;&amp; claude plugin install axe@axe</Cmd>
-                  <Cmd>codex plugin marketplace add cameroncooke/AXe &amp;&amp; codex plugin add axe@axe</Cmd>
-                </div>
-              </div>
-            </div>
-
-            <div className="card-glow relative rounded-2xl border border-axe-dark-600/50 bg-gradient-to-br from-axe-dark-300/80 to-axe-dark-200/50 p-8 overflow-hidden">
-              <div className="absolute top-0 right-0 w-48 h-48 bg-axe-blue/5 rounded-full blur-[60px]" />
-              <div className="relative">
-                <Pill tone="blue">Agent Example</Pill>
-                <h3 className="text-2xl font-bold mb-4">Autonomous testing</h3>
-                <p className="text-axe-text-secondary mb-6 leading-relaxed">
-                  Agents capture the screen, act on refs, batch same-screen actions and verify from the screen each
-                  action returns.
-                </p>
-                <div className="rounded-lg bg-axe-dark-100 p-4 text-sm space-y-2 border border-axe-dark-600/30">
-                  <div className="font-mono">
-                    <span className="text-axe-text-muted">&gt;</span>{" "}
-                    <span className="text-axe-text-primary">Sign up a new user and check the welcome screen</span>
-                  </div>
-                  <div className="h-px bg-axe-dark-600/50" />
-                  <div className="space-y-1.5 text-xs">
-                    {[
-                      "Captured the sign-up form (navigation view)",
-                      "Filled name, email and password in one batch",
-                      "Tapped \"Create Account\"; reply returned the new screen",
-                      "Read the welcome text from the returned capture",
-                    ].map((step) => (
-                      <div key={step} className="flex items-center gap-2 text-green-400">
-                        <CheckCircle className="w-3 h-3 shrink-0" /> {step}
-                      </div>
-                    ))}
-                    <div className="h-px bg-axe-dark-600/50 my-1" />
-                    <div className="text-axe-text-primary">
-                      Sign-up works. The welcome screen shows &quot;Welcome, Ada&quot;.
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-12 text-center">
-            <p className="text-sm text-axe-text-muted mb-6">Works with your favourite AI tools</p>
-            <div className="flex flex-wrap items-center justify-center gap-8 text-axe-text-muted">
-              {["Claude Code", "Codex", "Cursor", "VS Code", "Shell Scripts", "CI"].map((client) => (
-                <span key={client} className="text-sm font-medium text-axe-text-secondary hover:text-axe-cyan transition-colors">
-                  {client}
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Performance */}
-      <section className="py-24 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-axe-dark-200/50 to-transparent" />
-        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <Pill tone="purple">
-              <Zap className="w-3 h-3" /> Performance
-            </Pill>
-            <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-              Simulator input in <span className="text-axe-cyan">milliseconds</span>
-            </h2>
-            <p className="text-axe-text-secondary text-lg max-w-2xl mx-auto">
-              Single commands, measured on an iPhone 18 Pro simulator.
-            </p>
-          </div>
-
-          <div className="grid sm:grid-cols-3 gap-4">
-            {[
-              { label: "Tap", now: "0.08 s", what: "for one tap" },
-              { label: "Drag", now: "0.9 s", what: "for a drag" },
-              { label: "describe-ui", now: "0.3 s", what: "to read the whole screen" },
-            ].map((stat) => (
-              <div
-                key={stat.label}
-                className="card-glow p-6 rounded-xl border border-axe-dark-600/50 bg-axe-dark-200/50 text-center"
-              >
-                <div className="text-sm text-axe-text-muted mb-2 font-mono">{stat.label}</div>
-                <div className="text-4xl font-bold text-axe-cyan neon-glow mb-2">{stat.now}</div>
-                <div className="text-sm text-axe-text-secondary">{stat.what}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Why AXe */}
-      <section className="py-24 relative">
-        <CircuitDecoration className="absolute top-1/2 left-0 w-40 h-40 opacity-30 -translate-y-1/2" />
-        <CircuitDecoration className="absolute top-1/2 right-0 w-40 h-40 opacity-30 -translate-y-1/2 rotate-180" />
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-              Why <span className="text-axe-cyan">AXe</span>?
-            </h2>
-            <p className="text-axe-text-secondary text-lg max-w-2xl mx-auto">
-              A practical toolbox for terminals, scripts, CI jobs and AI agents.
-            </p>
-          </div>
-
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {[
-              {
-                icon: Terminal,
-                title: "Terminal Native",
-                desc: "Shell commands that fit scripts, CI jobs and agent workflows. No server, no test target, no app changes.",
-                color: "text-axe-cyan",
-                bg: "bg-axe-cyan/10",
-              },
-              {
-                icon: ShieldCheck,
-                title: "Safe by Design",
-                desc: "AXe never picks a device for you, never replays uncertain input, and blocks input if a touch might still be held.",
-                color: "text-green-400",
-                bg: "bg-green-400/10",
-              },
-              {
-                icon: Timer,
-                title: "Fast",
-                desc: "A warm input connection is reused across commands, so a simulator tap takes about 80 ms.",
-                color: "text-yellow-400",
-                bg: "bg-yellow-400/10",
-              },
-              {
-                icon: Braces,
-                title: "Typed Errors",
-                desc: "Simulators and devices share one error vocabulary. Branch on error.code, not on message text.",
-                color: "text-purple-400",
-                bg: "bg-purple-400/10",
-              },
-              {
-                icon: Sparkles,
-                title: "Agent First",
-                desc: "Agent mode, a bundled skill and plugin marketplaces make AXe the iOS hands for your coding agent, whichever agent that is.",
-                color: "text-blue-400",
-                bg: "bg-blue-400/10",
-              },
-              {
-                icon: ScanEye,
-                title: "Accessibility First",
-                desc: "Built on Apple's accessibility APIs. Target elements by ID or label, not just coordinates.",
-                color: "text-orange-400",
-                bg: "bg-orange-400/10",
-              },
-            ].map((feature) => (
-              <div
-                key={feature.title}
-                className="card-glow group p-6 rounded-xl border border-axe-dark-600/50 bg-axe-dark-200/50 hover:bg-axe-dark-300/50 transition-all duration-300"
-              >
-                <div className={`w-10 h-10 rounded-lg ${feature.bg} flex items-center justify-center mb-4`}>
-                  <feature.icon className={`w-5 h-5 ${feature.color}`} />
-                </div>
-                <h3 className="text-lg font-semibold mb-2">{feature.title}</h3>
-                <p className="text-sm text-axe-text-secondary leading-relaxed">{feature.desc}</p>
-              </div>
-            ))}
-          </div>
+          <p className="mt-10 text-center">
+            <Link href="/automation" className="inline-flex items-center gap-2 text-sm text-axe-cyan transition-colors hover:text-axe-cyan-light">
+              More about UI automation
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </p>
         </div>
       </section>
 

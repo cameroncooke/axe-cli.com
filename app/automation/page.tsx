@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
-import { LoopVideo, MediaCard } from "../_components/media"
+import { Braces, Camera, Keyboard, Layers, MousePointerClick, RotateCw, ScanEye, SlidersHorizontal } from "lucide-react"
+import { MediaCard, ToolFilm } from "../_components/media"
 import { Card, Code, Command, OtherTools, Section, ToolHero, ToolShell } from "../_components/tool-page"
 
 const TITLE = "AXe UI automation - your agent tests its own work"
@@ -32,6 +33,17 @@ function Terminal({ title, children }: { title: string; children: string }) {
     </div>
   )
 }
+
+const CAPABILITIES = [
+  { icon: ScanEye, title: "Accessibility reads", desc: "The full accessibility tree as JSON, or the element at one point. Tap by ID, label or value, and wait for elements to appear." },
+  { icon: MousePointerClick, title: "Touch and gestures", desc: "Taps, long presses, double and two-finger taps, swipes, scroll-until-visible, pinch, rotate, drag to reorder and drawing." },
+  { icon: Keyboard, title: "Text and keyboard", desc: "Type text from an argument, stdin or a file. Single keys, key sequences and shortcuts such as Cmd+A." },
+  { icon: Camera, title: "Screenshots and video", desc: "PNG screenshots, H.264 MP4 recording, frame streams, and native H.264 from a physical device." },
+  { icon: SlidersHorizontal, title: "Device settings", desc: "Dark mode, text size, contrast, reduce motion, colour filters, VoiceOver, a simulated location and a clean status bar." },
+  { icon: Braces, title: "Structured output", desc: "Put --output json before any command for one typed result. JSON Schemas describe every result." },
+  { icon: RotateCw, title: "Buttons and rotation", desc: "Home, lock, side button, Siri and Apple Pay. Rotate the iPhone Duo simulator or a physical device." },
+  { icon: Layers, title: "Batch automation", desc: "Run many input steps in one command and one input session, or keep one process open with axe serve." },
+]
 
 const AGENT_SESSION = `# Capture the screen as rows with refs
 $ axe describe-ui --agent --view navigation --udid $UDID
@@ -83,13 +95,13 @@ export default function AutomationPage() {
           </Link>
         </div>
         <div className="terminal-glow mx-auto mt-12 max-w-4xl overflow-hidden rounded-2xl border border-axe-dark-600/50 bg-black">
-          <LoopVideo
+          <ToolFilm
             name="automation"
-            label="A coding agent's conversation beside an iPhone simulator. The agent types Japan into a search field it has just added, and the list narrows to Kyoto."
+            label="A twenty-second film. At a desk, someone asks a coding agent for a search field. The agent writes the code, rebuilds the app, types Japan into the new field in the simulator, and the list narrows to Kyoto."
           />
         </div>
         <p className="mt-3 text-sm text-axe-text-muted">
-          A real session: the agent has just added the search field, and is trying it.
+          A real session, shown faster than real time: the agent adds a search field, then tries it.
         </p>
       </ToolHero>
 
@@ -113,6 +125,32 @@ export default function AutomationPage() {
             Screenshots and video are a command away when a picture is needed.
           </Card>
         </div>
+      </Section>
+
+      <Section
+        id="capabilities"
+        eyebrow="What it can do"
+        title="Read the screen, drive any input, capture the result"
+        intro="All of it from your terminal, on a simulator or a connected device."
+      >
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {CAPABILITIES.map((item) => (
+            <div key={item.title} className="card-glow rounded-xl border border-axe-dark-600/50 bg-axe-dark-200/50 p-5">
+              <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-lg bg-axe-cyan/10">
+                <item.icon className="h-5 w-5 text-axe-cyan" />
+              </div>
+              <h3 className="font-semibold text-white">{item.title}</h3>
+              <p className="mt-1.5 text-sm leading-relaxed text-axe-text-secondary">{item.desc}</p>
+            </div>
+          ))}
+        </div>
+        <p className="mt-8 text-sm text-axe-text-muted">
+          The{" "}
+          <Link href="/docs/command-reference" className="text-axe-cyan hover:text-axe-cyan-light">
+            command reference
+          </Link>{" "}
+          has every command and option.
+        </p>
       </Section>
 
       <Section
@@ -227,6 +265,50 @@ export default function AutomationPage() {
           >
             <p>Connected devices take the same commands. Pass the hardware UDID.</p>
           </MediaCard>
+        </div>
+      </Section>
+
+      <Section
+        id="performance"
+        eyebrow="Performance"
+        title="Simulator input in milliseconds"
+        intro="Single commands, measured on an iPhone 18 Pro simulator. A warm input connection is reused across commands."
+      >
+        <div className="grid gap-5 sm:grid-cols-3">
+          {[
+            { label: "Tap", now: "0.08 s", what: "for one tap" },
+            { label: "Drag", now: "0.9 s", what: "for a drag" },
+            { label: "describe-ui", now: "0.3 s", what: "to read the whole screen" },
+          ].map((stat) => (
+            <div key={stat.label} className="card-glow rounded-xl border border-axe-dark-600/50 bg-axe-dark-200/50 p-6 text-center">
+              <div className="font-mono text-sm text-axe-text-muted">{stat.label}</div>
+              <div className="mt-2 text-4xl font-bold text-axe-cyan">{stat.now}</div>
+              <div className="mt-2 text-sm text-axe-text-secondary">{stat.what}</div>
+            </div>
+          ))}
+        </div>
+      </Section>
+
+      <Section
+        id="trust"
+        eyebrow="Why it holds up"
+        title="Built to be left alone with your app"
+      >
+        <div className="grid gap-5 md:grid-cols-2">
+          <Card title="Terminal native">
+            Shell commands that fit scripts, CI jobs and agent workflows. No server, no test target and no changes to your
+            app.
+          </Card>
+          <Card title="Safe by design">
+            AXe never picks a device for you, never replays uncertain input, and blocks input if a touch might still be
+            held.
+          </Card>
+          <Card title="Typed errors">
+            Simulators and devices share one error vocabulary. Branch on the error&apos;s code, not on the text of a message.
+          </Card>
+          <Card title="Accessibility first">
+            Built on Apple&apos;s accessibility APIs. Target elements by ID or label, not just by coordinates.
+          </Card>
         </div>
       </Section>
 
