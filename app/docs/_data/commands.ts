@@ -110,6 +110,20 @@ export const AXE_COMMANDS: AxeCommandEntry[] = [
     notes: ["A failed check exits nonzero; its error code is the check's ID, such as developerModeDisabled."],
   },
   {
+    name: "device-port",
+    category: "discovery",
+    summary: "Save a physical device's service directory port when AXe cannot find it by itself.",
+    requiresUdid: true,
+    supportsBatch: false,
+    supportsAgent: false,
+    supportsDevice: true,
+    flags: [
+      { ...UDID, description: "Hardware UDID of the physical device." },
+      { name: "--port", type: "int", required: false, description: "The service directory port. Omit it to print the command that finds it." },
+    ],
+    notes: ["Only needed when a device error says the CoreDevice service directory port was not found; the error prints the line to run."],
+  },
+  {
     name: "displays",
     category: "discovery",
     summary: "Show a simulator's screens, their sizes in points and orientation, the active one and the hinge angle.",
@@ -714,6 +728,21 @@ export const AXE_COMMANDS: AxeCommandEntry[] = [
       ...SELECTED,
     ],
     notes: ["Plain steps: tap, swipe, gesture, draw, touch, type, button, key, key-sequence, key-combo and sleep.", "Pass --udid once; a step with its own --udid is rejected."],
+  },
+  {
+    name: "serve",
+    category: "automation",
+    summary: "Run AXe commands from standard input against one simulator, one per line, in one process.",
+    requiresUdid: true,
+    supportsBatch: false,
+    supportsAgent: false,
+    supportsDevice: false,
+    flags: [{ ...SIM_UDID, description: "UDID of the booted simulator." }],
+    notes: [
+      "Write each command as you would type it after axe, without --udid. Each gets one JSON line on stdout, in order.",
+      "Commands: describe-ui, displays, screenshot, tap, swipe, drag, draw, type, button, key, key-sequence, key-combo, touch, gesture, slider, rotate and hinge. ping answers without touching the simulator.",
+      "Prints a ready line first and exits when standard input closes; logs go to stderr.",
+    ],
   },
   {
     name: "agent",

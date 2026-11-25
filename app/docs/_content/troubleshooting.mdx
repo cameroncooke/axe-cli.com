@@ -80,6 +80,8 @@ This affected commands sent straight after `button home` on Xcode 27.2 in earlie
 
 If a modal alert blocks the accessibility tree, close it on the device and read again.
 
+If `doctor` reports "The CoreDevice service directory port was not found", AXe could not see macOS's connection to the device. Some managed Macs hide network connections from programs that are not notarized, which includes the Homebrew build. The error ends with one line to paste in Terminal: it finds the port and passes it to `axe device-port`, which checks it with the device and saves it. AXe uses the saved port until the device's tunnel is recreated, for example after a restart or a reconnection. `axe device-port --udid "$DEVICE_UDID"` prints that line at any time.
+
 ## Settings
 
 `settingUnsupported` means the device, OS or Xcode lacks the setting: `axe settings` needs Xcode 27, status bar overrides are simulator-only, and iOS 27.2 offers one Liquid Glass style. After turning VoiceOver on and off, tap OK on the "VoiceOver Gestures" alert; it blocks input until you do.

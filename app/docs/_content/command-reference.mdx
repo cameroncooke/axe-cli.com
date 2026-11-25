@@ -181,6 +181,15 @@ axe batch --udid "$UDID" \
 
 See [Batch Automation](/docs/batch).
 
+### `serve`
+
+```shell
+axe serve --udid "$UDID"
+printf 'describe-ui\ntap --label General\n' | axe serve --udid "$UDID"
+```
+
+Keeps one process open and runs a command for each line of standard input, with one JSON line back for each. See [One process for many commands](/docs/batch#one-process-for-many-commands).
+
 ### `agent`
 
 ```shell

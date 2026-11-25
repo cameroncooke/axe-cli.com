@@ -101,6 +101,29 @@ axe batch --agent --view navigation --udid "$UDID" --steps-json '{"snapshotID":"
 
 Use it to fill a form, toggle several switches or pick options on one screen. See [Agent Mode](/docs/agent-mode#batches).
 
+## One process for many commands
+
+Every `axe` command starts a process, loads the simulator frameworks and finds the simulator before it does any work. A test harness that sends hundreds of commands can keep one process open with `axe serve`:
+
+```shell
+axe serve --udid "$UDID"
+```
+
+Write one command per line to its standard input, as you would type it after `axe` but without `--udid`. Each command gets one line on standard output: the JSON that `axe --output json <command>` prints, in order. `serve` prints a ready line first and exits when its standard input closes. Logs go to standard error.
+
+```text
+describe-ui --minimal-keys
+tap --label General
+ping
+```
+
+- **Commands.** `describe-ui`, `displays`, `screenshot`, `tap`, `swipe`, `drag`, `draw`, `type`, `button`, `key`, `key-sequence`, `key-combo`, `touch`, `gesture`, `slider`, `rotate` and `hinge`. `ping` answers without touching the simulator.
+- **Failures.** A failed or refused line gets its error reply, and `serve` carries on with the next line.
+- **Alongside other commands.** Each line takes the same route as the one-off command, so other `axe` commands can use the simulator while `serve` runs.
+- **Simulators only.**
+
+On an iPhone 17 Pro simulator with Settings open, reading the screen and then tapping took about 176 ms through `serve`, or 146 ms with `describe-ui --minimal-keys`, against about 290 ms with one-off commands.
+
 ## What a batch does not do
 
 - It does not check the app's response. Read the screen after the batch, or use `batch --agent`.
