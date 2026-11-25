@@ -215,10 +215,15 @@ export default function AXeLanding() {
             </span>
           </h1>
 
-          <p className="text-lg sm:text-xl text-axe-text-secondary max-w-3xl mx-auto mb-10 leading-relaxed">
-            One CLI that automates iOS simulators, including the dual-screen iPhone Duo simulator, and connected iPhones
-            and iPads, from scripts, CI jobs and any coding agent. Your agent tests its own work, AXe Mirror puts the
-            simulator in your hand, and Builds puts the real app on your phone.
+          <p className="text-xl sm:text-2xl text-axe-text-primary mb-4 leading-snug">
+            Your agent tests its own work.
+            <br />
+            Your simulator, in your hand.
+            <br />
+            The real app, on your phone.
+          </p>
+          <p className="text-base text-axe-text-muted max-w-xl mx-auto mb-10">
+            One CLI for simulators and devices. Works with any agent, in scripts and in CI.
           </p>
 
           <div className="mx-auto mb-8 flex max-w-xl items-center gap-2 rounded-xl border border-axe-dark-600/60 bg-axe-dark-200/80 p-3 pl-4 font-mono text-sm terminal-glow">
